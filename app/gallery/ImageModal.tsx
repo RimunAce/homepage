@@ -48,7 +48,9 @@ export default function ImageModal({ image, onClose }: ImageModalProps) {
               />
               {image.caption && (
                 <div className="absolute bottom-4 left-4 bg-retro-black bg-opacity-80 text-retro-white px-3 py-2 border-2 border-retro-white max-w-md">
-                  <p className="text-sm font-mono">"{image.caption}"</p>
+                  <p className="text-sm font-mono">
+                    &quot;{image.caption}&quot;
+                  </p>
                 </div>
               )}
             </div>

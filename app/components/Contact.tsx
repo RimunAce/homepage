@@ -1,11 +1,15 @@
 "use client";
 
+import Image from "next/image";
+
 export default function Contact() {
   return (
     <section id="contact" className="retro-card relative overflow-visible">
-      <img
+      <Image
         src="https://cdn.apis.rocks/images/teto.png"
         alt="Character"
+        width={208}
+        height={208}
         className="absolute -right-4 -bottom-6 z-50 pointer-events-none w-32 h-auto sm:w-36 sm:-right-6 sm:-bottom-8 md:w-44 md:-right-8 md:-bottom-10 lg:w-52 lg:-right-10 lg:-bottom-12"
       />
       <h2 className="retro-heading">CONTACT</h2>

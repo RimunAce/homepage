@@ -26,8 +26,8 @@ export default function Bio() {
             </span>
           </p>
           <p>
-            The old respire.my was too overdone. Let's change the mood a bit.
-            Welcome to this new one. You can still check the old web here:{" "}
+            The old respire.my was too overdone. Let&apos;s change the mood a
+            bit. Welcome to this new one. You can still check the old web here:{" "}
             <a
               href="https://other.respire.my"
               target="_blank"
