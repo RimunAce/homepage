@@ -1,0 +1,26 @@
+[
+  {
+    "id": "mesmerizer",
+    "title": "Mesmerizer",
+    "thumbnail": "https://cdn.apis.rocks/music-storage/%E3%83%A1%E3%82%BA%E3%83%9E%E3%83%A9%E3%82%A4%E3%82%B6%E3%83%BC%20%20%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%83%BB%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.png",
+    "audio": "https://cdn.apis.rocks/music-storage/%E3%83%A1%E3%82%BA%E3%83%9E%E3%83%A9%E3%82%A4%E3%82%B6%E3%83%BC%20%20%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%83%BB%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.mp3",
+    "author": "32ki",
+    "authorUrl": "https://www.youtube.com/channel/UCtmi2O7lp0C_i53hFIExAaA"
+  },
+  {
+    "id": "candy-cookie-chocolate",
+    "title": "CandyCookieChocolate",
+    "thumbnail": "https://cdn.apis.rocks/music-storage/%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%87%E3%82%A3%E3%83%BC%E3%82%AF%E3%83%83%E3%82%AD%E3%83%BC%E3%83%81%E3%83%A7%E3%82%B3%E3%83%AC%E3%83%BC%E3%83%88%E3%80%80%F0%9F%8D%AD%F0%9F%8D%AA%F0%9F%8D%AB%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%83%BB%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.png",
+    "audio": "https://cdn.apis.rocks/music-storage/%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%87%E3%82%A3%E3%83%BC%E3%82%AF%E3%83%83%E3%82%AD%E3%83%BC%E3%83%81%E3%83%A7%E3%82%B3%E3%83%AC%E3%83%BC%E3%83%88%E3%80%80%F0%9F%8D%AD%F0%9F%8D%AA%F0%9F%8D%AB%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%83%BB%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.mp3",
+    "author": "Hallo Cel",
+    "authorUrl": "https://www.youtube.com/channel/UCzSSgepHcIeSH3SgVwUHBNw"
+  },
+  {
+    "id": "odochina",
+    "title": "Odochina",
+    "thumbnail": "https://cdn.apis.rocks/music-storage/%E8%B8%8A%E3%81%A3%E3%83%81%E3%83%A3%E3%82%A4%E3%83%8A%20%20%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%2C%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.png",
+    "audio": "https://cdn.apis.rocks/music-storage/%E8%B8%8A%E3%81%A3%E3%83%81%E3%83%A3%E3%82%A4%E3%83%8A%20%20%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%2C%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.mp3",
+    "author": "Atena",
+    "authorUrl": "https://www.youtube.com/channel/UCSVe_NzxYvegv-f5pWBbS5A"
+  }
+]

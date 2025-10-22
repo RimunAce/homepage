@@ -1,0 +1,83 @@
+[
+  {
+    "title": "DeepSeek Chat Exporter",
+    "description": "Made this browser extension because of me schizoing with DeepSeek almost every time so I fell in love with it. I might just make my own PDF (or JSON) exporter for chat.deepseek.com.",
+    "tech": ["Extension", "Javascript"],
+    "status": "Active",
+    "link": "https://github.com/RimunAce/deepseek-chat-exporter",
+    "date": "1/22/2025",
+    "thumbnail": "https://cdn.apis.rocks/images/vivaldi_sw8JCfUiFW.png"
+  },
+  {
+    "title": "File2",
+    "description": "A simple file hosting service with S3 storage backend. Made as a side-project for those who love catbox and pomf.se clones.",
+    "tech": ["GO", "S3", "TypeScript"],
+    "status": "Active",
+    "link": "https://file2.app/",
+    "date": "1/9/2025",
+    "thumbnail": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-5olxIncpE03K3gftNRw7zLnzpOO0XO.png"
+  },
+  {
+    "title": "Tav-AI",
+    "description": "Next generation API service based on Rimunace API v3.0.0. Collaboration with zhipeng_lin using Elysia.js + Bun stack.",
+    "tech": ["Elysia.js", "Bun", "TypeScript"],
+    "status": "Active",
+    "link": "https://tav-ai.xyz/",
+    "date": "5/8/2025",
+    "thumbnail": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-WGml1xc7bsSuIZ0CSsrJqYkA390AQE.png"
+  },
+  {
+    "title": "BeBoxed",
+    "description": "2nd version with Appwrite Authentication. Storage using Storage Block attached to the server. Not the best, but honest work.",
+    "tech": ["Appwrite", "Next.js", "TypeScript"],
+    "status": "Active",
+    "link": "https://beboxed.net/",
+    "date": "3/18/2025",
+    "thumbnail": "https://www.respire.my/images/beboxed-preview.png"
+  },
+  {
+    "title": "BeReader",
+    "description": "Seamless and distraction-free reading environment with auth system, settings, and followers/following. Inspired by X/Twitter and GitHub.",
+    "tech": ["React", "Next.js", "Supabase"],
+    "status": "Archived",
+    "link": "https://bereader.net/",
+    "date": "3/17/2025",
+    "thumbnail": "https://www.respire.my/images/bereader-preview.png"
+  },
+  {
+    "title": "BePasted",
+    "description": "Pastebin clone with functionality and simplicity in mind. Text and code snippet sharing service inspired by Pastefy.",
+    "tech": ["Next.js", "Monaco Editor", "TypeScript"],
+    "status": "Archived",
+    "link": "https://bepasted.com/",
+    "date": "3/3/2025",
+    "thumbnail": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-sRKCP39nSieWC3pN0myp7JCAWFw7np.png"
+  },
+  {
+    "title": "Apis.Rocks",
+    "description": "API Service for personal use and open-sourced. Now using NodeJS with Elysia framework instead of Golang.",
+    "tech": ["Elysia.js", "Bun", "TypeScript"],
+    "status": "Archived",
+    "link": "https://apis.rocks/",
+    "date": "3/1/2025",
+    "thumbnail": "https://www.respire.my/images/apis-rocks-preview.png"
+  },
+  {
+    "title": "Rimunace API",
+    "description": "API Service under Respy.Tech offering various utilities, QoL endpoints, and AI endpoints with Claude, GPT, Gemini, DeepSeek R1, and Llama 3.1.",
+    "tech": ["NestJS", "Fastify", "TypeScript"],
+    "status": "Archived",
+    "link": "https://api.rimunace.xyz/",
+    "date": "8/1/2024",
+    "thumbnail": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-8oD1Erk3wS4Cha0vzcSaU1DGvZrhDr.png"
+  },
+  {
+    "title": "Respy.Tech",
+    "description": "First ever website that started it all. A minimalist dark-themed website showcasing API services with modern 3D elements.",
+    "tech": ["Next.js", "Three.js", "TypeScript"],
+    "status": "Archived",
+    "link": "https://respy.tech/",
+    "date": "7/19/2024",
+    "thumbnail": "https://cdn.apis.rocks/respy-tech.jpeg"
+  }
+]
