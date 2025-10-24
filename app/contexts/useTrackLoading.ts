@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import type { Track } from "./useMusicPlayerState";
+import { DATA_URLS } from "@/app/lib/dataUrls";
 
 interface UseTrackLoadingParams {
   setTetoTracks: (tracks: Track[]) => void;
@@ -16,8 +17,8 @@ export function useTrackLoading({
 }: UseTrackLoadingParams) {
   useEffect(() => {
     Promise.all([
-      fetch("/data/music.json").then((res) => res.json()),
-      fetch("/data/music-miku.json").then((res) => res.json()),
+      fetch(DATA_URLS.music).then((res) => res.json()),
+      fetch(DATA_URLS.musicMiku).then((res) => res.json()),
     ]).then(([tetoData, mikuData]) => {
       setTetoTracks(tetoData);
       setMikuTracks(mikuData);

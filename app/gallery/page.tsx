@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Background from "../components/Background";
+import Background from "@/app/components/Background";
 import GalleryHeader from "./GalleryHeader";
 import ScrollingBanner from "./ScrollingBanner";
 import GalleryNav from "./GalleryNav";
 import GalleryGrid from "./GalleryGrid";
 import ImageModal from "./ImageModal";
+import { DATA_URLS } from "@/app/lib/dataUrls";
 
 interface GalleryImage {
   url: string;
@@ -20,7 +21,7 @@ export default function Gallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
 
   useEffect(() => {
-    fetch("/data/gallery.json")
+    fetch(DATA_URLS.gallery)
       .then((res) => res.json())
       .then((data) => setImages(data));
   }, []);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { DATA_URLS } from "@/app/lib/dataUrls";
 
 interface Update {
   date: string;
@@ -12,7 +13,7 @@ export default function Updates() {
   const [updates, setUpdates] = useState<Update[]>([]);
 
   useEffect(() => {
-    fetch("/data/updates.json")
+    fetch(DATA_URLS.updates)
       .then((res) => res.json())
       .then((data) => setUpdates(data))
       .catch((error) => console.error("Error loading updates:", error));

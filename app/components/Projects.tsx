@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { DATA_URLS } from "@/app/lib/dataUrls";
 
 interface Project {
   title: string;
@@ -17,7 +18,7 @@ export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    fetch("/data/projects.json")
+    fetch(DATA_URLS.projects)
       .then((res) => res.json())
       .then((data) => setProjects(data))
       .catch((error) => console.error("Error loading projects:", error));
