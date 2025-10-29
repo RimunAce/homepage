@@ -28,7 +28,11 @@ export default function Gallery() {
   }, []);
 
   // Extract all image URLs for preloading
-  const imageUrls = useMemo(() => images.map((img) => img.url), [images]);
+  // Only recalculate imageUrls if the image URLs actually change
+  const imageUrls = useMemo(
+    () => images.map((img) => img.url),
+    [images]
+  );
 
   // Preload all gallery images
   const preloadStatus = useImagePreloader(imageUrls);
