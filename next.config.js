@@ -26,6 +26,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "beboxed.net",
       },
+      {
+        protocol: "https",
+        hostname: "other.respire.my",
+      }
     ],
   },
 };

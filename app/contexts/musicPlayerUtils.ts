@@ -24,5 +24,5 @@ export function getMinecraftAuthorUrl(): string {
 }
 
 export function getMinecraftThumbnail(): string {
-  return "https://cdn.apis.rocks/music-storage/Minecraft%E3%81%AE%E5%8A%B9%E6%9F%9C%E9%9F%B3%E3%81%A7%E3%82%B5%E3%82%A4%E3%82%A8%E3%83%B3%E3%82%B9.png";
+  return "https://cdn.apis.rocks/music-storage/Minecraft%E3%81%AE%E5%8A%B9%E6%9E%9C%E9%9F%B3%E3%81%A7%E3%82%B5%E3%82%A4%E3%82%A8%E3%83%B3%E3%82%B9.png";
 }

@@ -45,6 +45,7 @@ export default function ImageModal({ image, onClose }: ImageModalProps) {
                 width={1920}
                 height={1080}
                 className="max-w-full max-h-[90vh] w-auto h-auto object-contain"
+                priority
               />
               {image.caption && (
                 <div className="absolute bottom-4 left-4 bg-retro-black bg-opacity-80 text-retro-white px-3 py-2 border-2 border-retro-white max-w-md">
