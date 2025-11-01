@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Background from "../components/Background";
+import DOMPurify from "dompurify";
 
 interface AniListUser {
   id: number;
@@ -91,6 +92,13 @@ export default function AniListPage() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("NONE");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const itemsPerPage = 10;
+
+  // Sanitize user.about with DOMPurify and create a plain-text truncated preview
+  const aboutPreview = useMemo(() => {
+    if (!user?.about) return null;
+    const plain = DOMPurify.sanitize(user.about, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+    return plain.length > 200 ? `${plain.slice(0, 200)}...` : plain;
+  }, [user?.about]);
 
   useEffect(() => {
     loadDataWithCache();
@@ -512,11 +520,12 @@ export default function AniListPage() {
                 </div>
                 <div className="flex-grow">
                   <h2 className="text-2xl font-bold mb-2">{user.name}</h2>
-                  {user.about && (
+                  {aboutPreview && (
                     <div
                       className="retro-text mb-4 p-3 bg-retro-gray border-2 border-retro-black max-h-32 overflow-y-auto"
-                      dangerouslySetInnerHTML={{ __html: user.about.substring(0, 200) + "..." }}
-                    />
+                    >
+                      {aboutPreview}
+                    </div>
                   )}
                   <a
                     href={`https://anilist.co/user/${user.name}/`}
