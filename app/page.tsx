@@ -61,6 +61,14 @@ export default function Home() {
                 GALLERY
               </motion.a>
             </Link>
+            <Link href="/anilist" passHref legacyBehavior>
+              <motion.a
+                className="retro-button text-sm"
+                whileTap={{ scale: 0.95 }}
+              >
+                MY ANILIST
+              </motion.a>
+            </Link>
           </div>
         </div>
       </nav>
