@@ -1,12 +1,12 @@
 {
   "name": "respire",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "author": "RimunAce",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RimunAce/respire.my"
+    "url": "https://github.com/RimunAce/homepage"
   },
   "scripts": {
     "dev": "next dev",
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.6.11",
+    "dompurify": "^3.3.0",
     "framer-motion": "^11.5.6",
     "next": "^14.2.33",
     "react": "^18",
