@@ -22,4 +22,4 @@
 
 These are now remotely loaded so this remain as a remnant of the past.
 
-<img src="https://preview.redd.it/keep-it-simple-stupid-v0-9lz5p3gyz5sf1.png?auto=webp&s=c470baa46bba7abc570affb3e74a01a5e2cd3c49" alt="keep it simple stupid" width="200"/>
+<img src="https://storage.file2.app/files/lcnGuH5t" alt="www" width="200"/>
