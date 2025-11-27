@@ -341,11 +341,11 @@ export default function AniListPage() {
   // Filter and sort media items
   const filteredAndSortedItems = useMemo(() => {
     const items = activeTab === "anime" ? animeList : mangaList;
-    
+
     // Apply status filter
     let filtered = items;
     if (statusFilter !== "ALL") {
-      filtered = items.filter(item => 
+      filtered = items.filter(item =>
         item.mediaListEntry?.status === statusFilter
       );
     }
@@ -370,22 +370,22 @@ export default function AniListPage() {
     let sorted = [...filtered];
     switch (sortOrder) {
       case "TITLE_ASC":
-        sorted.sort((a, b) => 
+        sorted.sort((a, b) =>
           (a.title.english || a.title.romaji).localeCompare(b.title.english || b.title.romaji)
         );
         break;
       case "TITLE_DESC":
-        sorted.sort((a, b) => 
+        sorted.sort((a, b) =>
           (b.title.english || b.title.romaji).localeCompare(a.title.english || a.title.romaji)
         );
         break;
       case "SCORE_ASC":
-        sorted.sort((a, b) => 
+        sorted.sort((a, b) =>
           (a.mediaListEntry?.score || 0) - (b.mediaListEntry?.score || 0)
         );
         break;
       case "SCORE_DESC":
-        sorted.sort((a, b) => 
+        sorted.sort((a, b) =>
           (b.mediaListEntry?.score || 0) - (a.mediaListEntry?.score || 0)
         );
         break;
@@ -467,6 +467,11 @@ export default function AniListPage() {
             <Link href="/anilist" passHref legacyBehavior>
               <motion.a className="retro-button text-sm" whileTap={{ scale: 0.95 }}>
                 MY ANILIST
+              </motion.a>
+            </Link>
+            <Link href="/music" passHref legacyBehavior>
+              <motion.a className="retro-button text-sm" whileTap={{ scale: 0.95 }}>
+                MUSIC PLAYER
               </motion.a>
             </Link>
           </div>
@@ -670,17 +675,15 @@ export default function AniListPage() {
                 {/* Tab Buttons */}
                 <div className="flex gap-2">
                   <button
-                    className={`retro-button text-sm ${
-                      activeTab === "anime" ? "bg-retro-black text-retro-white" : ""
-                    }`}
+                    className={`retro-button text-sm ${activeTab === "anime" ? "bg-retro-black text-retro-white" : ""
+                      }`}
                     onClick={() => setActiveTab("anime")}
                   >
                     📺 ANIME LIST
                   </button>
                   <button
-                    className={`retro-button text-sm ${
-                      activeTab === "manga" ? "bg-retro-black text-retro-white" : ""
-                    }`}
+                    className={`retro-button text-sm ${activeTab === "manga" ? "bg-retro-black text-retro-white" : ""
+                      }`}
                     onClick={() => setActiveTab("manga")}
                   >
                     📖 MANGA LIST
@@ -690,17 +693,15 @@ export default function AniListPage() {
                 {/* View Mode Toggle */}
                 <div className="flex gap-2">
                   <button
-                    className={`retro-button text-sm ${
-                      viewMode === "grid" ? "bg-retro-black text-retro-white" : ""
-                    }`}
+                    className={`retro-button text-sm ${viewMode === "grid" ? "bg-retro-black text-retro-white" : ""
+                      }`}
                     onClick={() => setViewMode("grid")}
                   >
                     ▦ GRID
                   </button>
                   <button
-                    className={`retro-button text-sm ${
-                      viewMode === "list" ? "bg-retro-black text-retro-white" : ""
-                    }`}
+                    className={`retro-button text-sm ${viewMode === "list" ? "bg-retro-black text-retro-white" : ""
+                      }`}
                     onClick={() => setViewMode("list")}
                   >
                     ☰ LIST
@@ -793,10 +794,10 @@ export default function AniListPage() {
                         {item.mediaListEntry?.status === "CURRENT" && (
                           <div className="absolute bottom-0 left-0 right-0 bg-retro-black bg-opacity-90 p-1">
                             <div className="h-2 bg-retro-gray border border-retro-white">
-                              <div 
+                              <div
                                 className="h-full bg-green-500"
-                                style={{ 
-                                  width: `${((item.mediaListEntry.progress || 0) / (item.episodes || item.chapters || 100)) * 100}%` 
+                                style={{
+                                  width: `${((item.mediaListEntry.progress || 0) / (item.episodes || item.chapters || 100)) * 100}%`
                                 }}
                               />
                             </div>
@@ -852,7 +853,7 @@ export default function AniListPage() {
                         </p>
                         <p className="text-xs text-gray-600 mt-1">
                           {item.mediaListEntry?.status}
-                          {item.mediaListEntry?.status === "CURRENT" && 
+                          {item.mediaListEntry?.status === "CURRENT" &&
                             ` • ${item.mediaListEntry.progress} / ${item.episodes || item.chapters || "?"}`
                           }
                         </p>

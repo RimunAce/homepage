@@ -30,6 +30,14 @@ export default function GalleryNav() {
               MY ANILIST
             </motion.a>
           </Link>
+          <Link href="/music" passHref legacyBehavior>
+            <motion.a
+              className="retro-button text-sm"
+              whileTap={{ scale: 0.95 }}
+            >
+              MUSIC PLAYER
+            </motion.a>
+          </Link>
         </div>
       </div>
     </nav>
