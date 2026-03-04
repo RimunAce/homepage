@@ -14,24 +14,32 @@ export default function Header() {
                 </div>
             </header>
 
-            {/* Scrolling Text Banner */}
+            {/* Scrolling Text Banner - CSS animation for GPU acceleration */}
             <div className="bg-retro-black text-retro-white py-1 overflow-hidden relative z-10">
-                <motion.div
-                    className="flex whitespace-nowrap text-xs font-mono"
-                    animate={{ x: ["0%", "-100%"] }}
-                    transition={{
-                        duration: 30,
-                        repeat: Infinity,
-                        ease: "linear",
-                        repeatType: "loop",
-                    }}
+                <div
+                    className="flex whitespace-nowrap text-xs font-mono banner-scroll"
+                    style={{ willChange: "transform" }}
                 >
-                    {Array.from({ length: 40 }, (_, i) => i).map((id) => (
+                    {Array.from({ length: 10 }, (_, i) => i).map((id) => (
                         <span key={`banner-${id}`} className="mx-4">
                             WE ARE NOT FINISHED //
                         </span>
                     ))}
-                </motion.div>
+                    {Array.from({ length: 10 }, (_, i) => i).map((id) => (
+                        <span key={`banner-dup-${id}`} className="mx-4">
+                            WE ARE NOT FINISHED //
+                        </span>
+                    ))}
+                </div>
+                <style jsx>{`
+                    @keyframes bannerScroll {
+                        0% { transform: translateX(0) translateZ(0); }
+                        100% { transform: translateX(-50%) translateZ(0); }
+                    }
+                    .banner-scroll {
+                        animation: bannerScroll 30s linear infinite;
+                    }
+                `}</style>
             </div>
 
             {/* Navigation */}
