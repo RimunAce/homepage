@@ -1,45 +1,27 @@
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { memo } from "react";
 
-export default function GalleryNav() {
+function GalleryNav() {
   return (
     <nav className="bg-retro-white border-b-2 border-retro-black relative z-10">
       <div className="max-w-6xl mx-auto px-4 py-2">
         <div className="flex flex-wrap gap-2">
-          <Link href="/" passHref legacyBehavior>
-            <motion.a
-              className="retro-button text-sm"
-              whileTap={{ scale: 0.95 }}
-            >
-              HOME
-            </motion.a>
+          <Link href="/" className="retro-button text-sm active:scale-95 transition-transform">
+            HOME
           </Link>
-          <Link href="/gallery" passHref legacyBehavior>
-            <motion.a
-              className="retro-button text-sm"
-              whileTap={{ scale: 0.95 }}
-            >
-              GALLERY
-            </motion.a>
+          <Link href="/gallery" className="retro-button text-sm active:scale-95 transition-transform">
+            GALLERY
           </Link>
-          <Link href="/anilist" passHref legacyBehavior>
-            <motion.a
-              className="retro-button text-sm"
-              whileTap={{ scale: 0.95 }}
-            >
-              MY ANILIST
-            </motion.a>
+          <Link href="/anilist" className="retro-button text-sm active:scale-95 transition-transform">
+            MY ANILIST
           </Link>
-          <Link href="/music" passHref legacyBehavior>
-            <motion.a
-              className="retro-button text-sm"
-              whileTap={{ scale: 0.95 }}
-            >
-              MUSIC PLAYER
-            </motion.a>
+          <Link href="/music" className="retro-button text-sm active:scale-95 transition-transform">
+            MUSIC PLAYER
           </Link>
         </div>
       </div>
     </nav>
   );
 }
+
+export default memo(GalleryNav);

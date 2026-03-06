@@ -17,7 +17,7 @@ interface MusicPlayerContextType {
   volume: number;
   isMinecraftMode: boolean;
   isMikuMode: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
   setCurrentTrack: (track: number) => void;
   setIsPlaying: (playing: boolean) => void;
   setCurrentTime: (time: number) => void;

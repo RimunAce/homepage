@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 interface UseAudioEventListenersParams {
-  audioRef: React.RefObject<HTMLAudioElement>;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
   currentTrack: number;
   tracksLength: number;
   setCurrentTrack: (track: number) => void;

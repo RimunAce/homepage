@@ -1,6 +1,6 @@
 {
   "name": "respire",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "private": false,
   "author": "RimunAce",
   "license": "MIT",
@@ -12,25 +12,25 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@nextui-org/react": "^2.6.11",
     "dompurify": "^3.3.0",
-    "framer-motion": "^11.5.6",
-    "next": "^14.2.33",
-    "react": "^18",
-    "react-dom": "^18"
+    "framer-motion": "^12.3.5",
+    "next": "16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
     "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.4",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"

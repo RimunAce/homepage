@@ -4,7 +4,7 @@ interface UseAudioSettingsParams {
   volume: number;
   currentTrack: number;
   isPlaying: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
   setIsMinecraftMode: (mode: boolean) => void;
 }
 

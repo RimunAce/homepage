@@ -7,7 +7,7 @@ interface UsePlayerHandlersParams {
   isPlaying: boolean;
   currentTime: number;
   isMinecraftMode: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
   setCurrentTime: (time: number) => void;
   setIsMinecraftMode: (mode: boolean) => void;
 }

@@ -12,7 +12,7 @@ interface UseEffectsParams {
   isMikuMode: boolean;
   tetoTracks: Track[];
   mikuTracks: Track[];
-  audioRef: React.RefObject<HTMLAudioElement>;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
   previousMikuModeRef: React.MutableRefObject<boolean>;
   setTracks: (tracks: Track[]) => void;
   setTetoTracks: (tracks: Track[]) => void;

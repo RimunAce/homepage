@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, memo } from "react";
 
-export default function Background() {
+function Background() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef({ x: 0, y: 0 });
+  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       cursorRef.current = { x: e.clientX, y: e.clientY };
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
@@ -20,74 +20,97 @@ export default function Background() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.scale(dpr, dpr);
     };
 
     resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener("resize", resizeCanvas, { passive: true });
+
+    let lastCursorX = 0;
+    let lastCursorY = 0;
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const width = window.innerWidth;
+      const height = window.innerHeight;
 
-      ctx.fillStyle = "#FFB6C1";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Only redraw cursor gradient if cursor moved significantly
+      const cursorMoved =
+        Math.abs(cursorRef.current.x - lastCursorX) > 2 ||
+        Math.abs(cursorRef.current.y - lastCursorY) > 2;
 
-      const gridSize = 40;
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.lineWidth = 1;
+      if (cursorMoved) {
+        lastCursorX = cursorRef.current.x;
+        lastCursorY = cursorRef.current.y;
 
-      for (let x = 0; x < canvas.width; x += gridSize) {
+        // Clear and redraw
+        ctx.fillStyle = "#FFB6C1";
+        ctx.fillRect(0, 0, width, height);
+
+        // Grid - simplified
+        const gridSize = 40;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
+        for (let x = 0; x < width; x += gridSize) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+        }
+        for (let y = 0; y < height; y += gridSize) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+        }
         ctx.stroke();
+
+        // Vignette gradient
+        const gradient = ctx.createRadialGradient(
+          width / 2,
+          height / 2,
+          0,
+          width / 2,
+          height / 2,
+          Math.max(width, height) / 1.5
+        );
+        gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+        gradient.addColorStop(1, "rgba(0, 0, 0, 0.6)");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        // Cursor glow
+        const cursorGradient = ctx.createRadialGradient(
+          cursorRef.current.x,
+          cursorRef.current.y,
+          0,
+          cursorRef.current.x,
+          cursorRef.current.y,
+          200
+        );
+        cursorGradient.addColorStop(0, "rgba(255, 255, 255, 0.15)");
+        cursorGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+        ctx.fillStyle = cursorGradient;
+        ctx.fillRect(0, 0, width, height);
       }
 
-      for (let y = 0; y < canvas.height; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-      }
-
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        0,
-        canvas.width / 2,
-        canvas.height / 2,
-        Math.max(canvas.width, canvas.height) / 1.5
-      );
-      gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
-      gradient.addColorStop(1, "rgba(0, 0, 0, 0.6)");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const cursorGradient = ctx.createRadialGradient(
-        cursorRef.current.x,
-        cursorRef.current.y,
-        0,
-        cursorRef.current.x,
-        cursorRef.current.y,
-        200
-      );
-      cursorGradient.addColorStop(0, "rgba(255, 255, 255, 0.15)");
-      cursorGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-      ctx.fillStyle = cursorGradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      requestAnimationFrame(animate);
+      animationFrameRef.current = requestAnimationFrame(animate);
     };
 
+    // Initial draw
+    lastCursorX = -100;
     animate();
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, []);
 
@@ -99,85 +122,37 @@ export default function Background() {
         style={{ zIndex: 0 }}
       />
 
-      {/* Fog Layers - Multiple layers with different speeds */}
+      {/* Simplified fog using CSS animations - GPU accelerated */}
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         style={{ zIndex: 1 }}
       >
-        {/* Fog Layer 1 - Slow */}
-        <motion.div
-          className="absolute w-[200%] h-full"
-          animate={{ x: ["0%", "-100%"] }}
-          transition={{
-            duration: 60,
-            repeat: Infinity,
-            ease: "linear",
-            repeatType: "loop",
+        <div
+          className="fog-layer fog-layer-1"
+          style={{
+            position: "absolute",
+            width: "200%",
+            height: "100%",
+            background:
+              "radial-gradient(ellipse 600px 300px at 25% 50%, rgba(255,255,255,0.2) 0%, transparent 70%), " +
+              "radial-gradient(ellipse 500px 250px at 75% 30%, rgba(255,255,255,0.15) 0%, transparent 70%)",
+            animation: "fogMove 60s linear infinite",
+            willChange: "transform",
           }}
-          style={{ filter: "blur(40px)", opacity: 0.3 }}
-        >
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-[500px] h-[300px] bg-white rounded-full"
-              style={{
-                left: `${i * 25}%`,
-                top: `${20 + (i % 2) * 30}%`,
-                transform: `scale(${1 + (i % 2) * 0.5})`,
-              }}
-            />
-          ))}
-        </motion.div>
-
-        {/* Fog Layer 2 - Medium */}
-        <motion.div
-          className="absolute w-[200%] h-full"
-          animate={{ x: ["0%", "-100%"] }}
-          transition={{
-            duration: 45,
-            repeat: Infinity,
-            ease: "linear",
-            repeatType: "loop",
+        />
+        <div
+          className="fog-layer fog-layer-2"
+          style={{
+            position: "absolute",
+            width: "200%",
+            height: "100%",
+            background:
+              "radial-gradient(ellipse 400px 200px at 40% 70%, rgba(255,255,255,0.15) 0%, transparent 70%), " +
+              "radial-gradient(ellipse 450px 220px at 80% 40%, rgba(255,255,255,0.1) 0%, transparent 70%)",
+            animation: "fogMove 45s linear infinite",
+            willChange: "transform",
           }}
-          style={{ filter: "blur(30px)", opacity: 0.2 }}
-        >
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-[400px] h-[250px] bg-white rounded-full"
-              style={{
-                left: `${i * 20}%`,
-                top: `${30 + (i % 3) * 20}%`,
-                transform: `scale(${1.2 + (i % 2) * 0.3})`,
-              }}
-            />
-          ))}
-        </motion.div>
-
-        {/* Fog Layer 3 - Fast */}
-        <motion.div
-          className="absolute w-[200%] h-full"
-          animate={{ x: ["0%", "-100%"] }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-            repeatType: "loop",
-          }}
-          style={{ filter: "blur(50px)", opacity: 0.15 }}
-        >
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-[600px] h-[350px] bg-white rounded-full"
-              style={{
-                left: `${i * 17.5}%`,
-                top: `${10 + (i % 4) * 25}%`,
-                transform: `scale(${0.8 + (i % 3) * 0.4})`,
-              }}
-            />
-          ))}
-        </motion.div>
+        />
       </div>
 
       {/* Watermark Text */}
@@ -189,6 +164,19 @@ export default function Background() {
           respire.my
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fogMove {
+          from {
+            transform: translateX(0) translateZ(0);
+          }
+          to {
+            transform: translateX(-50%) translateZ(0);
+          }
+        }
+      `}</style>
     </>
   );
 }
+
+export default memo(Background);
