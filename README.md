@@ -21,5 +21,3 @@
 `public/data/updates` - the updates, very important
 
 These are now remotely loaded so this remain as a remnant of the past.
-
-<img src="https://storage.file2.app/files/lcnGuH5t" alt="www" width="200"/>
