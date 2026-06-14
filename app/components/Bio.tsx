@@ -16,6 +16,7 @@ export default function Bio() {
             alt="Respire"
             width={128}
             height={128}
+            loading="eager"
             className="w-full h-full object-cover"
           />
         </div>
