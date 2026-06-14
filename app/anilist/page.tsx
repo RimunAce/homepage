@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Background from "../components/Background";
 import DOMPurify from "dompurify";
 
@@ -99,112 +100,7 @@ export default function AniListPage() {
     return plain.length > 200 ? `${plain.slice(0, 200)}...` : plain;
   }, [user?.about]);
 
-  useEffect(() => {
-    loadDataWithCache();
-  }, []);
-
-  const loadDataWithCache = async () => {
-    // Try to load from cache first
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-      try {
-        const { data, timestamp } = JSON.parse(cached);
-        if (Date.now() - timestamp < CACHE_DURATION) {
-          setUser(data.user);
-          setActivities(data.activities);
-          setAnimeList(data.animeList);
-          setMangaList(data.mangaList);
-          return;
-        }
-      } catch (e) {
-        console.error("Cache parse error:", e);
-      }
-    }
-
-    // If no cache or expired, fetch fresh data
-    await fetchAniListData();
-  };
-
-  const fetchAniListData = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      await fetchUserProfile();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch AniList data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchUserProfile = async () => {
-    const query = `
-      query ($userName: String) {
-        User(name: $userName) {
-          id
-          name
-          about
-          avatar {
-            large
-            medium
-          }
-          bannerImage
-          statistics {
-            anime {
-              count
-              episodesWatched
-              meanScore
-            }
-            manga {
-              count
-              chaptersRead
-              meanScore
-            }
-          }
-        }
-      }
-    `;
-
-    const variables = { userName: "Reuzin" };
-    const response = await fetch("https://graphql.anilist.co", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      },
-      body: JSON.stringify({ query, variables }),
-    });
-
-    const data = await response.json();
-    if (data.errors) throw new Error(data.errors[0].message);
-    const userData = data.data.User;
-    setUser(userData);
-
-    // After getting user, fetch the rest of the data
-    try {
-      const [activitiesData, animeData, mangaData] = await Promise.all([
-        fetchActivitiesWithUserId(userData.id),
-        fetchMediaList("ANIME"),
-        fetchMediaList("MANGA")
-      ]);
-
-      // Cache the data
-      localStorage.setItem(CACHE_KEY, JSON.stringify({
-        data: {
-          user: userData,
-          activities: activitiesData,
-          animeList: animeData,
-          mangaList: mangaData
-        },
-        timestamp: Date.now()
-      }));
-    } catch (err) {
-      console.error("Error fetching additional data:", err);
-    }
-  };
-
-  const fetchActivitiesWithUserId = async (userId: number) => {
+  const fetchActivitiesWithUserId = useCallback(async (userId: number) => {
     const query = `
       query ($userId: Int, $page: Int, $perPage: Int) {
         Page(page: $page, perPage: $perPage) {
@@ -246,9 +142,9 @@ export default function AniListPage() {
     const activitiesData = data.data.Page.activities;
     setActivities(activitiesData);
     return activitiesData;
-  };
+  }, []);
 
-  const fetchMediaList = async (type: "ANIME" | "MANGA") => {
+  const fetchMediaList = useCallback(async (type: "ANIME" | "MANGA") => {
     const query = `
       query ($userName: String, $type: MediaType) {
         MediaListCollection(userName: $userName, type: $type) {
@@ -308,7 +204,108 @@ export default function AniListPage() {
       setMangaList(entries);
       return entries;
     }
-  };
+  }, []);
+
+  const fetchUserProfile = useCallback(async () => {
+    const query = `
+      query ($userName: String) {
+        User(name: $userName) {
+          id
+          name
+          about
+          avatar {
+            large
+            medium
+          }
+          bannerImage
+          statistics {
+            anime {
+              count
+              episodesWatched
+              meanScore
+            }
+            manga {
+              count
+              chaptersRead
+              meanScore
+            }
+          }
+        }
+      }
+    `;
+
+    const variables = { userName: "Reuzin" };
+    const response = await fetch("https://graphql.anilist.co", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({ query, variables }),
+    });
+
+    const data = await response.json();
+    if (data.errors) throw new Error(data.errors[0].message);
+    const userData = data.data.User;
+    setUser(userData);
+
+    try {
+      const [activitiesData, animeData, mangaData] = await Promise.all([
+        fetchActivitiesWithUserId(userData.id),
+        fetchMediaList("ANIME"),
+        fetchMediaList("MANGA")
+      ]);
+
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: {
+          user: userData,
+          activities: activitiesData,
+          animeList: animeData,
+          mangaList: mangaData
+        },
+        timestamp: Date.now()
+      }));
+    } catch (err) {
+      console.error("Error fetching additional data:", err);
+    }
+  }, [fetchActivitiesWithUserId, fetchMediaList]);
+
+  const fetchAniListData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await fetchUserProfile();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch AniList data");
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchUserProfile]);
+
+  const loadDataWithCache = useCallback(async () => {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      try {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_DURATION) {
+          setUser(data.user);
+          setActivities(data.activities);
+          setAnimeList(data.animeList);
+          setMangaList(data.mangaList);
+          return;
+        }
+      } catch (e) {
+        console.error("Cache parse error:", e);
+      }
+    }
+
+    await fetchAniListData();
+  }, [fetchAniListData]);
+
+  useEffect(() => {
+    loadDataWithCache();
+  }, [loadDataWithCache]);
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleDateString("en-US", {
@@ -524,9 +521,11 @@ export default function AniListPage() {
             <div className="retro-card">
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0">
-                  <img
+                  <Image
                     src={user.avatar.large}
                     alt={`${user.name}'s avatar`}
+                    width={128}
+                    height={128}
                     className="w-32 h-32 border-2 border-retro-black"
                     style={{ boxShadow: "2px 2px 0px #000000" }}
                   />
@@ -604,9 +603,11 @@ export default function AniListPage() {
                       className="group cursor-pointer"
                     >
                       <div className="relative w-full aspect-[2/3] border-2 border-retro-black overflow-hidden">
-                        <img
+                        <Image
                           src={item.coverImage.large}
                           alt={item.title.romaji}
+                          width={300}
+                          height={450}
                           className="w-full h-full object-cover transition-transform group-hover:scale-105"
                         />
                         <div className="absolute top-2 right-2 bg-yellow-400 border-2 border-retro-black px-2 py-1 text-xs font-bold">
@@ -633,9 +634,11 @@ export default function AniListPage() {
                       className="flex items-start gap-3 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors"
                     >
                       {activity.media && (
-                        <img
+                        <Image
                           src={activity.media.coverImage.large}
                           alt={activity.media.title.romaji}
+                          width={48}
+                          height={64}
                           className="w-12 h-16 object-cover border border-retro-black"
                         />
                       )}
@@ -794,9 +797,11 @@ export default function AniListPage() {
                       className="group cursor-pointer"
                     >
                       <div className="relative w-full aspect-[2/3] border-2 border-retro-black overflow-hidden">
-                        <img
+                        <Image
                           src={item.coverImage.large}
                           alt={item.title.romaji}
+                          width={300}
+                          height={450}
                           className="w-full h-full object-cover transition-transform group-hover:scale-105"
                         />
                         {item.mediaListEntry?.status === "CURRENT" && (
@@ -850,9 +855,11 @@ export default function AniListPage() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-4 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors"
                     >
-                      <img
+                      <Image
                         src={item.coverImage.large}
                         alt={item.title.romaji}
+                        width={64}
+                        height={96}
                         className="w-16 h-24 object-cover border border-retro-black"
                       />
                       <div className="flex-grow">

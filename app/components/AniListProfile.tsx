@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface AniListUser {
   id: number;
@@ -159,9 +160,11 @@ export default function AniListProfile({ isOpen, onClose }: AniListProfileProps)
               {/* Profile Header */}
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0">
-                  <img
+                  <Image
                     src={user.avatar.large}
                     alt={`${user.name}'s avatar`}
+                    width={128}
+                    height={128}
                     className="w-32 h-32 border-2 border-retro-black"
                     style={{ boxShadow: "2px 2px 0px #000000" }}
                   />
@@ -230,9 +233,11 @@ export default function AniListProfile({ isOpen, onClose }: AniListProfileProps)
               {user.bannerImage && (
                 <div className="mt-6">
                   <h4 className="retro-heading text-retro-black mb-4">Banner</h4>
-                  <img
+                  <Image
                     src={user.bannerImage}
                     alt={`${user.name}'s banner`}
+                    width={900}
+                    height={300}
                     className="w-full border-2 border-retro-black"
                     style={{ boxShadow: "2px 2px 0px #000000" }}
                   />

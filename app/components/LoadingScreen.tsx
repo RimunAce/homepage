@@ -1,33 +1,26 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 // Track if we've shown the loading screen already in this session
 const hasLoadedKey = "respire_initial_load";
 
 export default function LoadingScreen() {
-  const [isLoading, setIsLoading] = useState(false);
-  const hasChecked = useRef(false);
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window === "undefined") return false;
+    if (window.sessionStorage.getItem(hasLoadedKey)) return false;
+
+    window.sessionStorage.setItem(hasLoadedKey, "true");
+    return true;
+  });
 
   useEffect(() => {
-    // Only run once
-    if (hasChecked.current) return;
-    hasChecked.current = true;
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
 
-    // Check if this is the first load in this session
-    const hasLoaded = sessionStorage.getItem(hasLoadedKey);
-    
-    if (!hasLoaded) {
-      setIsLoading(true);
-      sessionStorage.setItem(hasLoadedKey, "true");
-      
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 1500);
-
-      return () => clearTimeout(timer);
-    }
+    return () => clearTimeout(timer);
   }, []);
 
   return (

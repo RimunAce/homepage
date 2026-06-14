@@ -28,6 +28,18 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "i.postimg.cc",
+      },
+      {
+        protocol: "https",
+        hostname: "s4.anilist.co",
+      },
+      {
+        protocol: "https",
+        hostname: "img.anilist.co",
+      },
+      {
+        protocol: "https",
         hostname: "other.respire.my",
       }
     ],
