@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import DOMPurify from "dompurify";
 
 interface AniListUser {
   id: number;
@@ -32,10 +33,16 @@ interface AniListProfileProps {
   onClose: () => void;
 }
 
+function sanitizeAbout(about: string | null) {
+  if (!about) return null;
+  return DOMPurify.sanitize(about);
+}
+
 export default function AniListProfile({ isOpen, onClose }: AniListProfileProps) {
   const [user, setUser] = useState<AniListUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const sanitizedAbout = useMemo(() => sanitizeAbout(user?.about ?? null), [user?.about]);
 
   useEffect(() => {
     if (isOpen) {
@@ -171,10 +178,10 @@ export default function AniListProfile({ isOpen, onClose }: AniListProfileProps)
                 </div>
                 <div className="flex-grow">
                   <h3 className="text-2xl font-bold mb-2">{user.name}</h3>
-                  {user.about && (
+                  {sanitizedAbout && (
                     <div 
                       className="retro-text mb-4 p-3 bg-retro-gray border-2 border-retro-black"
-                      dangerouslySetInnerHTML={{ __html: user.about }}
+                      dangerouslySetInnerHTML={{ __html: sanitizedAbout }}
                     />
                   )}
                   <a

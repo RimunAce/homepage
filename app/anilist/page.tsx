@@ -278,28 +278,18 @@ async function fetchAniListData(): Promise<AniListData> {
   const userResponse = await fetchAnilistGraphQL<UserApiResponse>(USER_PROFILE_QUERY, { userName: ANILIST_USERNAME });
   const user = userResponse.User;
 
-  try {
-    const [activitiesData, animeData, mangaData] = await Promise.all([
-      fetchActivities(user.id),
-      fetchMediaList("ANIME"),
-      fetchMediaList("MANGA"),
-    ]);
+  const [activitiesData, animeData, mangaData] = await Promise.all([
+    fetchActivities(user.id),
+    fetchMediaList("ANIME"),
+    fetchMediaList("MANGA"),
+  ]);
 
-    return {
-      user,
-      activities: activitiesData,
-      animeList: animeData,
-      mangaList: mangaData,
-    };
-  } catch (error) {
-    console.error("Error fetching additional data:", error);
-    return {
-      user,
-      activities: [],
-      animeList: [],
-      mangaList: [],
-    };
-  }
+  return {
+    user,
+    activities: activitiesData,
+    animeList: animeData,
+    mangaList: mangaData,
+  };
 }
 
 function saveAniListCache(data: AniListData) {
