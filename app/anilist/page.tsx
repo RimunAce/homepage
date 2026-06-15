@@ -70,66 +70,81 @@ interface MediaItem {
   };
 }
 
-interface MediaListEntry {
-  media: Omit<MediaItem, "mediaListEntry">;
+interface RawMediaListEntry {
   status: string;
   score: number;
   progress: number;
+  media: Omit<MediaItem, "mediaListEntry">;
 }
 
-interface AniListCache {
-  data: {
-    user: AniListUser;
-    activities: Activity[];
-    animeList: MediaItem[];
-    mangaList: MediaItem[];
+interface MediaListCollectionData {
+  MediaListCollection: {
+    lists: Array<{
+      entries: RawMediaListEntry[];
+    }>;
   };
-  timestamp: number;
 }
 
-interface UserResponse {
+interface UserApiResponse {
   User: AniListUser;
 }
 
-interface ActivitiesResponse {
+interface ActivityApiResponse {
   Page: {
     activities: Activity[];
   };
 }
 
-interface MediaListResponse {
-  MediaListCollection: {
-    lists: {
-      entries: MediaListEntry[];
-    }[];
-  };
+interface AniListData {
+  user: AniListUser;
+  activities: Activity[];
+  animeList: MediaItem[];
+  mangaList: MediaItem[];
 }
 
-interface AniListGraphQLError {
-  message?: string;
+interface CachedAniListData {
+  data: AniListData;
+  timestamp: number;
 }
 
-interface AniListGraphQLResponse<T> {
-  data: T;
-  errors?: AniListGraphQLError[];
+interface StatRow {
+  label: string;
+  value: string | number;
 }
 
-interface MediaListFilters {
+interface MediaFilterState {
   statusFilter: MediaStatus;
   genreFilter: string;
   searchQuery: string;
   sortOrder: SortOrder;
 }
 
+type GraphQLResponse<T> = {
+  data: T;
+  errors?: Array<{
+    message: string;
+  }>;
+};
+
 type MediaStatus = "ALL" | "CURRENT" | "COMPLETED" | "PAUSED" | "DROPPED" | "PLANNING" | "REPEATING";
 type SortOrder = "TITLE_ASC" | "TITLE_DESC" | "SCORE_ASC" | "SCORE_DESC" | "NONE";
 type ViewMode = "grid" | "list";
 
+const ANILIST_ENDPOINT = "https://graphql.anilist.co";
+const ANILIST_USERNAME = "Reuzin";
 const CACHE_KEY = "anilist_data_cache";
 const CACHE_DURATION = 5 * 60 * 1000;
-const PAGE_SIZE = 10;
-const ANILIST_GRAPHQL_URL = "https://graphql.anilist.co";
-const ANILIST_USER_NAME = "Reuzin";
+const ITEMS_PER_PAGE = 10;
+
+const STATUS_FILTER_OPTIONS: MediaStatus[] = ["ALL", "CURRENT", "COMPLETED", "PAUSED", "DROPPED", "PLANNING", "REPEATING"];
+
+const SORT_FILTER_OPTIONS: Array<{ value: SortOrder; label: string }> = [
+  { value: "NONE", label: "Default Order" },
+  { value: "TITLE_ASC", label: "Title (A-Z)" },
+  { value: "TITLE_DESC", label: "Title (Z-A)" },
+  { value: "SCORE_ASC", label: "Score (Low-High)" },
+  { value: "SCORE_DESC", label: "Score (High-Low)" },
+];
 
 const USER_PROFILE_QUERY = `
   query ($userName: String) {
@@ -212,8 +227,8 @@ const MEDIA_LIST_QUERY = `
   }
 `;
 
-const fetchAniListGraphQL = async <T,>(query: string, variables: Record<string, unknown>) => {
-  const response = await fetch(ANILIST_GRAPHQL_URL, {
+async function fetchAnilistGraphQL<T>(query: string, variables: Record<string, unknown>): Promise<T> {
+  const response = await fetch(ANILIST_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -222,124 +237,144 @@ const fetchAniListGraphQL = async <T,>(query: string, variables: Record<string, 
     body: JSON.stringify({ query, variables }),
   });
 
-  const data: AniListGraphQLResponse<T> = await response.json();
+  if (!response.ok) {
+    throw new Error(`AniList request failed (${response.status})`);
+  }
+
+  const data = (await response.json()) as GraphQLResponse<T>;
   if (data.errors?.length) {
-    throw new Error(data.errors[0].message || "AniList request failed");
+    throw new Error(data.errors[0].message);
   }
 
   return data.data;
-};
+}
 
-const fetchUserProfile = async () => {
-  const data = await fetchAniListGraphQL<UserResponse>(USER_PROFILE_QUERY, {
-    userName: ANILIST_USER_NAME,
-  });
-
-  if (!data.User) {
-    throw new Error("AniList user not found");
-  }
-
-  return data.User;
-};
-
-const fetchActivitiesWithUserId = async (userId: number) => {
-  const data = await fetchAniListGraphQL<ActivitiesResponse>(ACTIVITIES_QUERY, {
-    userId,
-    page: 1,
-    perPage: 10,
-  });
-
+async function fetchActivities(userId: number): Promise<Activity[]> {
+  const data = await fetchAnilistGraphQL<ActivityApiResponse>(ACTIVITIES_QUERY, { userId, page: 1, perPage: 10 });
   return data.Page.activities;
-};
+}
 
-const fetchMediaList = async (type: "ANIME" | "MANGA") => {
-  const data = await fetchAniListGraphQL<MediaListResponse>(MEDIA_LIST_QUERY, {
-    userName: ANILIST_USER_NAME,
-    type,
+async function fetchMediaList(type: "ANIME" | "MANGA"): Promise<MediaItem[]> {
+  const data = await fetchAnilistGraphQL<MediaListCollectionData>(MEDIA_LIST_QUERY, { userName: ANILIST_USERNAME, type });
+  const entries: MediaItem[] = [];
+
+  data.MediaListCollection.lists.forEach((list) => {
+    list.entries.forEach((entry) => {
+      entries.push({
+        ...entry.media,
+        mediaListEntry: {
+          status: entry.status,
+          score: entry.score,
+          progress: entry.progress,
+        },
+      });
+    });
   });
 
-  return data.MediaListCollection.lists.flatMap((list) =>
-    list.entries.map((entry) => ({
-      ...entry.media,
-      mediaListEntry: {
-        status: entry.status,
-        score: entry.score,
-        progress: entry.progress,
-      },
-    }))
-  );
-};
+  return entries;
+}
 
-const readCachedData = () => {
+async function fetchAniListData(): Promise<AniListData> {
+  const userResponse = await fetchAnilistGraphQL<UserApiResponse>(USER_PROFILE_QUERY, { userName: ANILIST_USERNAME });
+  const user = userResponse.User;
+
+  try {
+    const [activitiesData, animeData, mangaData] = await Promise.all([
+      fetchActivities(user.id),
+      fetchMediaList("ANIME"),
+      fetchMediaList("MANGA"),
+    ]);
+
+    return {
+      user,
+      activities: activitiesData,
+      animeList: animeData,
+      mangaList: mangaData,
+    };
+  } catch (error) {
+    console.error("Error fetching additional data:", error);
+    return {
+      user,
+      activities: [],
+      animeList: [],
+      mangaList: [],
+    };
+  }
+}
+
+function saveAniListCache(data: AniListData) {
+  localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
+}
+
+function loadCachedAniListData(): AniListData | null {
   try {
     const cached = localStorage.getItem(CACHE_KEY);
     if (!cached) return null;
 
-    const parsed = JSON.parse(cached) as AniListCache;
+    const parsed = JSON.parse(cached) as Partial<CachedAniListData>;
+    if (!parsed.data || typeof parsed.timestamp !== "number") return null;
     if (Date.now() - parsed.timestamp >= CACHE_DURATION) return null;
 
     return parsed.data;
-  } catch (e) {
-    console.error("Cache parse error:", e);
+  } catch (error) {
+    console.error("Cache parse error:", error);
     return null;
   }
-};
+}
 
-const getAboutPreview = (about: string | null | undefined) => {
+function sanitizeAbout(about: string | null) {
   if (!about) return null;
-
   const plain = DOMPurify.sanitize(about, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
   return plain.length > 200 ? `${plain.slice(0, 200)}...` : plain;
-};
+}
 
-const getActiveItems = (
-  activeTab: "anime" | "manga",
-  animeList: MediaItem[],
-  mangaList: MediaItem[]
-) => (activeTab === "anime" ? animeList : mangaList);
-
-const getMediaLabel = (activeTab: "anime" | "manga") => (activeTab === "anime" ? "anime" : "manga");
-
-const getDisplayTitle = (item: MediaItem) => item.title.english || item.title.romaji;
-
-const getMediaProgressTotal = (item: MediaItem) => item.episodes || item.chapters || 100;
-
-const getMediaScore = (item: MediaItem) => item.mediaListEntry?.score || 0;
-
-const getGenres = (items: MediaItem[]) => {
-  const genres = new Set<string>();
-  items.forEach((item) => {
-    item.genres?.forEach((genre) => genres.add(genre));
+function formatDate(timestamp: number) {
+  return new Date(timestamp * 1000).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
+}
+
+function getMediaItemsForTab(activeTab: "anime" | "manga", animeList: MediaItem[], mangaList: MediaItem[]) {
+  return activeTab === "anime" ? animeList : mangaList;
+}
+
+function getUniqueGenres(items: MediaItem[]) {
+  const genres = new Set<string>();
+  items.forEach((item) => item.genres?.forEach((genre) => genres.add(genre)));
   return Array.from(genres).sort();
-};
+}
 
-const getFavorites = (items: MediaItem[]) =>
-  items
-    .filter((item) => getMediaScore(item) >= 8)
-    .sort((a, b) => getMediaScore(b) - getMediaScore(a))
+function getFavorites(items: MediaItem[]) {
+  return items
+    .filter((item) => (item.mediaListEntry?.score || 0) >= 8)
+    .sort((a, b) => (b.mediaListEntry?.score || 0) - (a.mediaListEntry?.score || 0))
     .slice(0, 5);
+}
 
-const matchesStatus = (item: MediaItem, statusFilter: MediaStatus) =>
-  statusFilter === "ALL" || item.mediaListEntry?.status === statusFilter;
+function getDisplayTitle(item: MediaItem) {
+  return item.title.english || item.title.romaji;
+}
 
-const matchesGenre = (item: MediaItem, genreFilter: string) =>
-  genreFilter === "ALL" || item.genres?.includes(genreFilter);
+function filterAndSortMedia(items: MediaItem[], filters: MediaFilterState) {
+  let filtered = items;
 
-const matchesSearch = (item: MediaItem, searchQuery: string) => {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return true;
+  if (filters.statusFilter !== "ALL") {
+    filtered = filtered.filter((item) => item.mediaListEntry?.status === filters.statusFilter);
+  }
 
-  return (
-    item.title.romaji.toLowerCase().includes(query) ||
-    (item.title.english?.toLowerCase().includes(query) ?? false)
-  );
-};
+  if (filters.genreFilter !== "ALL") {
+    filtered = filtered.filter((item) => item.genres?.includes(filters.genreFilter));
+  }
 
-const sortMediaItems = (items: MediaItem[], sortOrder: SortOrder) => {
-  const sorted = [...items];
+  const query = filters.searchQuery.trim().toLowerCase();
+  if (query) {
+    filtered = filtered.filter((item) => getDisplayTitle(item).toLowerCase().includes(query));
+  }
 
-  switch (sortOrder) {
+  const sorted = [...filtered];
+  switch (filters.sortOrder) {
     case "TITLE_ASC":
       sorted.sort((a, b) => getDisplayTitle(a).localeCompare(getDisplayTitle(b)));
       break;
@@ -347,356 +382,306 @@ const sortMediaItems = (items: MediaItem[], sortOrder: SortOrder) => {
       sorted.sort((a, b) => getDisplayTitle(b).localeCompare(getDisplayTitle(a)));
       break;
     case "SCORE_ASC":
-      sorted.sort((a, b) => getMediaScore(a) - getMediaScore(b));
+      sorted.sort((a, b) => (a.mediaListEntry?.score || 0) - (b.mediaListEntry?.score || 0));
       break;
     case "SCORE_DESC":
-      sorted.sort((a, b) => getMediaScore(b) - getMediaScore(a));
+      sorted.sort((a, b) => (b.mediaListEntry?.score || 0) - (a.mediaListEntry?.score || 0));
       break;
   }
 
   return sorted;
-};
+}
 
-const getFilteredAndSortedItems = (items: MediaItem[], filters: MediaListFilters) => {
-  const filtered = items.filter(
-    (item) =>
-      matchesStatus(item, filters.statusFilter) &&
-      matchesGenre(item, filters.genreFilter) &&
-      matchesSearch(item, filters.searchQuery)
-  );
-
-  return sortMediaItems(filtered, filters.sortOrder);
-};
-
-const getPageItems = (items: MediaItem[], currentPage: number) => {
-  const startIndex = (currentPage - 1) * PAGE_SIZE;
-  const endIndex = startIndex + PAGE_SIZE;
+function getCurrentPageItems(items: MediaItem[], currentPage: number) {
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
   return items.slice(startIndex, endIndex);
-};
+}
 
-const getTotalPages = (items: MediaItem[]) => Math.ceil(items.length / PAGE_SIZE);
+function getProgressTotal(item: MediaItem) {
+  return item.episodes || item.chapters || 100;
+}
 
-const formatDate = (timestamp: number) => {
-  return new Date(timestamp * 1000).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
+function getProgressPercent(item: MediaItem) {
+  const total = getProgressTotal(item);
+  return Math.min(100, Math.max(0, ((item.mediaListEntry?.progress || 0) / total) * 100));
+}
 
-const SkeletonCard = () => (
-  <div className="animate-pulse">
-    <div className="w-full aspect-[2/3] bg-retro-gray border-2 border-retro-black"></div>
-    <div className="mt-2 space-y-2">
-      <div className="h-3 bg-retro-gray border border-retro-black"></div>
-      <div className="h-2 bg-retro-gray border border-retro-black w-2/3"></div>
+function getProgressLabel(item: MediaItem) {
+  return `${item.mediaListEntry?.progress || 0} / ${getProgressTotal(item)}`;
+}
+
+function PageHeader() {
+  return (
+    <header className="bg-retro-black text-retro-white py-2 px-4 relative z-10">
+      <div className="max-w-6xl mx-auto flex justify-between items-center">
+        <h1 className="text-lg font-bold">MY ANILIST</h1>
+        <span className="text-sm">KASANE</span>
+      </div>
+    </header>
+  );
+}
+
+function ScrollingBanner() {
+  return (
+    <div className="bg-retro-black text-retro-white py-1 overflow-hidden relative z-10">
+      <div className="scroll-banner flex whitespace-nowrap text-xs font-mono">
+        <span className="scroll-content">
+          {Array.from({ length: 20 }, (_, i) => (
+            <span key={`banner-${i}`} className="mx-4">
+              WE ARE NOT FINISHED //
+            </span>
+          ))}
+        </span>
+        <span className="scroll-content" aria-hidden="true">
+          {Array.from({ length: 20 }, (_, i) => (
+            <span key={`banner-dup-${i}`} className="mx-4">
+              WE ARE NOT FINISHED //
+            </span>
+          ))}
+        </span>
+      </div>
+      <style jsx>{`
+        .scroll-banner {
+          animation: scroll 30s linear infinite;
+          will-change: transform;
+        }
+        .scroll-content {
+          display: inline-block;
+        }
+        @keyframes scroll {
+          from {
+            transform: translateX(0) translateZ(0);
+          }
+          to {
+            transform: translateX(-50%) translateZ(0);
+          }
+        }
+      `}</style>
     </div>
-  </div>
-);
+  );
+}
 
-const LoadingState = () => (
-  <div className="space-y-6">
-    <div className="retro-card animate-pulse">
-      <div className="flex gap-6">
-        <div className="w-32 h-32 bg-retro-gray border-2 border-retro-black"></div>
-        <div className="flex-grow space-y-3">
-          <div className="h-6 bg-retro-gray border-2 border-retro-black w-1/3"></div>
-          <div className="h-20 bg-retro-gray border-2 border-retro-black"></div>
+function PageNavigation() {
+  return (
+    <nav className="bg-retro-white border-b-2 border-retro-black relative z-10">
+      <div className="max-w-6xl mx-auto px-4 py-2">
+        <div className="flex flex-wrap gap-2">
+          <Link href="/" className="retro-button text-sm active:scale-95 transition-transform">
+            HOME
+          </Link>
+          <Link href="/gallery" className="retro-button text-sm active:scale-95 transition-transform">
+            GALLERY
+          </Link>
+          <Link href="/anilist" className="retro-button text-sm active:scale-95 transition-transform">
+            MY ANILIST
+          </Link>
+          <Link href="/music" className="retro-button text-sm active:scale-95 transition-transform">
+            MUSIC PLAYER
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="animate-pulse">
+      <div className="w-full aspect-[2/3] bg-retro-gray border-2 border-retro-black"></div>
+      <div className="mt-2 space-y-2">
+        <div className="h-3 bg-retro-gray border border-retro-black"></div>
+        <div className="h-2 bg-retro-gray border border-retro-black w-2/3"></div>
+      </div>
+    </div>
+  );
+}
+
+function LoadingState() {
+  return (
+    <div className="space-y-6">
+      <div className="retro-card animate-pulse">
+        <div className="flex gap-6">
+          <div className="w-32 h-32 bg-retro-gray border-2 border-retro-black"></div>
+          <div className="flex-grow space-y-3">
+            <div className="h-6 bg-retro-gray border-2 border-retro-black w-1/3"></div>
+            <div className="h-20 bg-retro-gray border-2 border-retro-black"></div>
+          </div>
+        </div>
+      </div>
+      <div className="retro-card">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          {Array.from({ length: 10 }, (_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       </div>
     </div>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="bg-red-100 border-2 border-red-500 p-4 mb-4">
+      <p className="text-red-700 retro-text">Error: {message}</p>
+      <button className="retro-button mt-2 text-sm" onClick={onRetry}>
+        Retry
+      </button>
+    </div>
+  );
+}
+
+function ProfileSection({ user, aboutPreview }: { user: AniListUser; aboutPreview: string | null }) {
+  return (
     <div className="retro-card">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {[...Array(10)].map((_, i) => (
-          <SkeletonCard key={i} />
-        ))}
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex-shrink-0">
+          <Image
+            src={user.avatar.large}
+            alt={`${user.name}'s avatar`}
+            width={128}
+            height={128}
+            className="w-32 h-32 border-2 border-retro-black"
+            style={{ boxShadow: "2px 2px 0px #000000" }}
+          />
+        </div>
+        <div className="flex-grow">
+          <h2 className="text-2xl font-bold mb-2">{user.name}</h2>
+          {aboutPreview && (
+            <div className="retro-text mb-4 p-3 bg-retro-gray border-2 border-retro-black max-h-32 overflow-y-auto">
+              {aboutPreview}
+            </div>
+          )}
+          <a
+            href={`https://anilist.co/user/${user.name}/`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="retro-button inline-block text-sm"
+          >
+            Visit AniList Profile →
+          </a>
+        </div>
       </div>
-    </div>
-  </div>
-);
 
-const ErrorState = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
-  <div className="bg-red-100 border-2 border-red-500 p-4 mb-4">
-    <p className="text-red-700 retro-text">Error: {message}</p>
-    <button className="retro-button mt-2 text-sm" onClick={onRetry}>
-      Retry
-    </button>
-  </div>
-);
-
-const SiteHeader = () => (
-  <header className="bg-retro-black text-retro-white py-2 px-4 relative z-10">
-    <div className="max-w-6xl mx-auto flex justify-between items-center">
-      <h1 className="text-lg font-bold">MY ANILIST</h1>
-      <span className="text-sm">KASANE</span>
-    </div>
-  </header>
-);
-
-const ScrollingBanner = () => (
-  <div className="bg-retro-black text-retro-white py-1 overflow-hidden relative z-10">
-    <div className="scroll-banner flex whitespace-nowrap text-xs font-mono">
-      <span className="scroll-content">
-        {Array.from({ length: 20 }, (_, i) => (
-          <span key={`banner-${i}`} className="mx-4">
-            WE ARE NOT FINISHED //
-          </span>
-        ))}
-      </span>
-      <span className="scroll-content" aria-hidden="true">
-        {Array.from({ length: 20 }, (_, i) => (
-          <span key={`banner-dup-${i}`} className="mx-4">
-            WE ARE NOT FINISHED //
-          </span>
-        ))}
-      </span>
-    </div>
-    <style jsx>{`
-      .scroll-banner {
-        animation: scroll 30s linear infinite;
-        will-change: transform;
-      }
-      .scroll-content {
-        display: inline-block;
-      }
-      @keyframes scroll {
-        from {
-          transform: translateX(0) translateZ(0);
-        }
-        to {
-          transform: translateX(-50%) translateZ(0);
-        }
-      }
-    `}</style>
-  </div>
-);
-
-const SiteNav = () => (
-  <nav className="bg-retro-white border-b-2 border-retro-black relative z-10">
-    <div className="max-w-6xl mx-auto px-4 py-2">
-      <div className="flex flex-wrap gap-2">
-        <Link href="/" className="retro-button text-sm active:scale-95 transition-transform">
-          HOME
-        </Link>
-        <Link href="/gallery" className="retro-button text-sm active:scale-95 transition-transform">
-          GALLERY
-        </Link>
-        <Link href="/anilist" className="retro-button text-sm active:scale-95 transition-transform">
-          MY ANILIST
-        </Link>
-        <Link href="/music" className="retro-button text-sm active:scale-95 transition-transform">
-          MUSIC PLAYER
-        </Link>
-      </div>
-    </div>
-  </nav>
-);
-
-interface StatBlockProps {
-  title: string;
-  totalLabel: string;
-  total: number;
-  detailLabel: string;
-  detail: number;
-  meanScore: number;
-}
-
-const StatBlock = ({ title, totalLabel, total, detailLabel, detail, meanScore }: StatBlockProps) => (
-  <div className="p-4 bg-retro-gray border-2 border-retro-black">
-    <h3 className="retro-heading text-sm mb-3">{title}</h3>
-    <div className="space-y-1 retro-text text-xs">
-      <div className="flex justify-between">
-        <span>{totalLabel}</span>
-        <span className="font-bold">{total}</span>
-      </div>
-      <div className="flex justify-between">
-        <span>{detailLabel}</span>
-        <span className="font-bold">{detail}</span>
-      </div>
-      <div className="flex justify-between">
-        <span>Mean Score:</span>
-        <span className="font-bold">{meanScore || "N/A"}</span>
-      </div>
-    </div>
-  </div>
-);
-
-interface ProfileSectionProps {
-  user: AniListUser;
-  aboutPreview: string | null;
-}
-
-const ProfileSection = ({ user, aboutPreview }: ProfileSectionProps) => (
-  <div className="retro-card">
-    <div className="flex flex-col md:flex-row gap-6">
-      <div className="flex-shrink-0">
-        <Image
-          src={user.avatar.large}
-          alt={`${user.name}'s avatar`}
-          width={128}
-          height={128}
-          className="w-32 h-32 border-2 border-retro-black"
-          style={{ boxShadow: "2px 2px 0px #000000" }}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <StatPanel
+          title="ANIME STATS"
+          stats={[
+            { label: "Total:", value: user.statistics.anime.count },
+            { label: "Episodes:", value: user.statistics.anime.episodesWatched },
+            { label: "Mean Score:", value: user.statistics.anime.meanScore || "N/A" },
+          ]}
+        />
+        <StatPanel
+          title="MANGA STATS"
+          stats={[
+            { label: "Total:", value: user.statistics.manga.count },
+            { label: "Chapters:", value: user.statistics.manga.chaptersRead },
+            { label: "Mean Score:", value: user.statistics.manga.meanScore || "N/A" },
+          ]}
         />
       </div>
-      <div className="flex-grow">
-        <h2 className="text-2xl font-bold mb-2">{user.name}</h2>
-        {aboutPreview && (
-          <div className="retro-text mb-4 p-3 bg-retro-gray border-2 border-retro-black max-h-32 overflow-y-auto">
-            {aboutPreview}
+    </div>
+  );
+}
+
+function StatPanel({ title, stats }: { title: string; stats: StatRow[] }) {
+  return (
+    <div className="p-4 bg-retro-gray border-2 border-retro-black">
+      <h3 className="retro-heading text-sm mb-3">{title}</h3>
+      <div className="space-y-1 retro-text text-xs">
+        {stats.map((stat) => (
+          <div className="flex justify-between" key={stat.label}>
+            <span>{stat.label}</span>
+            <span className="font-bold">{stat.value}</span>
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FavoritesSection({ favorites }: { favorites: MediaItem[] }) {
+  if (favorites.length === 0) return null;
+
+  return (
+    <div className="retro-card">
+      <h3 className="retro-heading mb-4">⭐ FAVORITES (8+ SCORE)</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        {favorites.map((item) => (
+          <MediaCard key={item.id} item={item} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RecentActivities({ activities }: { activities: Activity[] }) {
+  return (
+    <div className="retro-card">
+      <h3 className="retro-heading mb-4">RECENT ACTIVITIES</h3>
+      <div className="space-y-3">
+        {activities.length > 0 ? (
+          activities.map((activity) => (
+            <ActivityItem key={activity.id} activity={activity} />
+          ))
+        ) : (
+          <p className="retro-text text-center py-4">No recent activities</p>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ActivityItem({ activity }: { activity: Activity }) {
+  return (
+    <div className="flex items-start gap-3 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors">
+      {activity.media && (
+        <Image
+          src={activity.media.coverImage.large}
+          alt={activity.media.title.romaji}
+          width={48}
+          height={64}
+          className="w-12 h-16 object-cover border border-retro-black"
+        />
+      )}
+      <div className="flex-grow">
+        <p className="retro-text text-xs">
+          {activity.status && <span className="font-bold">{activity.status}</span>}
+          {activity.progress && ` ${activity.progress}`}
+          {activity.media && (
+            <>
+              {" of "}
+              <a href={activity.media.siteUrl} target="_blank" rel="noopener noreferrer" className="retro-link">
+                {activity.media.title.romaji}
+              </a>
+            </>
+          )}
+        </p>
+        <p className="text-xs text-gray-600 mt-1">{formatDate(activity.createdAt)}</p>
         <a
-          href={`https://anilist.co/user/${user.name}/`}
+          href={`https://anilist.co/activity/${activity.id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="retro-button inline-block text-sm"
+          className="text-xs text-blue-600 mt-1 inline-block hover:underline"
         >
-          Visit AniList Profile →
+          View activity →
         </a>
       </div>
     </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-      <StatBlock
-        title="ANIME STATS"
-        totalLabel="Total:"
-        total={user.statistics.anime.count}
-        detailLabel="Episodes:"
-        detail={user.statistics.anime.episodesWatched}
-        meanScore={user.statistics.anime.meanScore}
-      />
-      <StatBlock
-        title="MANGA STATS"
-        totalLabel="Total:"
-        total={user.statistics.manga.count}
-        detailLabel="Chapters:"
-        detail={user.statistics.manga.chaptersRead}
-        meanScore={user.statistics.manga.meanScore}
-      />
-    </div>
-  </div>
-);
-
-interface FavoritesSectionProps {
-  favorites: MediaItem[];
-  activeTab: "anime" | "manga";
+  );
 }
 
-const FavoritesSection = ({ favorites, activeTab }: FavoritesSectionProps) => (
-  <div className="retro-card">
-    <h3 className="retro-heading mb-4">{getMediaLabel(activeTab).toUpperCase()} FAVORITES (8+ SCORE)</h3>
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-      {favorites.map((item) => (
-        <a
-          key={item.id}
-          href={item.siteUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group cursor-pointer"
-        >
-          <div className="relative w-full aspect-[2/3] border-2 border-retro-black overflow-hidden">
-            <Image
-              src={item.coverImage.large}
-              alt={item.title.romaji}
-              width={300}
-              height={450}
-              className="w-full h-full object-cover transition-transform group-hover:scale-105"
-            />
-            <div className="absolute top-2 right-2 bg-yellow-400 border-2 border-retro-black px-2 py-1 text-xs font-bold">
-              {item.mediaListEntry?.score}
-            </div>
-          </div>
-          <p className="retro-text text-xs font-bold truncate mt-2 group-hover:text-blue-600">
-            {getDisplayTitle(item)}
-          </p>
-        </a>
-      ))}
-    </div>
-  </div>
-);
-
-interface RecentActivitiesProps {
-  activities: Activity[];
-}
-
-const RecentActivities = ({ activities }: RecentActivitiesProps) => (
-  <div className="retro-card">
-    <h3 className="retro-heading mb-4">RECENT ACTIVITIES</h3>
-    <div className="space-y-3">
-      {activities.length > 0 ? (
-        activities.map((activity) => (
-          <div
-            key={activity.id}
-            className="flex items-start gap-3 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors"
-          >
-            {activity.media && (
-              <Image
-                src={activity.media.coverImage.large}
-                alt={activity.media.title.romaji}
-                width={48}
-                height={64}
-                className="w-12 h-16 object-cover border border-retro-black"
-              />
-            )}
-            <div className="flex-grow">
-              <p className="retro-text text-xs">
-                <span className="font-bold">{activity.status}</span>
-                {activity.progress && ` ${activity.progress}`}
-                {activity.media && (
-                  <>
-                    {" of "}
-                    <a
-                      href={activity.media.siteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="retro-link"
-                    >
-                      {activity.media.title.romaji}
-                    </a>
-                  </>
-                )}
-              </p>
-              <p className="text-xs text-gray-600 mt-1">{formatDate(activity.createdAt)}</p>
-              <a
-                href={`https://anilist.co/activity/${activity.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-blue-600 mt-1 inline-block hover:underline"
-              >
-                View activity →
-              </a>
-            </div>
-          </div>
-        ))
-      ) : (
-        <p className="retro-text text-center py-4">No recent activities</p>
-      )}
-    </div>
-  </div>
-);
-
-interface MediaListControlsProps {
-  activeTab: "anime" | "manga";
-  setActiveTab: (tab: "anime" | "manga") => void;
-  viewMode: ViewMode;
-  setViewMode: (mode: ViewMode) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  statusFilter: MediaStatus;
-  setStatusFilter: (filter: MediaStatus) => void;
-  genreFilter: string;
-  setGenreFilter: (filter: string) => void;
-  sortOrder: SortOrder;
-  setSortOrder: (order: SortOrder) => void;
-  allGenres: string[];
-}
-
-const MediaListControls = ({
+function AniListContent({
+  user,
+  aboutPreview,
+  activities,
+  animeList,
+  mangaList,
   activeTab,
   setActiveTab,
-  viewMode,
-  setViewMode,
+  currentPage,
+  setCurrentPage,
   searchQuery,
   setSearchQuery,
   statusFilter,
@@ -705,9 +690,164 @@ const MediaListControls = ({
   setGenreFilter,
   sortOrder,
   setSortOrder,
+  viewMode,
+  setViewMode,
+}: {
+  user: AniListUser;
+  aboutPreview: string | null;
+  activities: Activity[];
+  animeList: MediaItem[];
+  mangaList: MediaItem[];
+  activeTab: "anime" | "manga";
+  setActiveTab: Dispatch<SetStateAction<"anime" | "manga">>;
+  currentPage: number;
+  setCurrentPage: Dispatch<SetStateAction<number>>;
+  searchQuery: string;
+  setSearchQuery: Dispatch<SetStateAction<string>>;
+  statusFilter: MediaStatus;
+  setStatusFilter: Dispatch<SetStateAction<MediaStatus>>;
+  genreFilter: string;
+  setGenreFilter: Dispatch<SetStateAction<string>>;
+  sortOrder: SortOrder;
+  setSortOrder: Dispatch<SetStateAction<SortOrder>>;
+  viewMode: ViewMode;
+  setViewMode: Dispatch<SetStateAction<ViewMode>>;
+}) {
+  const activeItems = useMemo(() => getMediaItemsForTab(activeTab, animeList, mangaList), [activeTab, animeList, mangaList]);
+  const allGenres = useMemo(() => getUniqueGenres(activeItems), [activeItems]);
+  const favorites = useMemo(() => getFavorites(activeItems), [activeItems]);
+  const filteredAndSortedItems = useMemo(
+    () =>
+      filterAndSortMedia(activeItems, {
+        statusFilter,
+        genreFilter,
+        searchQuery,
+        sortOrder,
+      }),
+    [activeItems, statusFilter, genreFilter, searchQuery, sortOrder]
+  );
+  const currentPageItems = useMemo(() => getCurrentPageItems(filteredAndSortedItems, currentPage), [filteredAndSortedItems, currentPage]);
+  const totalPages = Math.ceil(filteredAndSortedItems.length / ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, genreFilter, searchQuery, sortOrder, activeTab, setCurrentPage]);
+
+  return (
+    <div className="space-y-6">
+      <ProfileSection user={user} aboutPreview={aboutPreview} />
+      <FavoritesSection favorites={favorites} />
+      <RecentActivities activities={activities} />
+      <MediaListSection
+        activeTab={activeTab}
+        allGenres={allGenres}
+        currentPage={currentPage}
+        currentPageItems={currentPageItems}
+        filteredAndSortedItems={filteredAndSortedItems}
+        genreFilter={genreFilter}
+        searchQuery={searchQuery}
+        setActiveTab={setActiveTab}
+        setCurrentPage={setCurrentPage}
+        setGenreFilter={setGenreFilter}
+        setSearchQuery={setSearchQuery}
+        setSortOrder={setSortOrder}
+        setStatusFilter={setStatusFilter}
+        setViewMode={setViewMode}
+        sortOrder={sortOrder}
+        statusFilter={statusFilter}
+        totalPages={totalPages}
+        viewMode={viewMode}
+      />
+    </div>
+  );
+}
+
+function MediaListSection({
+  activeTab,
   allGenres,
-}: MediaListControlsProps) => (
-  <>
+  currentPage,
+  currentPageItems,
+  filteredAndSortedItems,
+  genreFilter,
+  searchQuery,
+  setActiveTab,
+  setCurrentPage,
+  setGenreFilter,
+  setSearchQuery,
+  setSortOrder,
+  setStatusFilter,
+  setViewMode,
+  sortOrder,
+  statusFilter,
+  totalPages,
+  viewMode,
+}: {
+  activeTab: "anime" | "manga";
+  allGenres: string[];
+  currentPage: number;
+  currentPageItems: MediaItem[];
+  filteredAndSortedItems: MediaItem[];
+  genreFilter: string;
+  searchQuery: string;
+  setActiveTab: Dispatch<SetStateAction<"anime" | "manga">>;
+  setCurrentPage: Dispatch<SetStateAction<number>>;
+  setGenreFilter: Dispatch<SetStateAction<string>>;
+  setSearchQuery: Dispatch<SetStateAction<string>>;
+  setSortOrder: Dispatch<SetStateAction<SortOrder>>;
+  setStatusFilter: Dispatch<SetStateAction<MediaStatus>>;
+  setViewMode: Dispatch<SetStateAction<ViewMode>>;
+  sortOrder: SortOrder;
+  statusFilter: MediaStatus;
+  totalPages: number;
+  viewMode: ViewMode;
+}) {
+  return (
+    <div className="retro-card">
+      <MediaListControls activeTab={activeTab} setActiveTab={setActiveTab} viewMode={viewMode} setViewMode={setViewMode} />
+      <MediaFilterBar
+        allGenres={allGenres}
+        genreFilter={genreFilter}
+        searchQuery={searchQuery}
+        setGenreFilter={setGenreFilter}
+        setSearchQuery={setSearchQuery}
+        setSortOrder={setSortOrder}
+        setStatusFilter={setStatusFilter}
+        sortOrder={sortOrder}
+        statusFilter={statusFilter}
+      />
+
+      <p className="text-xs text-gray-600 mb-3">
+        Showing {filteredAndSortedItems.length} {activeTab}
+      </p>
+
+      {filteredAndSortedItems.length === 0 && <EmptyMediaState activeTab={activeTab} />}
+
+      {filteredAndSortedItems.length > 0 &&
+        (viewMode === "grid" ? (
+          <MediaListGrid items={currentPageItems} />
+        ) : (
+          <MediaListRows items={currentPageItems} />
+        ))}
+
+      {totalPages > 1 && (
+        <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+      )}
+    </div>
+  );
+}
+
+function MediaListControls({
+  activeTab,
+  setActiveTab,
+  viewMode,
+  setViewMode,
+}: {
+  activeTab: "anime" | "manga";
+  setActiveTab: Dispatch<SetStateAction<"anime" | "manga">>;
+  viewMode: ViewMode;
+  setViewMode: Dispatch<SetStateAction<ViewMode>>;
+}) {
+  return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
       <div className="flex gap-2">
         <button
@@ -723,6 +863,7 @@ const MediaListControls = ({
           📖 MANGA LIST
         </button>
       </div>
+
       <div className="flex gap-2">
         <button
           className={`retro-button text-sm ${viewMode === "grid" ? "bg-retro-black text-retro-white" : ""}`}
@@ -738,235 +879,196 @@ const MediaListControls = ({
         </button>
       </div>
     </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-      <div>
-        <input
-          type="text"
-          placeholder="Search titles..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="retro-input w-full text-xs"
-        />
-      </div>
-      <div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as MediaStatus)}
-          className="retro-input w-full text-xs"
-        >
-          <option value="ALL">All Status</option>
-          <option value="CURRENT">Current</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="PAUSED">Paused</option>
-          <option value="DROPPED">Dropped</option>
-          <option value="PLANNING">Planning</option>
-          <option value="REPEATING">Repeating</option>
-        </select>
-      </div>
-      <div>
-        <select
-          value={genreFilter}
-          onChange={(e) => setGenreFilter(e.target.value)}
-          className="retro-input w-full text-xs"
-        >
-          <option value="ALL">All Genres</option>
-          {allGenres.map((genre) => (
-            <option key={genre} value={genre}>
-              {genre}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-          className="retro-input w-full text-xs"
-        >
-          <option value="NONE">Default Order</option>
-          <option value="TITLE_ASC">Title (A-Z)</option>
-          <option value="TITLE_DESC">Title (Z-A)</option>
-          <option value="SCORE_ASC">Score (Low-High)</option>
-          <option value="SCORE_DESC">Score (High-Low)</option>
-        </select>
-      </div>
-    </div>
-  </>
-);
-
-const MediaListSummary = ({ activeTab, count }: { activeTab: "anime" | "manga"; count: number }) => (
-  <p className="text-xs text-gray-600 mb-3">
-    Showing {count} {getMediaLabel(activeTab)}
-  </p>
-);
-
-const MediaProgressOverlay = ({ item }: { item: MediaItem }) => {
-  if (item.mediaListEntry?.status !== "CURRENT") return null;
-
-  const progress = item.mediaListEntry.progress || 0;
-  const total = getMediaProgressTotal(item);
-  const percent = Math.min(100, (progress / total) * 100);
-
-  return (
-    <div className="absolute bottom-0 left-0 right-0 bg-retro-black bg-opacity-90 p-1">
-      <div className="h-2 bg-retro-gray border border-retro-white">
-        <div className="h-full bg-green-500" style={{ width: `${percent}%` }} />
-      </div>
-      <p className="text-white text-xs text-center mt-1">
-        {progress} / {total}
-      </p>
-    </div>
   );
-};
-
-const MediaListMeta = ({ item }: { item: MediaItem }) => {
-  if (!item.mediaListEntry) return null;
-
-  return (
-    <div className="text-xs mt-1">
-      <p className="text-gray-600">{item.mediaListEntry.status}</p>
-      {item.mediaListEntry.score > 0 && (
-        <p className="text-gray-600">⭐ {item.mediaListEntry.score}/10</p>
-      )}
-    </div>
-  );
-};
-
-interface MediaGenresProps {
-  item: MediaItem;
-  max: number;
-  className: string;
-  spanClassName: string;
 }
 
-const MediaGenres = ({ item, max, className, spanClassName }: MediaGenresProps) => {
-  if (!item.genres?.length) return null;
+function MediaFilterBar({
+  allGenres,
+  genreFilter,
+  searchQuery,
+  setGenreFilter,
+  setSearchQuery,
+  setSortOrder,
+  setStatusFilter,
+  sortOrder,
+  statusFilter,
+}: {
+  allGenres: string[];
+  genreFilter: string;
+  searchQuery: string;
+  setGenreFilter: Dispatch<SetStateAction<string>>;
+  setSearchQuery: Dispatch<SetStateAction<string>>;
+  setSortOrder: Dispatch<SetStateAction<SortOrder>>;
+  setStatusFilter: Dispatch<SetStateAction<MediaStatus>>;
+  sortOrder: SortOrder;
+  statusFilter: MediaStatus;
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+      <input
+        type="text"
+        placeholder="Search titles..."
+        value={searchQuery}
+        onChange={(event) => setSearchQuery(event.target.value)}
+        className="retro-input w-full text-xs"
+      />
+      <select
+        value={statusFilter}
+        onChange={(event) => setStatusFilter(event.target.value as MediaStatus)}
+        className="retro-input w-full text-xs"
+      >
+        {STATUS_FILTER_OPTIONS.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      <select value={genreFilter} onChange={(event) => setGenreFilter(event.target.value)} className="retro-input w-full text-xs">
+        <option value="ALL">All Genres</option>
+        {allGenres.map((genre) => (
+          <option key={genre} value={genre}>
+            {genre}
+          </option>
+        ))}
+      </select>
+      <select
+        value={sortOrder}
+        onChange={(event) => setSortOrder(event.target.value as SortOrder)}
+        className="retro-input w-full text-xs"
+      >
+        {SORT_FILTER_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function EmptyMediaState({ activeTab }: { activeTab: "anime" | "manga" }) {
+  return (
+    <p className="retro-text text-center py-8">No {activeTab} found with current filters</p>
+  );
+}
+
+function MediaListGrid({ items }: { items: MediaItem[] }) {
+  if (items.length === 0) return null;
 
   return (
-    <div className={className}>
-      {item.genres.slice(0, max).map((genre) => (
-        <span key={genre} className={spanClassName}>
-          {genre}
-        </span>
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      {items.map((item) => (
+        <MediaCard key={item.id} item={item} />
       ))}
     </div>
   );
-};
+}
 
-const MediaGridItem = ({ item }: { item: MediaItem }) => (
-  <a
-    href={item.siteUrl}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="group cursor-pointer"
-  >
-    <div className="relative w-full aspect-[2/3] border-2 border-retro-black overflow-hidden">
+function MediaListRows({ items }: { items: MediaItem[] }) {
+  if (items.length === 0) return null;
+
+  return (
+    <div className="space-y-2">
+      {items.map((item) => (
+        <MediaListItem key={item.id} item={item} />
+      ))}
+    </div>
+  );
+}
+
+function MediaCard({ item }: { item: MediaItem }) {
+  return (
+    <a href={item.siteUrl} target="_blank" rel="noopener noreferrer" className="group cursor-pointer">
+      <div className="relative w-full aspect-[2/3] border-2 border-retro-black overflow-hidden">
+        <Image
+          src={item.coverImage.large}
+          alt={item.title.romaji}
+          width={300}
+          height={450}
+          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+        />
+        {item.mediaListEntry?.status === "CURRENT" && <MediaProgressOverlay item={item} />}
+      </div>
+      <div className="mt-2">
+        <p className="retro-text text-xs font-bold truncate group-hover:text-blue-600">{getDisplayTitle(item)}</p>
+        {item.mediaListEntry && (
+          <div className="text-xs mt-1">
+            <p className="text-gray-600">{item.mediaListEntry.status}</p>
+            {item.mediaListEntry.score > 0 && <p className="text-gray-600">⭐ {item.mediaListEntry.score}/10</p>}
+          </div>
+        )}
+        {item.genres?.slice(0, 2).map((genre) => (
+          <span key={genre} className="text-xs bg-retro-gray border border-retro-black px-1 mr-1">
+            {genre}
+          </span>
+        ))}
+      </div>
+    </a>
+  );
+}
+
+function MediaProgressOverlay({ item }: { item: MediaItem }) {
+  return (
+    <div className="absolute bottom-0 left-0 right-0 bg-retro-black bg-opacity-90 p-1">
+      <div className="h-2 bg-retro-gray border border-retro-white">
+        <div className="h-full bg-green-500" style={{ width: `${getProgressPercent(item)}%` }} />
+      </div>
+      <p className="text-white text-xs text-center mt-1">{getProgressLabel(item)}</p>
+    </div>
+  );
+}
+
+function MediaListItem({ item }: { item: MediaItem }) {
+  return (
+    <a
+      href={item.siteUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-4 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors"
+    >
       <Image
         src={item.coverImage.large}
         alt={item.title.romaji}
-        width={300}
-        height={450}
-        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+        width={64}
+        height={96}
+        className="w-16 h-24 object-cover border border-retro-black"
       />
-      <MediaProgressOverlay item={item} />
-    </div>
-    <div className="mt-2">
-      <p className="retro-text text-xs font-bold truncate group-hover:text-blue-600">
-        {getDisplayTitle(item)}
-      </p>
-      <MediaListMeta item={item} />
-      <MediaGenres
-        item={item}
-        max={2}
-        className="flex flex-wrap gap-1 mt-1"
-        spanClassName="text-xs bg-retro-gray border border-retro-black px-1"
-      />
-    </div>
-  </a>
-);
-
-const MediaGrid = ({ items }: { items: MediaItem[] }) => (
-  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-    {items.map((item) => (
-      <MediaGridItem key={item.id} item={item} />
-    ))}
-  </div>
-);
-
-const MediaScore = ({ item }: { item: MediaItem }) => {
-  if (!item.mediaListEntry || item.mediaListEntry.score <= 0) return null;
-
-  return (
-    <div className="text-right">
-      <div className="text-2xl font-bold">⭐</div>
-      <div className="text-sm font-bold">{item.mediaListEntry.score}/10</div>
-    </div>
+      <div className="flex-grow">
+        <p className="retro-text text-sm font-bold">{getDisplayTitle(item)}</p>
+        <p className="text-xs text-gray-600 mt-1">
+          {item.mediaListEntry?.status || "Unknown"}
+          {item.mediaListEntry?.status === "CURRENT" && ` • ${getProgressLabel(item)}`}
+        </p>
+        {item.genres?.slice(0, 4).map((genre) => (
+          <span key={genre} className="text-xs bg-retro-white border border-retro-black px-2 py-1 mr-1">
+            {genre}
+          </span>
+        ))}
+      </div>
+      {item.mediaListEntry && item.mediaListEntry.score > 0 && (
+        <div className="text-right">
+          <div className="text-2xl font-bold">⭐</div>
+          <div className="text-sm font-bold">{item.mediaListEntry.score}/10</div>
+        </div>
+      )}
+    </a>
   );
-};
+}
 
-const MediaListItem = ({ item }: { item: MediaItem }) => (
-  <a
-    href={item.siteUrl}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="flex items-center gap-4 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors"
-  >
-    <Image
-      src={item.coverImage.large}
-      alt={item.title.romaji}
-      width={64}
-      height={96}
-      className="w-16 h-24 object-cover border border-retro-black"
-    />
-    <div className="flex-grow">
-      <p className="retro-text text-sm font-bold">{getDisplayTitle(item)}</p>
-      <p className="text-xs text-gray-600 mt-1">
-        {item.mediaListEntry?.status}
-        {item.mediaListEntry?.status === "CURRENT" &&
-          ` • ${item.mediaListEntry.progress} / ${getMediaProgressTotal(item)}`}
-      </p>
-      <MediaGenres
-        item={item}
-        max={4}
-        className="flex flex-wrap gap-1 mt-2"
-        spanClassName="text-xs bg-retro-white border border-retro-black px-2 py-1"
-      />
-    </div>
-    <MediaScore item={item} />
-  </a>
-);
-
-const MediaList = ({ items }: { items: MediaItem[] }) => (
-  <div className="space-y-2">
-    {items.map((item) => (
-      <MediaListItem key={item.id} item={item} />
-    ))}
-  </div>
-);
-
-const EmptyState = ({ activeTab }: { activeTab: "anime" | "manga" }) => (
-  <p className="retro-text text-center py-8">
-    No {getMediaLabel(activeTab)} found with current filters
-  </p>
-);
-
-const Pagination = ({
+function PaginationControls({
   currentPage,
   totalPages,
-  setCurrentPage,
+  onPageChange,
 }: {
   currentPage: number;
   totalPages: number;
-  setCurrentPage: Dispatch<SetStateAction<number>>;
-}) => {
-  if (totalPages <= 1) return null;
-
+  onPageChange: Dispatch<SetStateAction<number>>;
+}) {
   return (
     <div className="flex justify-center gap-2 mt-6">
       <button
         className="retro-button text-sm"
-        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+        onClick={() => onPageChange((page) => Math.max(1, page - 1))}
         disabled={currentPage === 1}
       >
         ← PREV
@@ -976,169 +1078,14 @@ const Pagination = ({
       </span>
       <button
         className="retro-button text-sm"
-        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+        onClick={() => onPageChange((page) => Math.min(totalPages, page + 1))}
         disabled={currentPage === totalPages}
       >
         NEXT →
       </button>
     </div>
   );
-};
-
-interface MediaListSectionProps extends MediaListControlsProps {
-  filteredAndSortedItems: MediaItem[];
-  currentPage: number;
-  setCurrentPage: Dispatch<SetStateAction<number>>;
-  totalPages: number;
 }
-
-const MediaListSection = ({
-  activeTab,
-  setActiveTab,
-  viewMode,
-  setViewMode,
-  searchQuery,
-  setSearchQuery,
-  statusFilter,
-  setStatusFilter,
-  genreFilter,
-  setGenreFilter,
-  sortOrder,
-  setSortOrder,
-  allGenres,
-  filteredAndSortedItems,
-  currentPage,
-  setCurrentPage,
-  totalPages,
-}: MediaListSectionProps) => {
-  const pageItems = useMemo(
-    () => getPageItems(filteredAndSortedItems, currentPage),
-    [filteredAndSortedItems, currentPage]
-  );
-
-  return (
-    <div className="retro-card">
-      <MediaListControls
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        genreFilter={genreFilter}
-        setGenreFilter={setGenreFilter}
-        sortOrder={sortOrder}
-        setSortOrder={setSortOrder}
-        allGenres={allGenres}
-      />
-      <MediaListSummary activeTab={activeTab} count={filteredAndSortedItems.length} />
-      {filteredAndSortedItems.length === 0 ? (
-        <EmptyState activeTab={activeTab} />
-      ) : viewMode === "grid" ? (
-        <MediaGrid items={pageItems} />
-      ) : (
-        <MediaList items={pageItems} />
-      )}
-      <Pagination currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage} />
-    </div>
-  );
-};
-
-interface AniListPageContentProps {
-  user: AniListUser | null;
-  aboutPreview: string | null;
-  activities: Activity[];
-  favorites: MediaItem[];
-  activeTab: "anime" | "manga";
-  setActiveTab: (tab: "anime" | "manga") => void;
-  viewMode: ViewMode;
-  setViewMode: (mode: ViewMode) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  statusFilter: MediaStatus;
-  setStatusFilter: (filter: MediaStatus) => void;
-  genreFilter: string;
-  setGenreFilter: (filter: string) => void;
-  sortOrder: SortOrder;
-  setSortOrder: (order: SortOrder) => void;
-  allGenres: string[];
-  filteredAndSortedItems: MediaItem[];
-  currentPage: number;
-  setCurrentPage: Dispatch<SetStateAction<number>>;
-  totalPages: number;
-  loading: boolean;
-  error: string | null;
-  fetchAniListData: () => Promise<void>;
-}
-
-const AniListPageContent = ({
-  user,
-  aboutPreview,
-  activities,
-  favorites,
-  activeTab,
-  setActiveTab,
-  viewMode,
-  setViewMode,
-  searchQuery,
-  setSearchQuery,
-  statusFilter,
-  setStatusFilter,
-  genreFilter,
-  setGenreFilter,
-  sortOrder,
-  setSortOrder,
-  allGenres,
-  filteredAndSortedItems,
-  currentPage,
-  setCurrentPage,
-  totalPages,
-  loading,
-  error,
-  fetchAniListData,
-}: AniListPageContentProps) => (
-  <div className="min-h-screen bg-retro-gray relative">
-    <Background />
-    <SiteHeader />
-    <ScrollingBanner />
-    <SiteNav />
-
-    <main className="max-w-6xl mx-auto px-4 py-8 relative z-10">
-      {loading && <LoadingState />}
-
-      {error && <ErrorState message={error} onRetry={fetchAniListData} />}
-
-      {user && !loading && (
-        <div className="space-y-6">
-          <ProfileSection user={user} aboutPreview={aboutPreview} />
-          {favorites.length > 0 && <FavoritesSection favorites={favorites} activeTab={activeTab} />}
-          <RecentActivities activities={activities} />
-          <MediaListSection
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            genreFilter={genreFilter}
-            setGenreFilter={setGenreFilter}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
-            allGenres={allGenres}
-            filteredAndSortedItems={filteredAndSortedItems}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            totalPages={totalPages}
-          />
-        </div>
-      )}
-    </main>
-  </div>
-);
 
 export default function AniListPage() {
   const [user, setUser] = useState<AniListUser | null>(null);
@@ -1154,48 +1101,33 @@ export default function AniListPage() {
   const [genreFilter, setGenreFilter] = useState<string>("ALL");
   const [sortOrder, setSortOrder] = useState<SortOrder>("NONE");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const aboutPreview = useMemo(() => sanitizeAbout(user?.about ?? null), [user?.about]);
 
-  const aboutPreview = useMemo(() => getAboutPreview(user?.about), [user?.about]);
-
-  const fetchAniListData = useCallback(async () => {
+  const loadFreshData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const userData = await fetchUserProfile();
-      setUser(userData);
+      const data = await fetchAniListData();
+      setUser(data.user);
+      setActivities(data.activities);
+      setAnimeList(data.animeList);
+      setMangaList(data.mangaList);
 
-      const [activitiesData, animeData, mangaData] = await Promise.all([
-        fetchActivitiesWithUserId(userData.id),
-        fetchMediaList("ANIME"),
-        fetchMediaList("MANGA"),
-      ]);
-
-      setActivities(activitiesData);
-      setAnimeList(animeData);
-      setMangaList(mangaData);
-
-      localStorage.setItem(
-        CACHE_KEY,
-        JSON.stringify({
-          data: {
-            user: userData,
-            activities: activitiesData,
-            animeList: animeData,
-            mangaList: mangaData,
-          },
-          timestamp: Date.now(),
-        })
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch AniList data");
+      try {
+        saveAniListCache(data);
+      } catch (cacheError) {
+        console.error("Cache save error:", cacheError);
+      }
+    } catch (fetchError) {
+      setError(fetchError instanceof Error ? fetchError.message : "Failed to fetch AniList data");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const loadDataWithCache = useCallback(async () => {
-    const cachedData = readCachedData();
+  useEffect(() => {
+    const cachedData = loadCachedAniListData();
     if (cachedData) {
       setUser(cachedData.user);
       setActivities(cachedData.activities);
@@ -1204,62 +1136,43 @@ export default function AniListPage() {
       return;
     }
 
-    await fetchAniListData();
-  }, [fetchAniListData]);
-
-  useEffect(() => {
-    loadDataWithCache();
-  }, [loadDataWithCache]);
-
-  const activeItems = getActiveItems(activeTab, animeList, mangaList);
-
-  const allGenres = useMemo(() => getGenres(activeItems), [activeItems]);
-
-  const favorites = useMemo(() => getFavorites(activeItems), [activeItems]);
-
-  const filteredAndSortedItems = useMemo(
-    () =>
-      getFilteredAndSortedItems(activeItems, {
-        statusFilter,
-        genreFilter,
-        searchQuery,
-        sortOrder,
-      }),
-    [activeItems, statusFilter, genreFilter, searchQuery, sortOrder]
-  );
-
-  const totalPages = useMemo(() => getTotalPages(filteredAndSortedItems), [filteredAndSortedItems]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [statusFilter, genreFilter, searchQuery, sortOrder, activeTab]);
+    void loadFreshData();
+  }, [loadFreshData]);
 
   return (
-    <AniListPageContent
-      user={user}
-      aboutPreview={aboutPreview}
-      activities={activities}
-      favorites={favorites}
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-      viewMode={viewMode}
-      setViewMode={setViewMode}
-      searchQuery={searchQuery}
-      setSearchQuery={setSearchQuery}
-      statusFilter={statusFilter}
-      setStatusFilter={setStatusFilter}
-      genreFilter={genreFilter}
-      setGenreFilter={setGenreFilter}
-      sortOrder={sortOrder}
-      setSortOrder={setSortOrder}
-      allGenres={allGenres}
-      filteredAndSortedItems={filteredAndSortedItems}
-      currentPage={currentPage}
-      setCurrentPage={setCurrentPage}
-      totalPages={totalPages}
-      loading={loading}
-      error={error}
-      fetchAniListData={fetchAniListData}
-    />
+    <div className="min-h-screen bg-retro-gray relative">
+      <Background />
+      <PageHeader />
+      <ScrollingBanner />
+      <PageNavigation />
+
+      <main className="max-w-6xl mx-auto px-4 py-8 relative z-10">
+        {loading && <LoadingState />}
+        {error && <ErrorState message={error} onRetry={loadFreshData} />}
+        {user && !loading && (
+          <AniListContent
+            activeTab={activeTab}
+            activities={activities}
+            aboutPreview={aboutPreview}
+            animeList={animeList}
+            currentPage={currentPage}
+            genreFilter={genreFilter}
+            mangaList={mangaList}
+            searchQuery={searchQuery}
+            setActiveTab={setActiveTab}
+            setCurrentPage={setCurrentPage}
+            setGenreFilter={setGenreFilter}
+            setSearchQuery={setSearchQuery}
+            setSortOrder={setSortOrder}
+            setStatusFilter={setStatusFilter}
+            setViewMode={setViewMode}
+            sortOrder={sortOrder}
+            statusFilter={statusFilter}
+            user={user}
+            viewMode={viewMode}
+          />
+        )}
+      </main>
+    </div>
   );
 }
