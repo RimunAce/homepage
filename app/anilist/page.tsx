@@ -119,6 +119,12 @@ interface MediaFilterState {
   sortOrder: SortOrder;
 }
 
+interface MediaListState {
+  activities: Activity[];
+  animeList: MediaItem[];
+  mangaList: MediaItem[];
+}
+
 type GraphQLResponse<T> = {
   data: T;
   errors?: Array<{
@@ -274,21 +280,34 @@ async function fetchMediaList(type: "ANIME" | "MANGA"): Promise<MediaItem[]> {
   return entries;
 }
 
-async function fetchAniListData(): Promise<AniListData> {
+async function fetchAniListData(): Promise<{ data: AniListData; isPartial: boolean }> {
   const userResponse = await fetchAnilistGraphQL<UserApiResponse>(USER_PROFILE_QUERY, { userName: ANILIST_USERNAME });
   const user = userResponse.User;
 
-  const [activitiesData, animeData, mangaData] = await Promise.all([
+  const [activitiesResult, animeResult, mangaResult] = await Promise.allSettled([
     fetchActivities(user.id),
     fetchMediaList("ANIME"),
     fetchMediaList("MANGA"),
   ]);
 
+  const activities = activitiesResult.status === "fulfilled" ? activitiesResult.value : [];
+  const animeList = animeResult.status === "fulfilled" ? animeResult.value : [];
+  const mangaList = mangaResult.status === "fulfilled" ? mangaResult.value : [];
+
+  [activitiesResult, animeResult, mangaResult].forEach((result) => {
+    if (result.status === "rejected") {
+      console.error("Error fetching additional data:", result.reason);
+    }
+  });
+
   return {
-    user,
-    activities: activitiesData,
-    animeList: animeData,
-    mangaList: mangaData,
+    data: {
+      user,
+      activities,
+      animeList,
+      mangaList,
+    },
+    isPartial: [activitiesResult, animeResult, mangaResult].some((result) => result.status === "rejected"),
   };
 }
 
@@ -312,7 +331,7 @@ function loadCachedAniListData(): AniListData | null {
   }
 }
 
-function sanitizeAbout(about: string | null) {
+function sanitizeAboutPreview(about: string | null) {
   if (!about) return null;
   const plain = DOMPurify.sanitize(about, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
   return plain.length > 200 ? `${plain.slice(0, 200)}...` : plain;
@@ -347,39 +366,39 @@ function getDisplayTitle(item: MediaItem) {
   return item.title.english || item.title.romaji;
 }
 
+function matchesStatusFilter(item: MediaItem, statusFilter: MediaStatus) {
+  return statusFilter === "ALL" || item.mediaListEntry?.status === statusFilter;
+}
+
+function matchesGenreFilter(item: MediaItem, genreFilter: string) {
+  return genreFilter === "ALL" || item.genres?.includes(genreFilter);
+}
+
+function matchesSearchFilter(item: MediaItem, searchQuery: string) {
+  const query = searchQuery.trim().toLowerCase();
+  return !query || getDisplayTitle(item).toLowerCase().includes(query);
+}
+
+const MEDIA_SORT_FUNCTIONS: Record<Exclude<SortOrder, "NONE">, (a: MediaItem, b: MediaItem) => number> = {
+  TITLE_ASC: (a, b) => getDisplayTitle(a).localeCompare(getDisplayTitle(b)),
+  TITLE_DESC: (a, b) => getDisplayTitle(b).localeCompare(getDisplayTitle(a)),
+  SCORE_ASC: (a, b) => (a.mediaListEntry?.score || 0) - (b.mediaListEntry?.score || 0),
+  SCORE_DESC: (a, b) => (b.mediaListEntry?.score || 0) - (a.mediaListEntry?.score || 0),
+};
+
+function getMediaSortFunction(sortOrder: SortOrder) {
+  if (sortOrder === "NONE") return undefined;
+  return MEDIA_SORT_FUNCTIONS[sortOrder];
+}
+
 function filterAndSortMedia(items: MediaItem[], filters: MediaFilterState) {
-  let filtered = items;
+  const filtered = items
+    .filter((item) => matchesStatusFilter(item, filters.statusFilter))
+    .filter((item) => matchesGenreFilter(item, filters.genreFilter))
+    .filter((item) => matchesSearchFilter(item, filters.searchQuery));
 
-  if (filters.statusFilter !== "ALL") {
-    filtered = filtered.filter((item) => item.mediaListEntry?.status === filters.statusFilter);
-  }
-
-  if (filters.genreFilter !== "ALL") {
-    filtered = filtered.filter((item) => item.genres?.includes(filters.genreFilter));
-  }
-
-  const query = filters.searchQuery.trim().toLowerCase();
-  if (query) {
-    filtered = filtered.filter((item) => getDisplayTitle(item).toLowerCase().includes(query));
-  }
-
-  const sorted = [...filtered];
-  switch (filters.sortOrder) {
-    case "TITLE_ASC":
-      sorted.sort((a, b) => getDisplayTitle(a).localeCompare(getDisplayTitle(b)));
-      break;
-    case "TITLE_DESC":
-      sorted.sort((a, b) => getDisplayTitle(b).localeCompare(getDisplayTitle(a)));
-      break;
-    case "SCORE_ASC":
-      sorted.sort((a, b) => (a.mediaListEntry?.score || 0) - (b.mediaListEntry?.score || 0));
-      break;
-    case "SCORE_DESC":
-      sorted.sort((a, b) => (b.mediaListEntry?.score || 0) - (a.mediaListEntry?.score || 0));
-      break;
-  }
-
-  return sorted;
+  const sortFunction = getMediaSortFunction(filters.sortOrder);
+  return sortFunction ? [...filtered].sort(sortFunction) : [...filtered];
 }
 
 function getCurrentPageItems(items: MediaItem[], currentPage: number) {
@@ -693,13 +712,13 @@ function AniListContent({
   currentPage: number;
   setCurrentPage: Dispatch<SetStateAction<number>>;
   searchQuery: string;
-  setSearchQuery: Dispatch<SetStateAction<string>>;
+  setSearchQuery: (value: string) => void;
   statusFilter: MediaStatus;
-  setStatusFilter: Dispatch<SetStateAction<MediaStatus>>;
+  setStatusFilter: (value: MediaStatus) => void;
   genreFilter: string;
-  setGenreFilter: Dispatch<SetStateAction<string>>;
+  setGenreFilter: (value: string) => void;
   sortOrder: SortOrder;
-  setSortOrder: Dispatch<SetStateAction<SortOrder>>;
+  setSortOrder: (value: SortOrder) => void;
   viewMode: ViewMode;
   setViewMode: Dispatch<SetStateAction<ViewMode>>;
 }) {
@@ -781,10 +800,10 @@ function MediaListSection({
   searchQuery: string;
   setActiveTab: Dispatch<SetStateAction<"anime" | "manga">>;
   setCurrentPage: Dispatch<SetStateAction<number>>;
-  setGenreFilter: Dispatch<SetStateAction<string>>;
-  setSearchQuery: Dispatch<SetStateAction<string>>;
-  setSortOrder: Dispatch<SetStateAction<SortOrder>>;
-  setStatusFilter: Dispatch<SetStateAction<MediaStatus>>;
+  setGenreFilter: (value: string) => void;
+  setSearchQuery: (value: string) => void;
+  setSortOrder: (value: SortOrder) => void;
+  setStatusFilter: (value: MediaStatus) => void;
   setViewMode: Dispatch<SetStateAction<ViewMode>>;
   sortOrder: SortOrder;
   statusFilter: MediaStatus;
@@ -886,10 +905,10 @@ function MediaFilterBar({
   allGenres: string[];
   genreFilter: string;
   searchQuery: string;
-  setGenreFilter: Dispatch<SetStateAction<string>>;
-  setSearchQuery: Dispatch<SetStateAction<string>>;
-  setSortOrder: Dispatch<SetStateAction<SortOrder>>;
-  setStatusFilter: Dispatch<SetStateAction<MediaStatus>>;
+  setGenreFilter: (value: string) => void;
+  setSearchQuery: (value: string) => void;
+  setSortOrder: (value: SortOrder) => void;
+  setStatusFilter: (value: MediaStatus) => void;
   sortOrder: SortOrder;
   statusFilter: MediaStatus;
 }) {
@@ -1077,37 +1096,32 @@ function PaginationControls({
   );
 }
 
-export default function AniListPage() {
+function useAniListData() {
   const [user, setUser] = useState<AniListUser | null>(null);
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [animeList, setAnimeList] = useState<MediaItem[]>([]);
-  const [mangaList, setMangaList] = useState<MediaItem[]>([]);
+  const [mediaList, setMediaList] = useState<MediaListState>({ activities: [], animeList: [], mangaList: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"anime" | "manga">("anime");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<MediaStatus>("ALL");
-  const [genreFilter, setGenreFilter] = useState<string>("ALL");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("NONE");
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const aboutPreview = useMemo(() => sanitizeAbout(user?.about ?? null), [user?.about]);
+  const aboutPreview = useMemo(() => sanitizeAboutPreview(user?.about ?? null), [user?.about]);
 
   const loadFreshData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await fetchAniListData();
+      const { data, isPartial } = await fetchAniListData();
       setUser(data.user);
-      setActivities(data.activities);
-      setAnimeList(data.animeList);
-      setMangaList(data.mangaList);
+      setMediaList({
+        activities: data.activities,
+        animeList: data.animeList,
+        mangaList: data.mangaList,
+      });
 
-      try {
-        saveAniListCache(data);
-      } catch (cacheError) {
-        console.error("Cache save error:", cacheError);
+      if (!isPartial) {
+        try {
+          saveAniListCache(data);
+        } catch (cacheError) {
+          console.error("Cache save error:", cacheError);
+        }
       }
     } catch (fetchError) {
       setError(fetchError instanceof Error ? fetchError.message : "Failed to fetch AniList data");
@@ -1120,14 +1134,43 @@ export default function AniListPage() {
     const cachedData = loadCachedAniListData();
     if (cachedData) {
       setUser(cachedData.user);
-      setActivities(cachedData.activities);
-      setAnimeList(cachedData.animeList);
-      setMangaList(cachedData.mangaList);
+      setMediaList({
+        activities: cachedData.activities,
+        animeList: cachedData.animeList,
+        mangaList: cachedData.mangaList,
+      });
       return;
     }
 
     void loadFreshData();
   }, [loadFreshData]);
+
+  return {
+    user,
+    ...mediaList,
+    loading,
+    error,
+    aboutPreview,
+    loadFreshData,
+  };
+}
+
+export default function AniListPage() {
+  const { user, activities, animeList, mangaList, loading, error, aboutPreview, loadFreshData } = useAniListData();
+  const [activeTab, setActiveTab] = useState<"anime" | "manga">("anime");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState<MediaFilterState>({
+    statusFilter: "ALL",
+    genreFilter: "ALL",
+    searchQuery: "",
+    sortOrder: "NONE",
+  });
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const { statusFilter, genreFilter, searchQuery, sortOrder } = filters;
+
+  const updateMediaFilter = useCallback(<K extends keyof MediaFilterState>(key: K, value: MediaFilterState[K]) => {
+    setFilters((current) => ({ ...current, [key]: value }));
+  }, []);
 
   return (
     <div className="min-h-screen bg-retro-gray relative">
@@ -1151,10 +1194,10 @@ export default function AniListPage() {
             searchQuery={searchQuery}
             setActiveTab={setActiveTab}
             setCurrentPage={setCurrentPage}
-            setGenreFilter={setGenreFilter}
-            setSearchQuery={setSearchQuery}
-            setSortOrder={setSortOrder}
-            setStatusFilter={setStatusFilter}
+            setGenreFilter={(value) => updateMediaFilter("genreFilter", value)}
+            setSearchQuery={(value) => updateMediaFilter("searchQuery", value)}
+            setSortOrder={(value) => updateMediaFilter("sortOrder", value)}
+            setStatusFilter={(value) => updateMediaFilter("statusFilter", value)}
             setViewMode={setViewMode}
             sortOrder={sortOrder}
             statusFilter={statusFilter}

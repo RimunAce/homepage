@@ -33,7 +33,7 @@ interface AniListProfileProps {
   onClose: () => void;
 }
 
-function sanitizeAbout(about: string | null) {
+function sanitizeProfileAbout(about: string | null) {
   if (!about) return null;
   return DOMPurify.sanitize(about);
 }
@@ -42,7 +42,7 @@ export default function AniListProfile({ isOpen, onClose }: AniListProfileProps)
   const [user, setUser] = useState<AniListUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const sanitizedAbout = useMemo(() => sanitizeAbout(user?.about ?? null), [user?.about]);
+  const sanitizedAbout = useMemo(() => sanitizeProfileAbout(user?.about ?? null), [user?.about]);
 
   useEffect(() => {
     if (isOpen) {
