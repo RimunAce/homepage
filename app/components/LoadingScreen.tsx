@@ -16,12 +16,14 @@ export default function LoadingScreen() {
   }, []);
 
   useEffect(() => {
+    if (!isLoading) return;
+
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isLoading]);
 
   return (
     <AnimatePresence>
