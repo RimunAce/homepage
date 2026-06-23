@@ -20,14 +20,14 @@ function Header() {
           <span className="scroll-content">
             {Array.from({ length: 20 }, (_, i) => (
               <span key={`banner-${i}`} className="mx-4">
-                WE ARE NOT FINISHED //
+                [Insert Text Here]
               </span>
             ))}
           </span>
           <span className="scroll-content" aria-hidden="true">
             {Array.from({ length: 20 }, (_, i) => (
               <span key={`banner-dup-${i}`} className="mx-4">
-                WE ARE NOT FINISHED //
+                [Insert Text Here]
               </span>
             ))}
           </span>

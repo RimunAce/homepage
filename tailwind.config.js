@@ -11,6 +11,7 @@ module.exports = {
         "retro-gray": "#E0E0E0",
         "retro-black": "#000000",
         "retro-white": "#FFFFFF",
+        "retro-yellow": "#FFD700",
       },
       fontFamily: {
         mono: ["Courier New", "monospace"],
