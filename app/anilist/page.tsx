@@ -182,7 +182,7 @@ const USER_PROFILE_QUERY = `
 const ACTIVITIES_QUERY = `
   query ($userId: Int, $page: Int, $perPage: Int) {
     Page(page: $page, perPage: $perPage) {
-      activities(userId: $userId, sort: ID_DESC) {
+      activities(userId: $userId, sort: ID_DESC, type_in: [ANIME_LIST, MANGA_LIST]) {
         ... on ListActivity {
           id
           type

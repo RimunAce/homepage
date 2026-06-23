@@ -98,6 +98,7 @@ const ProgressBar = ({ currentTime, duration, formatTime, onSeek }: ProgressBarP
       value={currentTime}
       max={duration || 0}
       min={0}
+      step={0.1}
       onChange={onSeek}
       className="relative h-4 bg-retro-gray border-2 border-retro-black"
     />

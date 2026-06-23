@@ -7,13 +7,13 @@ import { useEffect, useState } from "react";
 const hasLoadedKey = "respire_initial_load";
 
 export default function LoadingScreen() {
-  const [isLoading, setIsLoading] = useState(() => {
-    if (typeof window === "undefined") return false;
-    if (window.sessionStorage.getItem(hasLoadedKey)) return false;
+  const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (window.sessionStorage.getItem(hasLoadedKey)) return;
     window.sessionStorage.setItem(hasLoadedKey, "true");
-    return true;
-  });
+    setIsLoading(true);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
