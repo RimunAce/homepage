@@ -20,4 +20,8 @@
 
 `public/data/updates` - the updates, very important
 
+<<<<<<< HEAD
 These are now remotely loaded so this remain as a remnant of the past.
+=======
+These are now remotely loaded, so this remains as a remnant of the past.
+>>>>>>> 6d15efe4f3c6af139bae97505f306dfce2fbde7c

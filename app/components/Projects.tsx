@@ -14,20 +14,90 @@ interface Project {
   thumbnail: string;
 }
 
+const FALLBACK_PROJECTS: Project[] = [
+  {
+    title: "Respire.My World",
+    description: "Personal homepage and portfolio built with Next.js, featuring a retro-inspired design.",
+    tech: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
+    status: "Active",
+    link: "https://respire.my",
+    date: "2025",
+    thumbnail: "",
+  },
+  {
+    title: "Music Player",
+    description: "Custom audio player with playlist switching, easter eggs, and visualizer.",
+    tech: ["React", "TypeScript", "Web Audio API"],
+    status: "Active",
+    link: "https://respire.my/music",
+    date: "2025",
+    thumbnail: "",
+  },
+];
+
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(DATA_URLS.projects)
-      .then((res) => res.json())
-      .then((data) => setProjects(data))
-      .catch((error) => console.error("Error loading projects:", error));
+    let cancelled = false;
+
+    async function fetchProjects() {
+      try {
+        const res = await fetch(DATA_URLS.projects);
+        if (!res.ok) throw new Error("Failed to fetch projects");
+        const data = await res.json();
+        if (!cancelled) {
+          setProjects(data);
+          setError(null);
+        }
+      } catch {
+        if (!cancelled) {
+          setProjects(FALLBACK_PROJECTS);
+          setError("Could not load latest projects — showing cached data.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchProjects();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
     <section id="projects" className="retro-card">
       <h2 className="retro-heading">PROJECTS</h2>
-      <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 retro-scrollbar">
+
+      {loading && (
+        <div className="space-y-4 py-4">
+          {[0, 1].map((i) => (
+            <div key={i} className="animate-pulse space-y-3">
+              <div className="flex gap-3">
+                <div className="w-20 h-20 bg-retro-gray border-2 border-retro-black" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-retro-gray border border-retro-black w-2/3" />
+                  <div className="h-3 bg-retro-gray border border-retro-black w-full" />
+                  <div className="h-3 bg-retro-gray border border-retro-black w-4/5" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {error && !loading && (
+        <div className="bg-retro-yellow border-2 border-retro-black p-3 mb-3">
+          <p className="text-xs font-mono text-retro-black">{error}</p>
+        </div>
+      )}
+
+      {!loading && (
+        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 retro-scrollbar">
         {projects.map((project) => (
           <div
             key={project.title}
@@ -87,6 +157,7 @@ export default function Projects() {
           </div>
         ))}
       </div>
+      )}
     </section>
   );
 }

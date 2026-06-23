@@ -1,10 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import { useMusicPlayer } from "../../contexts/MusicPlayerContext";
 
 export default function Visualizer() {
     const { isPlaying } = useMusicPlayer();
+    const heights = useMemo(() => Array.from({ length: 20 }, (_, i) => ((i * 37) % 64) + 16), []);
 
     return (
         <div className="flex items-end justify-center space-x-1 h-16 mb-8">
@@ -16,9 +18,9 @@ export default function Visualizer() {
                         isPlaying
                             ? {
                                 height: [
-                                    Math.random() * 64,
-                                    Math.random() * 64,
-                                    Math.random() * 64,
+                                    heights[i],
+                                    heights[(i + 7) % heights.length],
+                                    heights[(i + 13) % heights.length],
                                 ],
                             }
                             : { height: 4 }

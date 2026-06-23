@@ -5,13 +5,17 @@ import Image from "next/image";
 export default function Contact() {
   return (
     <section id="contact" className="retro-card relative overflow-visible">
-      <Image
-        src="https://cdn.apis.rocks/images/teto.png"
-        alt="Character"
-        width={208}
-        height={208}
-        className="absolute -right-4 -bottom-6 z-50 pointer-events-none w-32 h-auto sm:w-36 sm:-right-6 sm:-bottom-8 md:w-44 md:-right-8 md:-bottom-10 lg:w-52 lg:-right-10 lg:-bottom-12"
-      />
+      <div className="absolute -right-4 -bottom-6 z-50 pointer-events-none w-32 sm:w-36 md:w-44 lg:w-52">
+        <Image
+          src="https://cdn.apis.rocks/images/teto.png"
+          alt="Character"
+          width={208}
+          height={208}
+          loading="eager"
+          style={{ width: "100%", height: "auto" }}
+          className="h-auto"
+        />
+      </div>
       <h2 className="retro-heading">CONTACT</h2>
       <div className="space-y-3">
         <div className="retro-text">

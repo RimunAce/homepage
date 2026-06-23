@@ -3,6 +3,9 @@ import "./globals.css";
 import LoadingScreen from "./components/LoadingScreen";
 import { MusicPlayerProvider } from "./contexts/MusicPlayerContext";
 import MusicPlayer from "./components/MusicPlayer";
+import Background from "./components/Background";
+import Header from "./components/Header";
+import NewsTicker from "./components/NewsTicker";
 
 export const metadata: Metadata = {
   title: "Respire.My World",
@@ -22,7 +25,12 @@ export default function RootLayout({
       <body className="min-h-screen bg-retro-gray">
         <MusicPlayerProvider>
           <LoadingScreen />
-          {children}
+          <div className="min-h-screen bg-retro-gray relative">
+            <Background />
+            <Header />
+            <NewsTicker />
+            {children}
+          </div>
           <MusicPlayer />
         </MusicPlayerProvider>
       </body>
