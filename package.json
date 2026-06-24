@@ -17,7 +17,7 @@
   "dependencies": {
     "@nextui-org/react": "^2.6.11",
     "dompurify": "^3.4.11",
-    "framer-motion": "^12.40.0",
+    "framer-motion": "^12.41.0",
     "next": "16.2.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
@@ -29,7 +29,7 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "8.61.0",
     "@typescript-eslint/parser": "8.61.0",
-    "autoprefixer": "^10.5.0",
+    "autoprefixer": "^10.5.1",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.9",
     "postcss": "^8.5.15",
