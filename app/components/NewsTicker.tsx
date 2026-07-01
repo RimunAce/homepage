@@ -136,8 +136,8 @@ function NewsTicker() {
   );
 
   return (
-    <div className="bg-retro-black text-retro-yellow py-1.5 overflow-hidden relative z-10 border-y border-retro-yellow">
-      <span className="absolute left-0 top-0 bottom-0 bg-retro-yellow text-retro-black text-xs font-bold px-2 flex items-center z-10">
+    <div className="bg-retro-black text-retro-yellow py-1.5 overflow-hidden relative z-10 border-y border-retro-yellow" aria-label="Malaysian news ticker">
+      <span className="absolute left-0 top-0 bottom-0 bg-retro-yellow text-retro-black text-xs font-bold px-2 flex items-center z-10" aria-hidden="true">
         MY NEWS
       </span>
 
@@ -147,6 +147,8 @@ function NewsTicker() {
           className="flex whitespace-nowrap text-xs font-mono will-change-transform"
           style={{ transform: "translateX(0) translateZ(0)" }}
           data-offset="0"
+          aria-live="polite"
+          aria-atomic="true"
         >
           <span className="inline-flex items-center gap-1 shrink-0">
             {tickerItems}

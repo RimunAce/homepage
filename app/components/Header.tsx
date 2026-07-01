@@ -52,7 +52,7 @@ function Header() {
       </div>
 
       {/* Navigation */}
-      <nav className="bg-retro-white border-b-2 border-retro-black relative z-10">
+      <nav className="bg-retro-white border-b-2 border-retro-black relative z-10" aria-label="Main navigation">
         <div className="max-w-6xl mx-auto px-4 py-2">
           <div className="flex flex-wrap gap-2">
             <Link href="/" className="retro-button text-sm active:scale-95 transition-transform">

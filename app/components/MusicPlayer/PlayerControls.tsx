@@ -25,25 +25,35 @@ export default function PlayerControls({
       className="mb-6"
     >
       <div className="flex items-center justify-center space-x-4 mb-4">
-        <button onClick={onPrev} className="retro-button text-lg px-4 py-3">
+        <button 
+          onClick={onPrev} 
+          className="retro-button text-lg px-4 py-3"
+          aria-label="Previous track"
+        >
           ⏮
         </button>
 
         <button
           onClick={onTogglePlay}
           className="retro-button text-2xl px-6 py-3"
+          aria-label={isPlaying ? "Pause" : "Play"}
+          aria-pressed={isPlaying}
         >
           {isPlaying ? "⏸" : "▶"}
         </button>
 
-        <button onClick={onNext} className="retro-button text-lg px-4 py-3">
+        <button 
+          onClick={onNext} 
+          className="retro-button text-lg px-4 py-3"
+          aria-label="Next track"
+        >
           ⏭
         </button>
       </div>
 
       {/* Volume Control */}
       <div className="flex items-center justify-center space-x-3 max-w-xs mx-auto">
-        <span className="text-xs font-mono">🔈</span>
+        <span className="text-xs font-mono" aria-hidden="true">🔈</span>
         <div className="flex-1 relative">
           <div className="h-2 bg-retro-gray border-2 border-retro-black relative overflow-hidden">
             <div
@@ -66,9 +76,13 @@ export default function PlayerControls({
             value={volume}
             onChange={(e) => onVolumeChange(Number.parseFloat(e.target.value))}
             className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+            aria-label="Volume"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(volume * 100)}
           />
         </div>
-        <span className="text-xs font-mono">{Math.round(volume * 100)}%</span>
+        <span className="text-xs font-mono" aria-live="polite">{Math.round(volume * 100)}%</span>
       </div>
     </motion.div>
   );

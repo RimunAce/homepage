@@ -13,6 +13,8 @@ export default function ToggleButton({ isOpen, onClick }: ToggleButtonProps) {
       style={{ boxShadow: "4px 4px 0px #000000" }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
+      aria-label={isOpen ? "Close music player" : "Open music player"}
+      aria-expanded={isOpen}
     >
       <motion.div
         animate={{ rotate: isOpen ? 180 : 0 }}

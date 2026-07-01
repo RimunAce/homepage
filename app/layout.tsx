@@ -6,6 +6,7 @@ import MusicPlayer from "./components/MusicPlayer";
 import Background from "./components/Background";
 import Header from "./components/Header";
 import NewsTicker from "./components/NewsTicker";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "Respire.My World",
@@ -28,10 +29,16 @@ export default function RootLayout({
           <div className="min-h-screen bg-retro-gray relative">
             <Background />
             <Header />
-            <NewsTicker />
-            {children}
+            <ErrorBoundary>
+              <NewsTicker />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
           </div>
-          <MusicPlayer />
+          <ErrorBoundary>
+            <MusicPlayer />
+          </ErrorBoundary>
         </MusicPlayerProvider>
       </body>
     </html>

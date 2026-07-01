@@ -3,139 +3,37 @@
 import { useState, useEffect, useMemo, useCallback, type Dispatch, type SetStateAction } from "react";
 import Image from "next/image";
 import DOMPurify from "dompurify";
+import { logger } from "../lib/logger";
+import {
+  AniListUser,
+  Activity,
+  MediaItem,
+  AniListData,
+  CachedAniListData,
+  MediaFilterState,
+  MediaListState,
+  GraphQLResponse,
+  MediaStatus,
+  SortOrder,
+  ViewMode,
+  UserApiResponse,
+  ActivityApiResponse,
+  MediaListCollectionData,
+  RawMediaListEntry,
+} from "./types";
+import { SkeletonCard } from "./components/SkeletonCard";
+import { LoadingState } from "./components/LoadingState";
+import { ErrorState } from "./components/ErrorState";
+import { StatPanel } from "./components/StatPanel";
+import { FavoritesSection } from "./components/FavoritesSection";
+import { ActivityItem } from "./components/ActivityItem";
+import { MediaCard } from "./components/MediaCard";
+import { MediaProgressOverlay } from "./components/MediaProgressOverlay";
+import { ErrorBoundary } from "../components/ErrorBoundary";
+import { getProgressLabel } from "./utils/progressUtils";
 
-interface AniListUser {
-  id: number;
-  name: string;
-  about: string | null;
-  avatar: {
-    large: string;
-    medium: string;
-  };
-  bannerImage: string | null;
-  statistics: {
-    anime: {
-      count: number;
-      episodesWatched: number;
-      meanScore: number;
-    };
-    manga: {
-      count: number;
-      chaptersRead: number;
-      meanScore: number;
-    };
-  };
-}
-
-interface Activity {
-  id: number;
-  type: string;
-  createdAt: number;
-  status?: string;
-  progress?: string;
-  media?: {
-    id: number;
-    title: {
-      romaji: string;
-    };
-    coverImage: {
-      large: string;
-    };
-    siteUrl: string;
-  };
-}
-
-interface MediaItem {
-  id: number;
-  title: {
-    romaji: string;
-    english: string | null;
-  };
-  coverImage: {
-    large: string;
-  };
-  siteUrl: string;
-  genres: string[];
-  episodes?: number;
-  chapters?: number;
-  status: string;
-  score: number | null;
-  progress: number;
-  mediaListEntry?: {
-    status: string;
-    score: number;
-    progress: number;
-  };
-}
-
-interface RawMediaListEntry {
-  status: string;
-  score: number;
-  progress: number;
-  media: Omit<MediaItem, "mediaListEntry">;
-}
-
-interface MediaListCollectionData {
-  MediaListCollection: {
-    lists: Array<{
-      entries: RawMediaListEntry[];
-    }>;
-  };
-}
-
-interface UserApiResponse {
-  User: AniListUser;
-}
-
-interface ActivityApiResponse {
-  Page: {
-    activities: Activity[];
-  };
-}
-
-interface AniListData {
-  user: AniListUser;
-  activities: Activity[];
-  animeList: MediaItem[];
-  mangaList: MediaItem[];
-}
-
-interface CachedAniListData {
-  data: AniListData;
-  timestamp: number;
-}
-
-interface StatRow {
-  label: string;
-  value: string | number;
-}
-
-interface MediaFilterState {
-  statusFilter: MediaStatus;
-  genreFilter: string;
-  searchQuery: string;
-  sortOrder: SortOrder;
-}
-
-interface MediaListState {
-  activities: Activity[];
-  animeList: MediaItem[];
-  mangaList: MediaItem[];
-}
-
-type GraphQLResponse<T> = {
-  data: T;
-  errors?: Array<{
-    message: string;
-  }>;
-};
-
-type MediaStatus = "ALL" | "CURRENT" | "COMPLETED" | "PAUSED" | "DROPPED" | "PLANNING" | "REPEATING";
-type SortOrder = "TITLE_ASC" | "TITLE_DESC" | "SCORE_ASC" | "SCORE_DESC" | "NONE";
-type ViewMode = "grid" | "list";
-
-const ANILIST_ENDPOINT = "https://graphql.anilist.co";
-const ANILIST_USERNAME = "Reuzin";
+const ANILIST_ENDPOINT = process.env.NEXT_PUBLIC_ANILIST_ENDPOINT || "https://graphql.anilist.co";
+const ANILIST_USERNAME = process.env.NEXT_PUBLIC_ANILIST_USERNAME || "Reuzin";
 const CACHE_KEY = "anilist_data_cache";
 const CACHE_DURATION = 5 * 60 * 1000;
 const ITEMS_PER_PAGE = 10;
@@ -294,7 +192,7 @@ async function fetchAniListData(): Promise<{ data: AniListData; isPartial: boole
 
   [activitiesResult, animeResult, mangaResult].forEach((result) => {
     if (result.status === "rejected") {
-      console.error("Error fetching additional data:", result.reason);
+      logger.error("Error fetching additional data:", result.reason);
     }
   });
 
@@ -324,7 +222,7 @@ function loadCachedAniListData(): AniListData | null {
 
     return parsed.data;
   } catch (error) {
-    console.error("Cache parse error:", error);
+    logger.error("Cache parse error:", error);
     return null;
   }
 }
@@ -405,65 +303,6 @@ function getCurrentPageItems(items: MediaItem[], currentPage: number) {
   return items.slice(startIndex, endIndex);
 }
 
-function getProgressTotal(item: MediaItem) {
-  return item.episodes || item.chapters || 100;
-}
-
-function getProgressPercent(item: MediaItem) {
-  const total = getProgressTotal(item);
-  return Math.min(100, Math.max(0, ((item.mediaListEntry?.progress || 0) / total) * 100));
-}
-
-function getProgressLabel(item: MediaItem) {
-  return `${item.mediaListEntry?.progress || 0} / ${getProgressTotal(item)}`;
-}
-
-function SkeletonCard() {
-  return (
-    <div className="animate-pulse">
-      <div className="w-full aspect-[2/3] bg-retro-gray border-2 border-retro-black"></div>
-      <div className="mt-2 space-y-2">
-        <div className="h-3 bg-retro-gray border border-retro-black"></div>
-        <div className="h-2 bg-retro-gray border border-retro-black w-2/3"></div>
-      </div>
-    </div>
-  );
-}
-
-function LoadingState() {
-  return (
-    <div className="space-y-6">
-      <div className="retro-card animate-pulse">
-        <div className="flex gap-6">
-          <div className="w-32 h-32 bg-retro-gray border-2 border-retro-black"></div>
-          <div className="flex-grow space-y-3">
-            <div className="h-6 bg-retro-gray border-2 border-retro-black w-1/3"></div>
-            <div className="h-20 bg-retro-gray border-2 border-retro-black"></div>
-          </div>
-        </div>
-      </div>
-      <div className="retro-card">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {Array.from({ length: 10 }, (_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div className="bg-red-100 border-2 border-red-500 p-4 mb-4">
-      <p className="text-red-700 retro-text">Error: {message}</p>
-      <button className="retro-button mt-2 text-sm" onClick={onRetry}>
-        Retry
-      </button>
-    </div>
-  );
-}
-
 function ProfileSection({ user, aboutPreview }: { user: AniListUser; aboutPreview: string | null }) {
   return (
     <div className="retro-card">
@@ -518,37 +357,6 @@ function ProfileSection({ user, aboutPreview }: { user: AniListUser; aboutPrevie
   );
 }
 
-function StatPanel({ title, stats }: { title: string; stats: StatRow[] }) {
-  return (
-    <div className="p-4 bg-retro-gray border-2 border-retro-black">
-      <h3 className="retro-heading text-sm mb-3">{title}</h3>
-      <div className="space-y-1 retro-text text-xs">
-        {stats.map((stat) => (
-          <div className="flex justify-between" key={stat.label}>
-            <span>{stat.label}</span>
-            <span className="font-bold">{stat.value}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function FavoritesSection({ favorites }: { favorites: MediaItem[] }) {
-  if (favorites.length === 0) return null;
-
-  return (
-    <div className="retro-card">
-      <h3 className="retro-heading mb-4">⭐ FAVORITES (8+ SCORE)</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {favorites.map((item) => (
-          <MediaCard key={item.id} item={item} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function RecentActivities({ activities }: { activities: Activity[] }) {
   return (
     <div className="retro-card">
@@ -561,45 +369,6 @@ function RecentActivities({ activities }: { activities: Activity[] }) {
         ) : (
           <p className="retro-text text-center py-4">No recent activities</p>
         )}
-      </div>
-    </div>
-  );
-}
-
-function ActivityItem({ activity }: { activity: Activity }) {
-  return (
-    <div className="flex items-start gap-3 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors">
-      {activity.media && (
-        <Image
-          src={activity.media.coverImage.large}
-          alt={activity.media.title.romaji}
-          width={48}
-          height={64}
-          className="w-12 h-16 object-cover border border-retro-black"
-        />
-      )}
-      <div className="flex-grow">
-        <p className="retro-text text-xs">
-          {activity.status && <span className="font-bold">{activity.status}</span>}
-          {activity.progress && ` ${activity.progress}`}
-          {activity.media && (
-            <>
-              {" of "}
-              <a href={activity.media.siteUrl} target="_blank" rel="noopener noreferrer" className="retro-link">
-                {activity.media.title.romaji}
-              </a>
-            </>
-          )}
-        </p>
-        <p className="text-xs text-gray-600 mt-1">{formatDate(activity.createdAt)}</p>
-        <a
-          href={`https://anilist.co/activity/${activity.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-blue-600 mt-1 inline-block hover:underline"
-        >
-          View activity →
-        </a>
       </div>
     </div>
   );
@@ -909,47 +678,7 @@ function MediaListRows({ items }: { items: MediaItem[] }) {
   );
 }
 
-function MediaCard({ item }: { item: MediaItem }) {
-  return (
-    <a href={item.siteUrl} target="_blank" rel="noopener noreferrer" className="group cursor-pointer">
-      <div className="relative w-full aspect-[2/3] border-2 border-retro-black overflow-hidden">
-        <Image
-          src={item.coverImage.large}
-          alt={item.title.romaji}
-          width={300}
-          height={450}
-          className="w-full h-full object-cover transition-transform group-hover:scale-105"
-        />
-        {item.mediaListEntry?.status === "CURRENT" && <MediaProgressOverlay item={item} />}
-      </div>
-      <div className="mt-2">
-        <p className="retro-text text-xs font-bold truncate group-hover:text-blue-600">{getDisplayTitle(item)}</p>
-        {item.mediaListEntry && (
-          <div className="text-xs mt-1">
-            <p className="text-gray-600">{item.mediaListEntry.status}</p>
-            {item.mediaListEntry.score > 0 && <p className="text-gray-600">⭐ {item.mediaListEntry.score}/10</p>}
-          </div>
-        )}
-        {item.genres?.slice(0, 2).map((genre) => (
-          <span key={genre} className="text-xs bg-retro-gray border border-retro-black px-1 mr-1">
-            {genre}
-          </span>
-        ))}
-      </div>
-    </a>
-  );
-}
 
-function MediaProgressOverlay({ item }: { item: MediaItem }) {
-  return (
-    <div className="absolute bottom-0 left-0 right-0 bg-retro-black bg-opacity-90 p-1">
-      <div className="h-2 bg-retro-gray border border-retro-white">
-        <div className="h-full bg-green-500" style={{ width: `${getProgressPercent(item)}%` }} />
-      </div>
-      <p className="text-white text-xs text-center mt-1">{getProgressLabel(item)}</p>
-    </div>
-  );
-}
 
 function MediaListItem({ item }: { item: MediaItem }) {
   return (
@@ -1044,7 +773,7 @@ function useAniListData() {
         try {
           saveAniListCache(data);
         } catch (cacheError) {
-          console.error("Cache save error:", cacheError);
+          logger.error("Cache save error:", cacheError);
         }
       }
     } catch (fetchError) {
@@ -1098,31 +827,33 @@ export default function AniListPage() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 relative z-10">
-      {loading && <LoadingState />}
-      {error && <ErrorState message={error} onRetry={loadFreshData} />}
-      {user && !loading && (
-        <AniListContent
-          activeTab={activeTab}
-          activities={activities}
-          aboutPreview={aboutPreview}
-          animeList={animeList}
-          currentPage={currentPage}
-          genreFilter={genreFilter}
-          mangaList={mangaList}
-          searchQuery={searchQuery}
-          setActiveTab={setActiveTab}
-          setCurrentPage={setCurrentPage}
-          setGenreFilter={(value) => updateMediaFilter("genreFilter", value)}
-          setSearchQuery={(value) => updateMediaFilter("searchQuery", value)}
-          setSortOrder={(value) => updateMediaFilter("sortOrder", value)}
-          setStatusFilter={(value) => updateMediaFilter("statusFilter", value)}
-          setViewMode={setViewMode}
-          sortOrder={sortOrder}
-          statusFilter={statusFilter}
-          user={user}
-          viewMode={viewMode}
-        />
-      )}
+      <ErrorBoundary>
+        {loading && <LoadingState />}
+        {error && <ErrorState message={error} onRetry={loadFreshData} />}
+        {user && !loading && (
+          <AniListContent
+            activeTab={activeTab}
+            activities={activities}
+            aboutPreview={aboutPreview}
+            animeList={animeList}
+            currentPage={currentPage}
+            genreFilter={genreFilter}
+            mangaList={mangaList}
+            searchQuery={searchQuery}
+            setActiveTab={setActiveTab}
+            setCurrentPage={setCurrentPage}
+            setGenreFilter={(value) => updateMediaFilter("genreFilter", value)}
+            setSearchQuery={(value) => updateMediaFilter("searchQuery", value)}
+            setSortOrder={(value) => updateMediaFilter("sortOrder", value)}
+            setStatusFilter={(value) => updateMediaFilter("statusFilter", value)}
+            setViewMode={setViewMode}
+            sortOrder={sortOrder}
+            statusFilter={statusFilter}
+            user={user}
+            viewMode={viewMode}
+          />
+        )}
+      </ErrorBoundary>
     </main>
   );
 }

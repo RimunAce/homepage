@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import DOMPurify from "dompurify";
+import { logger } from "../lib/logger";
 
 interface AniListUser {
   id: number;
@@ -82,11 +83,11 @@ export default function AniListProfile({ isOpen, onClose }: AniListProfileProps)
     `;
 
     const variables = {
-      userName: "Reuzin"
+      userName: process.env.NEXT_PUBLIC_ANILIST_USERNAME || "Reuzin"
     };
 
     try {
-      const response = await fetch("https://graphql.anilist.co", {
+      const response = await fetch(process.env.NEXT_PUBLIC_ANILIST_ENDPOINT || "https://graphql.anilist.co", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

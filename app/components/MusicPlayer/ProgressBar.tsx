@@ -21,10 +21,10 @@ export default function ProgressBar({
       className="mb-6"
     >
       <div className="flex items-center space-x-2 mb-2">
-        <span className="text-xs font-mono whitespace-nowrap">
+        <span className="text-xs font-mono whitespace-nowrap" aria-live="off">
           {formatTime(currentTime)}
         </span>
-        <div className="flex-1 relative">
+        <div className="flex-1 relative" role="slider" aria-label="Track progress">
           <div className="h-3 bg-retro-gray border-2 border-retro-black relative overflow-hidden">
             <div
               className="h-full bg-retro-black transition-all duration-100"
@@ -47,9 +47,13 @@ export default function ProgressBar({
             value={currentTime}
             onChange={onSeek}
             className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+            aria-label="Seek to position"
+            aria-valuemin={0}
+            aria-valuemax={duration || 0}
+            aria-valuenow={currentTime}
           />
         </div>
-        <span className="text-xs font-mono whitespace-nowrap">
+        <span className="text-xs font-mono whitespace-nowrap" aria-live="off">
           {formatTime(duration)}
         </span>
       </div>
