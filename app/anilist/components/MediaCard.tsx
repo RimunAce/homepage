@@ -10,6 +10,21 @@ function getDisplayTitle(item: MediaItem) {
   return item.title.english || item.title.romaji;
 }
 
+function StarIcon() {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      className="inline-block"
+    >
+      <path d="M12 2l2.9 6.26 6.6.56-5 4.36 1.5 6.45L12 16.9 5.99 19.63l1.5-6.45-5-4.36 6.6-.56L12 2z" />
+    </svg>
+  );
+}
+
 export function MediaCard({ item }: MediaCardProps) {
   return (
     <a 
@@ -30,11 +45,15 @@ export function MediaCard({ item }: MediaCardProps) {
         {item.mediaListEntry?.status === "CURRENT" && <MediaProgressOverlay item={item} />}
       </div>
       <div className="mt-2">
-        <p className="retro-text text-xs font-bold truncate group-hover:text-blue-600">{getDisplayTitle(item)}</p>
+        <p className="retro-text text-xs font-bold truncate group-hover:underline">{getDisplayTitle(item)}</p>
         {item.mediaListEntry && (
-          <div className="text-xs mt-1">
-            <p className="text-gray-600">{item.mediaListEntry.status}</p>
-            {item.mediaListEntry.score > 0 && <p className="text-gray-600">⭐ {item.mediaListEntry.score}/10</p>}
+          <div className="text-xs mt-1 opacity-70">
+            <p>{item.mediaListEntry.status}</p>
+            {item.mediaListEntry.score > 0 && (
+              <p className="flex items-center gap-1">
+                <StarIcon /> {item.mediaListEntry.score}/10
+              </p>
+            )}
           </div>
         )}
         {item.genres?.slice(0, 2).map((genre) => (

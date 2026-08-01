@@ -14,43 +14,6 @@ function Header() {
         </div>
       </header>
 
-      {/* Scrolling Text Banner - CSS animation for better performance */}
-      <div className="bg-retro-black text-retro-white py-1 overflow-hidden relative z-10">
-        <div className="scroll-banner flex whitespace-nowrap text-xs font-mono">
-          <span className="scroll-content">
-            {Array.from({ length: 20 }, (_, i) => (
-              <span key={`banner-${i}`} className="mx-4">
-                [Insert Text Here]
-              </span>
-            ))}
-          </span>
-          <span className="scroll-content" aria-hidden="true">
-            {Array.from({ length: 20 }, (_, i) => (
-              <span key={`banner-dup-${i}`} className="mx-4">
-                [Insert Text Here]
-              </span>
-            ))}
-          </span>
-        </div>
-        <style jsx>{`
-          .scroll-banner {
-            animation: scroll 30s linear infinite;
-            will-change: transform;
-          }
-          .scroll-content {
-            display: inline-block;
-          }
-          @keyframes scroll {
-            from {
-              transform: translateX(0) translateZ(0);
-            }
-            to {
-              transform: translateX(-50%) translateZ(0);
-            }
-          }
-        `}</style>
-      </div>
-
       {/* Navigation */}
       <nav className="bg-retro-white border-b-2 border-retro-black relative z-10" aria-label="Main navigation">
         <div className="max-w-6xl mx-auto px-4 py-2">

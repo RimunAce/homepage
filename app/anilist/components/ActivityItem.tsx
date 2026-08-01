@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Activity } from "../page";
+import { Activity } from "../types";
 
 interface ActivityItemProps {
   activity: Activity;
@@ -38,12 +38,12 @@ export function ActivityItem({ activity }: ActivityItemProps) {
             </>
           )}
         </p>
-        <p className="text-xs text-gray-600 mt-1">{formatDate(activity.createdAt)}</p>
+        <p className="text-xs opacity-70 mt-1">{formatDate(activity.createdAt)}</p>
         <a
           href={`https://anilist.co/activity/${activity.id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-blue-600 mt-1 inline-block hover:underline"
+          className="text-xs retro-link mt-1 inline-block"
         >
           View activity →
         </a>

@@ -5,6 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 
+const EQUALIZER_BARS = [
+  { active: [4, 16, 8, 12, 4], duration: 0.5 },
+  { active: [8, 4, 16, 10, 8], duration: 0.4 },
+  { active: [12, 8, 4, 16, 12], duration: 0.6 },
+];
+
 export default function Playlist() {
     const {
         tracks,
@@ -13,7 +19,8 @@ export default function Playlist() {
         setIsPlaying,
         setCurrentTime,
         isMikuMode,
-        setIsMikuMode
+        setIsMikuMode,
+        isPlaying
     } = useMusicPlayer();
 
     const handleTrackClick = (index: number) => {
@@ -30,21 +37,23 @@ export default function Playlist() {
         <div className="w-full max-w-md mx-auto border-2 border-retro-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             {/* Tab Header */}
             <div className="relative border-b-2 border-retro-black">
-                <div className="flex">
+                <div className="flex" role="group" aria-label="Playlist mode">
                     <button
                         onClick={() => handleTabSwitch(false)}
+                        aria-pressed={!isMikuMode}
                         className={`flex-1 py-3 px-4 font-bold text-lg transition-all relative ${!isMikuMode
                             ? "text-retro-black"
-                            : "text-gray-400 hover:text-gray-600"
+                            : "text-retro-black opacity-50 hover:opacity-80"
                             }`}
                     >
                         Teto
                     </button>
                     <button
                         onClick={() => handleTabSwitch(true)}
+                        aria-pressed={isMikuMode}
                         className={`flex-1 py-3 px-4 font-bold text-lg transition-all relative ${isMikuMode
                             ? "text-retro-black"
-                            : "text-gray-400 hover:text-gray-600"
+                            : "text-retro-black opacity-50 hover:opacity-80"
                             }`}
                     >
                         +Miku
@@ -101,7 +110,7 @@ export default function Playlist() {
                                     <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                                         <span className="font-bold truncate">{track.title}</span>
                                         <span
-                                            className={`text-sm truncate ${currentTrack === index ? "text-gray-300" : "text-gray-600"
+                                            className={`text-sm truncate ${currentTrack === index ? "opacity-80" : "opacity-60"
                                                 }`}
                                         >
                                             {track.author}
@@ -110,34 +119,19 @@ export default function Playlist() {
 
                                     {/* Playing Indicator */}
                                     {currentTrack === index && (
-                                        <div className="flex space-x-1 items-end h-4 ml-2 flex-shrink-0">
-                                            <motion.div
-                                                animate={{ height: [4, 16, 8, 12, 4] }}
-                                                transition={{
-                                                    repeat: Infinity,
-                                                    duration: 0.5,
-                                                    ease: "linear",
-                                                }}
-                                                className="w-1 bg-retro-white"
-                                            />
-                                            <motion.div
-                                                animate={{ height: [8, 4, 16, 10, 8] }}
-                                                transition={{
-                                                    repeat: Infinity,
-                                                    duration: 0.4,
-                                                    ease: "linear",
-                                                }}
-                                                className="w-1 bg-retro-white"
-                                            />
-                                            <motion.div
-                                                animate={{ height: [12, 8, 4, 16, 12] }}
-                                                transition={{
-                                                    repeat: Infinity,
-                                                    duration: 0.6,
-                                                    ease: "linear",
-                                                }}
-                                                className="w-1 bg-retro-white"
-                                            />
+                                        <div className="flex space-x-1 items-end h-4 ml-2 flex-shrink-0" aria-hidden="true">
+                                            {EQUALIZER_BARS.map((bar, i) => (
+                                                <motion.div
+                                                    key={i}
+                                                    animate={isPlaying ? { height: bar.active } : { height: 4 }}
+                                                    transition={{
+                                                        repeat: Infinity,
+                                                        duration: bar.duration,
+                                                        ease: "linear",
+                                                    }}
+                                                    className="w-1 bg-retro-white"
+                                                />
+                                            ))}
                                         </div>
                                     )}
                                 </button>

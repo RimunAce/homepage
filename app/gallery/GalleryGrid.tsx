@@ -36,15 +36,24 @@ export default function GalleryGrid({
 }: GalleryGridProps) {
   const reversedImages = [...images].reverse();
 
+  if (images.length === 0) {
+    return (
+      <div className="retro-card text-center py-12">
+        <p className="retro-heading mb-2">GALLERY</p>
+        <p className="retro-text text-sm">No photos yet — check back soon.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 auto-rows-[150px] sm:auto-rows-[180px] md:auto-rows-[200px] gap-2 sm:gap-3">
+    <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[200px] sm:auto-rows-[180px] md:auto-rows-[200px] gap-2 sm:gap-3">
       {reversedImages.map((image, index) => (
         <button
           key={`gallery-${image.url}-${index}`}
           className={`${getGridClass(
             image.width,
             image.height
-          )} border-2 border-retro-black overflow-hidden cursor-pointer transition-all`}
+          )} border-2 border-retro-black overflow-hidden cursor-pointer transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000000] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-retro-black`}
           style={{ boxShadow: "3px 3px 0px #000000" }}
           onClick={() => onImageClick(image)}
         >

@@ -36,6 +36,7 @@ export default function TrackPlaylist({
           <motion.button
             key={track.id}
             onClick={() => onTrackSelect(index)}
+            aria-pressed={index === currentTrack}
             className={`text-left p-2 border-2 transition-all ${
               index === currentTrack
                 ? "border-retro-black bg-retro-black text-retro-white"
@@ -59,11 +60,19 @@ export default function TrackPlaylist({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold truncate">{track.title}</p>
-                <p className="text-xs opacity-70 truncate">by {track.author}</p>
-                <p className="text-xs opacity-50 text-[10px]">
-                  {index === currentTrack
-                    ? "Now Playing"
-                    : `Track ${index + 1}`}
+                <p
+                  className={`text-xs truncate ${
+                    index === currentTrack ? "opacity-80" : "opacity-70"
+                  }`}
+                >
+                  by {track.author}
+                </p>
+                <p
+                  className={`text-[11px] truncate ${
+                    index === currentTrack ? "opacity-60" : "opacity-50"
+                  }`}
+                >
+                  {index === currentTrack ? "Now Playing" : `Track ${index + 1}`}
                 </p>
               </div>
             </div>

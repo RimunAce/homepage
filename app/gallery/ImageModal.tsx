@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { useEffect } from "react";
 
 interface GalleryImage {
   url: string;
@@ -14,6 +15,15 @@ interface ImageModalProps {
 }
 
 export default function ImageModal({ image, onClose }: ImageModalProps) {
+  useEffect(() => {
+    if (!image) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [image, onClose]);
+
   return (
     <AnimatePresence>
       {image && (
@@ -23,6 +33,9 @@ export default function ImageModal({ image, onClose }: ImageModalProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+          aria-label={image.caption || "Image preview"}
         >
           <motion.div
             className="relative max-w-5xl max-h-[90vh] border-4 border-retro-white"

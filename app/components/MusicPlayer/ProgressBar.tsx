@@ -24,7 +24,7 @@ export default function ProgressBar({
         <span className="text-xs font-mono whitespace-nowrap" aria-live="off">
           {formatTime(currentTime)}
         </span>
-        <div className="flex-1 relative" role="slider" aria-label="Track progress">
+        <div className="flex-1 relative">
           <div className="h-3 bg-retro-gray border-2 border-retro-black relative overflow-hidden">
             <div
               className="h-full bg-retro-black transition-all duration-100"
@@ -33,7 +33,7 @@ export default function ProgressBar({
               }}
             />
             <div
-              className="absolute top-0 bottom-0 w-1 bg-red-600"
+              className="absolute top-0 bottom-0 w-1 bg-retro-yellow"
               style={{
                 left: `${(currentTime / (duration || 1)) * 100}%`,
                 transform: "translateX(-50%)",

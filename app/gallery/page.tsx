@@ -16,11 +16,19 @@ interface GalleryImage {
 export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [images, setImages] = useState<GalleryImage[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(DATA_URLS.gallery)
-      .then((res) => res.json())
-      .then((data) => setImages(data));
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch gallery");
+        return res.json();
+      })
+      .then((data) => {
+        setImages(data);
+        setError(null);
+      })
+      .catch(() => setError("Could not load the gallery right now. Please try again later."));
   }, []);
 
   // Extract all image URLs for preloading
@@ -33,7 +41,8 @@ export default function Gallery() {
   const preloadStatus = useImagePreloader(imageUrls);
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8 relative z-10">
+    <main className="max-w-6xl mx-auto px-4 py-8 pb-28 relative z-10">
+      <h1 className="retro-heading text-2xl mb-6">GALLERY</h1>
       {/* Loading indicator */}
       {!preloadStatus.isComplete && images.length > 0 && (
         <div className="mb-6 p-4 bg-retro-black border-2 border-retro-white text-retro-white font-mono text-sm"
@@ -48,6 +57,11 @@ export default function Gallery() {
               style={{ width: `${(preloadStatus.loaded / preloadStatus.total) * 100}%` }}
             />
           </div>
+        </div>
+      )}
+      {error && (
+        <div className="mb-6 bg-retro-yellow border-2 border-retro-black p-3">
+          <p className="text-xs font-mono text-retro-black">{error}</p>
         </div>
       )}
       <GalleryGrid images={images} onImageClick={setSelectedImage} />

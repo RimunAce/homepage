@@ -83,7 +83,15 @@
     background-color: #000000;
     color: #ffffff;
     text-decoration: none;
-    padding: 2px 4px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .retro-link:focus-visible,
+  .retro-button:focus-visible,
+  .retro-input:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
   }
 
   .retro-scrollbar::-webkit-scrollbar {

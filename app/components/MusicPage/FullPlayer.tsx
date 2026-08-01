@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { type ChangeEventHandler, type ReactNode } from "react";
 import { useMusicPlayer } from "../../contexts/MusicPlayerContext";
+import { PreviousIcon, NextIcon, PlayPauseIcon, VolumeIcon } from "../MusicPlayer/icons";
 
 const CONTROL_SHADOW = "shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]";
 const BASE_BUTTON_CLASS = `border-2 border-retro-black bg-retro-white hover:bg-retro-black hover:text-retro-white transition-colors ${CONTROL_SHADOW}`;
@@ -15,15 +16,22 @@ interface ControlButtonProps {
   onClick: () => void;
   className: string;
   children: ReactNode;
+  label?: string;
+  pressed?: boolean;
 }
 
-const ControlButton = ({ onClick, className, children }: ControlButtonProps) => (
-  <button onClick={onClick} className={className}>
+const ControlButton = ({ onClick, className, children, label, pressed }: ControlButtonProps) => (
+  <button
+    onClick={onClick}
+    className={className}
+    aria-label={label}
+    aria-pressed={pressed}
+  >
     {children}
   </button>
 );
 
-const AlbumArt = ({ thumbnail }: { thumbnail: string }) => (
+const AlbumArt = ({ thumbnail, title }: { thumbnail: string; title: string | undefined }) => (
   <motion.div
     initial={{ scale: 0.9, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
@@ -33,15 +41,17 @@ const AlbumArt = ({ thumbnail }: { thumbnail: string }) => (
     {thumbnail ? (
       <Image
         src={thumbnail}
-        alt="Album Art"
+        alt={title || "Album art"}
         fill
         className="object-cover"
         sizes="(max-width: 768px) 16rem, 20rem"
         priority
       />
     ) : (
-      <div className="w-full h-full flex items-center justify-center text-6xl">
-        🎵
+      <div className="w-full h-full flex items-center justify-center" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3v9.28a4.39 4.39 0 0 0-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z" />
+        </svg>
       </div>
     )}
   </motion.div>
@@ -50,7 +60,7 @@ const AlbumArt = ({ thumbnail }: { thumbnail: string }) => (
 const TrackInfo = ({ title, author }: { title: string; author: string }) => (
   <div className="text-center mb-8 space-y-2">
     <h2 className={`text-2xl md:text-3xl font-bold ${TRACK_TEXT_CLASS}`}>{title}</h2>
-    <p className={`text-lg text-gray-600 ${TRACK_TEXT_CLASS}`}>{author}</p>
+    <p className={`text-lg opacity-70 ${TRACK_TEXT_CLASS}`}>{author}</p>
   </div>
 );
 
@@ -61,25 +71,34 @@ interface RangeTrackProps {
   step?: number;
   onChange: ChangeEventHandler<HTMLInputElement>;
   className: string;
+  label?: string;
 }
 
-const RangeTrack = ({ value, max, min, step = 1, onChange, className }: RangeTrackProps) => (
-  <div className={className}>
-    <div
-      className="h-full bg-retro-black transition-all duration-100"
-      style={{ width: `${(value / (max || 1)) * 100}%` }}
-    />
-    <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      onChange={onChange}
-      className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-    />
-  </div>
-);
+const RangeTrack = ({ value, max, min, step = 1, onChange, className, label }: RangeTrackProps) => {
+  const percent = (value / (max || 1)) * 100;
+  return (
+    <div className={className}>
+      <div
+        className="h-full bg-retro-black transition-all duration-100"
+        style={{ width: `${percent}%` }}
+      />
+      <div
+        className="absolute top-0 bottom-0 w-1 bg-retro-yellow"
+        style={{ left: `${percent}%`, transform: "translateX(-50%)" }}
+      />
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={onChange}
+        aria-label={label}
+        className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+      />
+    </div>
+  );
+};
 
 interface ProgressBarProps {
   currentTime: number;
@@ -100,68 +119,10 @@ const ProgressBar = ({ currentTime, duration, formatTime, onSeek }: ProgressBarP
       min={0}
       step={0.1}
       onChange={onSeek}
+      label="Seek to position"
       className="relative h-4 bg-retro-gray border-2 border-retro-black"
     />
   </div>
-);
-
-interface IconProps {
-  width: number;
-  height: number;
-  children: ReactNode;
-}
-
-const Icon = ({ width, height, children }: IconProps) => (
-  <svg
-    width={width}
-    height={height}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    {children}
-  </svg>
-);
-
-const PreviousIcon = () => (
-  <Icon width={24} height={24}>
-    <polygon points="19 20 9 12 19 4 19 20"></polygon>
-    <line x1="5" y1="19" x2="5" y2="5"></line>
-  </Icon>
-);
-
-const PauseIcon = () => (
-  <Icon width={32} height={32}>
-    <rect x="6" y="4" width="4" height="16"></rect>
-    <rect x="14" y="4" width="4" height="16"></rect>
-  </Icon>
-);
-
-const PlayIcon = () => (
-  <Icon width={32} height={32}>
-    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-  </Icon>
-);
-
-const PlayPauseIcon = ({ isPlaying }: { isPlaying: boolean }) => (
-  isPlaying ? <PauseIcon /> : <PlayIcon />
-);
-
-const NextIcon = () => (
-  <Icon width={24} height={24}>
-    <polygon points="5 4 15 12 5 20 5 4"></polygon>
-    <line x1="19" y1="5" x2="19" y2="19"></line>
-  </Icon>
-);
-
-const VolumeIcon = () => (
-  <Icon width={20} height={20}>
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-  </Icon>
 );
 
 interface VolumeControlProps {
@@ -178,6 +139,7 @@ const VolumeControl = ({ volume, setVolume }: VolumeControlProps) => (
       min={0}
       step={0.01}
       onChange={(e) => setVolume(parseFloat(e.target.value))}
+      label="Volume"
       className="flex-1 relative h-2 bg-retro-gray border border-retro-black"
     />
   </div>
@@ -204,18 +166,31 @@ export default function FullPlayer() {
 
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto">
-      <AlbumArt thumbnail={currentThumbnail} />
+      <AlbumArt thumbnail={currentThumbnail} title={getCurrentTitle()} />
       <TrackInfo title={getCurrentTitle()} author={getCurrentAuthor()} />
       <ProgressBar currentTime={currentTime} duration={duration} formatTime={formatTime} onSeek={handleSeek} />
 
       <div className="flex items-center justify-center space-x-8 mb-8">
-        <ControlButton onClick={prevTrack} className={SMALL_BUTTON_CLASS}>
+        <ControlButton
+          onClick={prevTrack}
+          className={SMALL_BUTTON_CLASS}
+          label="Previous track"
+        >
           <PreviousIcon />
         </ControlButton>
-        <ControlButton onClick={togglePlayPause} className={LARGE_BUTTON_CLASS}>
+        <ControlButton
+          onClick={togglePlayPause}
+          className={LARGE_BUTTON_CLASS}
+          label={isPlaying ? "Pause" : "Play"}
+          pressed={isPlaying}
+        >
           <PlayPauseIcon isPlaying={isPlaying} />
         </ControlButton>
-        <ControlButton onClick={nextTrack} className={SMALL_BUTTON_CLASS}>
+        <ControlButton
+          onClick={nextTrack}
+          className={SMALL_BUTTON_CLASS}
+          label="Next track"
+        >
           <NextIcon />
         </ControlButton>
       </div>

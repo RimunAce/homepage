@@ -1,4 +1,4 @@
-import { MediaItem } from "../page";
+import { MediaItem } from "../types";
 import { MediaCard } from "./MediaCard";
 
 interface FavoritesSectionProps {
@@ -10,7 +10,7 @@ export function FavoritesSection({ favorites }: FavoritesSectionProps) {
 
   return (
     <div className="retro-card">
-      <h3 className="retro-heading mb-4">⭐ FAVORITES (8+ SCORE)</h3>
+      <h3 className="retro-heading mb-4">FAVORITES (8+ SCORE)</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
         {favorites.map((item) => (
           <MediaCard key={item.id} item={item} />

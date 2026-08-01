@@ -262,6 +262,21 @@ function getDisplayTitle(item: MediaItem) {
   return item.title.english || item.title.romaji;
 }
 
+function StarIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      className="inline-block"
+    >
+      <path d="M12 2l2.9 6.26 6.6.56-5 4.36 1.5 6.45L12 16.9 5.99 19.63l1.5-6.45-5-4.36 6.6-.56L12 2z" />
+    </svg>
+  );
+}
+
 function matchesStatusFilter(item: MediaItem, statusFilter: MediaStatus) {
   return statusFilter === "ALL" || item.mediaListEntry?.status === statusFilter;
 }
@@ -518,7 +533,7 @@ function MediaListSection({
         statusFilter={statusFilter}
       />
 
-      <p className="text-xs text-gray-600 mb-3">
+      <p className="text-xs opacity-70 mb-3">
         Showing {filteredAndSortedItems.length} {activeTab}
       </p>
 
@@ -551,33 +566,37 @@ function MediaListControls({
 }) {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-      <div className="flex gap-2">
+      <div className="flex gap-2" role="group" aria-label="Media type">
         <button
           className={`retro-button text-sm ${activeTab === "anime" ? "bg-retro-black text-retro-white" : ""}`}
           onClick={() => setActiveTab("anime")}
+          aria-pressed={activeTab === "anime"}
         >
-          📺 ANIME LIST
+          ANIME LIST
         </button>
         <button
           className={`retro-button text-sm ${activeTab === "manga" ? "bg-retro-black text-retro-white" : ""}`}
           onClick={() => setActiveTab("manga")}
+          aria-pressed={activeTab === "manga"}
         >
-          📖 MANGA LIST
+          MANGA LIST
         </button>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2" role="group" aria-label="View mode">
         <button
           className={`retro-button text-sm ${viewMode === "grid" ? "bg-retro-black text-retro-white" : ""}`}
           onClick={() => setViewMode("grid")}
+          aria-pressed={viewMode === "grid"}
         >
-          ▦ GRID
+          GRID
         </button>
         <button
           className={`retro-button text-sm ${viewMode === "list" ? "bg-retro-black text-retro-white" : ""}`}
           onClick={() => setViewMode("list")}
+          aria-pressed={viewMode === "list"}
         >
-          ☰ LIST
+          LIST
         </button>
       </div>
     </div>
@@ -697,7 +716,7 @@ function MediaListItem({ item }: { item: MediaItem }) {
       />
       <div className="flex-grow">
         <p className="retro-text text-sm font-bold">{getDisplayTitle(item)}</p>
-        <p className="text-xs text-gray-600 mt-1">
+        <p className="text-xs mt-1 opacity-70">
           {item.mediaListEntry?.status || "Unknown"}
           {item.mediaListEntry?.status === "CURRENT" && ` • ${getProgressLabel(item)}`}
         </p>
@@ -708,8 +727,8 @@ function MediaListItem({ item }: { item: MediaItem }) {
         ))}
       </div>
       {item.mediaListEntry && item.mediaListEntry.score > 0 && (
-        <div className="text-right">
-          <div className="text-2xl font-bold">⭐</div>
+        <div className="text-right flex-shrink-0">
+          <StarIcon />
           <div className="text-sm font-bold">{item.mediaListEntry.score}/10</div>
         </div>
       )}
@@ -729,17 +748,20 @@ function PaginationControls({
   return (
     <div className="flex justify-center gap-2 mt-6">
       <button
-        className="retro-button text-sm"
+        className="retro-button text-sm disabled:opacity-40 disabled:pointer-events-none"
         onClick={() => onPageChange((page) => Math.max(1, page - 1))}
         disabled={currentPage === 1}
       >
         ← PREV
       </button>
-      <span className="retro-button text-sm">
+      <span
+        className="inline-flex items-center border-2 border-retro-black bg-retro-white px-3 text-sm font-mono"
+        aria-live="polite"
+      >
         {currentPage} / {totalPages}
       </span>
       <button
-        className="retro-button text-sm"
+        className="retro-button text-sm disabled:opacity-40 disabled:pointer-events-none"
         onClick={() => onPageChange((page) => Math.min(totalPages, page + 1))}
         disabled={currentPage === totalPages}
       >
@@ -826,7 +848,7 @@ export default function AniListPage() {
   }, []);
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8 relative z-10">
+    <main className="max-w-6xl mx-auto px-4 py-8 pb-28 relative z-10">
       <ErrorBoundary>
         {loading && <LoadingState />}
         {error && <ErrorState message={error} onRetry={loadFreshData} />}
