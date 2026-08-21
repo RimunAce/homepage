@@ -36,6 +36,7 @@ export default function TrackPlaylist({
           <motion.button
             key={track.id}
             onClick={() => onTrackSelect(index)}
+            aria-label={`Play ${track.title} by ${track.author}`}
             aria-pressed={index === currentTrack}
             className={`text-left p-2 border-2 transition-all ${
               index === currentTrack
