@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMusicPlayer } from "../contexts/MusicPlayerContext";
@@ -47,13 +48,23 @@ export default function MusicPlayer() {
 
   const currentTrackData = tracks[currentTrack];
   const panelRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname === "/music") setIsOpen(false);
+  }, [pathname, setIsOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const panel = panelRef.current;
     const previous = document.getElementById("music-player-toggle");
-    panel?.focus();
+    const focusable = panel
+      ? Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE))
+      : [];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    (first ?? panel)?.focus();
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -62,14 +73,11 @@ export default function MusicPlayer() {
         return;
       }
 
-      if (event.key !== "Tab" || !panel) return;
+      if (event.key !== "Tab" || !panel || focusable.length === 0) return;
 
-      const focusable = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE));
-      if (focusable.length === 0) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
+      const atStart =
+        document.activeElement === first || document.activeElement === panel;
+      if (event.shiftKey && atStart) {
         event.preventDefault();
         last.focus();
       } else if (!event.shiftKey && document.activeElement === last) {
@@ -95,7 +103,10 @@ export default function MusicPlayer() {
         title={getCurrentTitle() ?? ""}
         author={getCurrentAuthor() ?? ""}
         thumbnail={getCurrentThumbnail() ?? ""}
-        onToggleDrawer={() => setIsOpen(!isOpen)}
+        onToggleDrawer={() => {
+          if (pathname === "/music") return;
+          setIsOpen(!isOpen);
+        }}
         onTogglePlay={togglePlayPause}
       />
 
@@ -126,7 +137,11 @@ export default function MusicPlayer() {
                   isMikuMode={isMikuMode}
                   onClick={() => setIsMikuMode(!isMikuMode)}
                 />
-                <Link href="/music" className="retro-link text-xs">
+                <Link
+                  href="/music"
+                  className="retro-link text-xs"
+                  onClick={() => setIsOpen(false)}
+                >
                   Open full player →
                 </Link>
               </div>

@@ -37,14 +37,9 @@ const FALLBACK_PROJECTS: Project[] = [
   },
 ];
 
-function isLiving(status: string) {
-  return status === "Active" || status === "Paused";
-}
-
 function splitProjects(projects: Project[]) {
-  const featured = projects.filter((p) => isLiving(p.status));
-  const rest = projects.filter((p) => !isLiving(p.status));
-  if (featured.length === 0) return { featured: projects, rest: [] };
+  const featured = projects.filter((p) => p.status !== "Archived");
+  const rest = projects.filter((p) => p.status === "Archived");
   return { featured, rest };
 }
 
@@ -168,7 +163,7 @@ export default function Projects() {
         </div>
       )}
 
-      {!loading && featured.length === 0 && (
+      {!loading && featured.length === 0 && rest.length === 0 && (
         <p className="retro-text text-xs">No projects to show right now.</p>
       )}
 

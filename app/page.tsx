@@ -7,7 +7,8 @@ export default function Home() {
   return (
     <main
       id="main-content"
-      className="max-w-6xl mx-auto px-4 py-8 pb-36 relative z-10"
+      tabIndex={-1}
+      className="max-w-6xl mx-auto px-4 py-8 pb-36 relative z-10 focus:outline-none"
     >
       <Bio />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6 overflow-visible">
