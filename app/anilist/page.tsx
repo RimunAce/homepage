@@ -848,7 +848,7 @@ export default function AniListPage() {
   }, []);
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8 pb-28 relative z-10">
+    <main id="main-content" className="max-w-6xl mx-auto px-4 py-8 pb-36 relative z-10">
       <ErrorBoundary>
         {loading && <LoadingState />}
         {error && <ErrorState message={error} onRetry={loadFreshData} />}

@@ -13,12 +13,14 @@ const FALLBACK_UPDATES: Update[] = [
   {
     date: "2025-06",
     time: "12:00",
-    content: "Site is running on Next.js 16 with a fresh retro redesign. Browse around!",
+    content:
+      "Site is running on Next.js 16 with a fresh retro redesign. Browse around!",
   },
   {
     date: "2025-05",
     time: "09:30",
-    content: "Added music player with playlist switching — check out the Music page.",
+    content:
+      "Added music player with playlist switching — check out the Music page.",
   },
   {
     date: "2025-04",
@@ -66,9 +68,9 @@ export default function Updates() {
       <h2 className="retro-heading">UPDATES</h2>
 
       {loading && (
-        <div className="space-y-3 py-2 animate-pulse">
+        <div className="max-h-72 overflow-hidden space-y-3 py-2 animate-pulse">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="border-l-4 border-retro-gray pl-3 pb-3 space-y-2">
+            <div key={i} className="border-l-2 border-retro-gray pl-3 pb-3 space-y-2">
               <div className="flex gap-2">
                 <div className="h-4 w-16 bg-retro-gray border border-retro-black" />
                 <div className="h-4 w-10 bg-retro-gray border border-retro-black" />
@@ -85,27 +87,35 @@ export default function Updates() {
         </div>
       )}
 
-      {!loading && (
-        <div className="space-y-3 max-h-[280px] overflow-y-auto retro-scrollbar pr-2">
-        {updates.map((update, index) => (
-          <div
-            key={index}
-            className="border-l-4 border-retro-black pl-3 pb-3 last:pb-0"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-bold bg-retro-black text-retro-white px-2 py-0.5">
-                {update.date}
-              </span>
-              <span className="text-xs text-retro-black opacity-60">
-                {update.time}
-              </span>
-            </div>
-            <p className="retro-text text-xs leading-relaxed">
-              {update.content}
-            </p>
+      {!loading && updates.length === 0 && (
+        <p className="retro-text text-xs">No updates yet.</p>
+      )}
+
+      {!loading && updates.length > 0 && (
+        <div
+          tabIndex={0}
+          aria-label="Site updates"
+          className="max-h-72 overflow-y-auto overscroll-contain retro-scrollbar pr-1"
+        >
+          <div className="space-y-3">
+            {updates.map((update) => (
+              <div
+                key={`${update.date}-${update.time}-${update.content.slice(0, 24)}`}
+                className="border-l-2 border-retro-black pl-3 pb-3 last:pb-0"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-bold bg-retro-black text-retro-white px-2 py-0.5">
+                    {update.date}
+                  </span>
+                  <span className="text-xs text-retro-black opacity-60">
+                    {update.time}
+                  </span>
+                </div>
+                <p className="retro-text text-xs leading-relaxed">{update.content}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
       )}
     </section>
   );

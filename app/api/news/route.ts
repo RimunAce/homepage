@@ -62,6 +62,13 @@ export async function GET() {
     );
     const selected = unique.slice(0, 5);
 
+    if (selected.length === 0) {
+      return NextResponse.json(
+        { error: "Failed to fetch news", news: [] },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json({ news: selected });
   } catch {
     return NextResponse.json(

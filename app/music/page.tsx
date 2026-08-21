@@ -5,7 +5,7 @@ import Playlist from "../components/MusicPage/Playlist";
 
 export default function MusicPage() {
     return (
-        <main className="p-4 md:p-8 pb-28 relative z-10">
+        <main id="main-content" className="p-4 md:p-8 pb-36 relative z-10">
             <div className="max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                     <div>

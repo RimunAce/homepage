@@ -174,6 +174,11 @@ function Background() {
             transform: translateX(-50%) translateZ(0);
           }
         }
+        @media (prefers-reduced-motion: reduce) {
+          .fog-layer {
+            animation: none !important;
+          }
+        }
       `}</style>
     </>
   );

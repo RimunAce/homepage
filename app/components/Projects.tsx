@@ -17,7 +17,8 @@ interface Project {
 const FALLBACK_PROJECTS: Project[] = [
   {
     title: "Respire.My World",
-    description: "Personal homepage and portfolio built with Next.js, featuring a retro-inspired design.",
+    description:
+      "Personal homepage and portfolio built with Next.js, featuring a retro-inspired design.",
     tech: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
     status: "Active",
     link: "https://respire.my",
@@ -26,7 +27,8 @@ const FALLBACK_PROJECTS: Project[] = [
   },
   {
     title: "Music Player",
-    description: "Custom audio player with playlist switching, easter eggs, and visualizer.",
+    description:
+      "Custom audio player with playlist switching, easter eggs, and visualizer.",
     tech: ["React", "TypeScript", "Web Audio API"],
     status: "Active",
     link: "https://respire.my/music",
@@ -34,6 +36,75 @@ const FALLBACK_PROJECTS: Project[] = [
     thumbnail: "",
   },
 ];
+
+function isLiving(status: string) {
+  return status === "Active" || status === "Paused";
+}
+
+function splitProjects(projects: Project[]) {
+  const featured = projects.filter((p) => isLiving(p.status));
+  const rest = projects.filter((p) => !isLiving(p.status));
+  if (featured.length === 0) return { featured: projects, rest: [] };
+  return { featured, rest };
+}
+
+function ProjectRow({ project }: { project: Project }) {
+  return (
+    <div className="border-b border-retro-black pb-3 last:border-b-0">
+      <div className="flex gap-3 mb-2">
+        {project.thumbnail && (
+          <div
+            className="w-20 h-20 flex-shrink-0 border-2 border-retro-black overflow-hidden"
+            style={{ boxShadow: "3px 3px 0px #000000" }}
+          >
+            <Image
+              src={project.thumbnail}
+              alt={project.title}
+              width={80}
+              height={80}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-start mb-1 gap-2">
+            <h3 className="font-bold text-sm">{project.title}</h3>
+            <span
+              className={`text-xs px-2 py-1 flex-shrink-0 ${
+                project.status === "Active"
+                  ? "bg-retro-black text-retro-white"
+                  : "bg-retro-gray text-retro-black border border-retro-black"
+              }`}
+            >
+              {project.status}
+            </span>
+          </div>
+          <p className="retro-text text-xs mb-2">{project.description}</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-1 mb-2">
+        {project.tech.map((tech) => (
+          <span
+            key={tech}
+            className="text-xs bg-retro-gray px-2 py-1 border border-retro-black"
+          >
+            {tech}
+          </span>
+        ))}
+      </div>
+      {project.link && (
+        <a
+          href={project.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs retro-link inline-block"
+        >
+          Visit {project.title} →
+        </a>
+      )}
+    </div>
+  );
+}
 
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -69,6 +140,8 @@ export default function Projects() {
     };
   }, []);
 
+  const { featured, rest } = splitProjects(projects);
+
   return (
     <section id="projects" className="retro-card">
       <h2 className="retro-heading">PROJECTS</h2>
@@ -82,7 +155,6 @@ export default function Projects() {
                 <div className="flex-1 space-y-2">
                   <div className="h-4 bg-retro-gray border border-retro-black w-2/3" />
                   <div className="h-3 bg-retro-gray border border-retro-black w-full" />
-                  <div className="h-3 bg-retro-gray border border-retro-black w-4/5" />
                 </div>
               </div>
             </div>
@@ -96,67 +168,28 @@ export default function Projects() {
         </div>
       )}
 
+      {!loading && featured.length === 0 && (
+        <p className="retro-text text-xs">No projects to show right now.</p>
+      )}
+
       {!loading && (
-        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 retro-scrollbar">
-        {projects.map((project) => (
-          <div
-            key={project.title}
-            className="border-b border-retro-black pb-3 last:border-b-0"
-          >
-            <div className="flex gap-3 mb-2">
-              {project.thumbnail && (
-                <div
-                  className="w-20 h-20 flex-shrink-0 border-2 border-retro-black overflow-hidden"
-                  style={{ boxShadow: "3px 3px 0px #000000" }}
-                >
-                  <Image
-                    src={project.thumbnail}
-                    alt={project.title}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start mb-1">
-                  <h3 className="font-bold text-sm">{project.title}</h3>
-                  <span
-                    className={`text-xs px-2 py-1 flex-shrink-0 ml-2 ${
-                      project.status === "Active"
-                        ? "bg-retro-black text-retro-white"
-                        : "bg-retro-gray text-retro-black border border-retro-black"
-                    }`}
-                  >
-                    {project.status}
-                  </span>
-                </div>
-                <p className="retro-text text-xs mb-2">{project.description}</p>
+        <div className="space-y-4">
+          {featured.map((project) => (
+            <ProjectRow key={project.title} project={project} />
+          ))}
+          {rest.length > 0 && (
+            <details className="pt-2">
+              <summary className="retro-button text-xs cursor-pointer list-inside">
+                Show {rest.length} archived {rest.length === 1 ? "project" : "projects"}
+              </summary>
+              <div className="space-y-4 mt-4">
+                {rest.map((project) => (
+                  <ProjectRow key={project.title} project={project} />
+                ))}
               </div>
-            </div>
-            <div className="flex flex-wrap gap-1 mb-2">
-              {project.tech.map((tech) => (
-                <span
-                  key={tech}
-                  className="text-xs bg-retro-gray px-2 py-1 border border-retro-black"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-            {project.link && (
-              <a
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs retro-link inline-block"
-              >
-                Visit Project →
-              </a>
-            )}
-          </div>
-        ))}
-      </div>
+            </details>
+          )}
+        </div>
       )}
     </section>
   );

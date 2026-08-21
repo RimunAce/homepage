@@ -41,7 +41,7 @@ export default function Gallery() {
   const preloadStatus = useImagePreloader(imageUrls);
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8 pb-28 relative z-10">
+    <main id="main-content" className="max-w-6xl mx-auto px-4 py-8 pb-36 relative z-10">
       <h1 className="retro-heading text-2xl mb-6">GALLERY</h1>
       {/* Loading indicator */}
       {!preloadStatus.isComplete && images.length > 0 && (

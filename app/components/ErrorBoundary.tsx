@@ -37,9 +37,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       return (
         <div className="bg-red-100 border-2 border-red-500 p-4 m-4">
-          <h2 className="text-red-700 font-bold mb-2">Something went wrong</h2>
+          <h2 className="text-red-700 font-bold mb-2">This block failed to load</h2>
           <p className="text-red-600 text-sm mb-4">
-            {this.state.error?.message || "An unexpected error occurred"}
+            {this.state.error?.message || "The page hit an unexpected error."} Reload to try again.
           </p>
           <button
             className="retro-button text-sm"
