@@ -2,6 +2,7 @@ import Bio from "./components/Bio";
 import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Updates from "./components/Updates";
+import Webring from "./components/Webring";
 
 export default function Home() {
   return (
@@ -19,6 +20,9 @@ export default function Home() {
       </div>
       <div className="mt-6">
         <Projects />
+      </div>
+      <div className="mt-6">
+        <Webring />
       </div>
     </main>
   );
