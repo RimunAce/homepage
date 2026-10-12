@@ -78,7 +78,12 @@ export default async function Webring() {
   return (
     <section id="webring" className="retro-card">
       <h2 className="retro-heading">WEBRING</h2>
-      <Script src={WEBRING_SCRIPT} strategy="afterInteractive" type="module" />
+      <Script
+        src={WEBRING_SCRIPT}
+        strategy="afterInteractive"
+        type="module"
+        crossOrigin="anonymous"
+      />
       <webring-element name={MEMBER_NAME} src={WEBRING_SRC}>
         <p className="ring-info">
           <a

@@ -1,39 +1,56 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 const hasLoadedKey = "respire_initial_load";
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function isDismissed() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
+  return window.sessionStorage.getItem(hasLoadedKey) !== null;
+}
+
+function serverDismissed() {
+  return true;
+}
+
+function dismiss() {
+  if (window.sessionStorage.getItem(hasLoadedKey) === null) {
+    window.sessionStorage.setItem(hasLoadedKey, "true");
+  }
+  listeners.forEach((listener) => listener());
+}
 
 export default function LoadingScreen() {
-  const [isLoading, setIsLoading] = useState(false);
+  const dismissed = useSyncExternalStore(subscribe, isDismissed, serverDismissed);
+  const isLoading = !dismissed;
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.sessionStorage.getItem(hasLoadedKey)) return;
-    window.sessionStorage.setItem(hasLoadedKey, "true");
-    setIsLoading(true);
-  }, []);
+    if (dismissed) return;
 
-  useEffect(() => {
-    if (!isLoading) return;
-
-    const skip = () => setIsLoading(false);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        skip();
+        dismiss();
       }
     };
 
-    const timer = setTimeout(skip, 1500);
+    const timer = setTimeout(dismiss, 1500);
     window.addEventListener("keydown", onKey);
 
     return () => {
       clearTimeout(timer);
       window.removeEventListener("keydown", onKey);
     };
-  }, [isLoading]);
+  }, [dismissed]);
 
   return (
     <AnimatePresence>
@@ -45,7 +62,7 @@ export default function LoadingScreen() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#e0e0e0]"
-          onClick={() => setIsLoading(false)}
+          onClick={() => dismiss()}
         >
           <div className="flex flex-col items-center gap-8">
             <div className="flex gap-3" aria-hidden="true">
@@ -68,7 +85,7 @@ export default function LoadingScreen() {
               <button
                 type="button"
                 className="mt-4 text-xs underline"
-                onClick={() => setIsLoading(false)}
+                onClick={() => dismiss()}
               >
                 Skip
               </button>

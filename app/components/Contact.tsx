@@ -71,8 +71,9 @@ export default function Contact() {
         <Image
           src="https://cdn.apis.rocks/images/teto.png"
           alt="Kasane Teto"
-          width={128}
-          height={196}
+          width={348}
+          height={749}
+          sizes="(min-width: 640px) 8rem, 6.75rem"
           loading="eager"
           className="h-auto w-full"
         />
