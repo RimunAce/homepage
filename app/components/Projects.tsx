@@ -2,17 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { DATA_URLS } from "@/app/lib/dataUrls";
-
-interface Project {
-  title: string;
-  description: string;
-  tech: string[];
-  status: string;
-  link: string;
-  date: string;
-  thumbnail: string;
-}
+import { fetchProjects, type Project } from "@/app/lib/content";
 
 const FALLBACK_PROJECTS: Project[] = [
   {
@@ -109,11 +99,9 @@ export default function Projects() {
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchProjects() {
+    async function loadProjects() {
       try {
-        const res = await fetch(DATA_URLS.projects);
-        if (!res.ok) throw new Error("Failed to fetch projects");
-        const data = await res.json();
+        const data = await fetchProjects();
         if (!cancelled) {
           setProjects(data);
           setError(null);
@@ -128,7 +116,7 @@ export default function Projects() {
       }
     }
 
-    fetchProjects();
+    loadProjects();
 
     return () => {
       cancelled = true;

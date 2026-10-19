@@ -4,6 +4,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "syd.cloud.appwrite.io",
+      },
+      {
+        protocol: "https",
         hostname: "cdn.apis.rocks",
       },
       {

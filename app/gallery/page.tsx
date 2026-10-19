@@ -3,15 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import GalleryGrid from "./GalleryGrid";
 import ImageModal from "./ImageModal";
-import { DATA_URLS } from "@/app/lib/dataUrls";
+import { fetchGallery, type GalleryImage } from "@/app/lib/content";
 import { useImagePreloader } from "@/app/contexts/useImagePreloader";
-
-interface GalleryImage {
-  url: string;
-  width: number;
-  height: number;
-  caption?: string;
-}
 
 export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
@@ -19,16 +12,14 @@ export default function Gallery() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(DATA_URLS.gallery)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch gallery");
-        return res.json();
-      })
+    fetchGallery()
       .then((data) => {
         setImages(data);
         setError(null);
       })
-      .catch(() => setError("Could not load the gallery right now. Please try again later."));
+      .catch(() =>
+        setError("Could not load the gallery right now. Please try again later.")
+      );
   }, []);
 
   // Extract all image URLs for preloading

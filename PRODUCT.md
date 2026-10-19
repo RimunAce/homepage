@@ -22,8 +22,8 @@ A living personal "world" rather than a static portfolio: the page is wired to t
 
 - Live at `https://respire.my`; the previous version remains at `https://other.respire.my`.
 - Built with Next.js 16, React 19, TypeScript, Tailwind CSS, Framer Motion, NextUI; `bun` for development (`bun install`, `bun run dev`, port 3000).
-- Content is remote-driven: updates, projects, gallery, and music playlists load from a GitHub Gist (owner's repo) via `DATA_URLS`; the `public/data/*.json` files are remnants, not the source of truth.
-- The owner updates content by editing JSON (updates/projects/gallery/playlists) — keeping that burden low is part of how the site is maintained.
+- Content is Appwrite-driven: updates, projects, gallery, and music playlists load from Appwrite TablesDB (`homepage` database) and media from the `gallery` Storage bucket; `public/data/*.json` are offline fallback snapshots, not the source of truth.
+- The owner updates content by editing rows in the Appwrite Console — keeping that burden low is part of how the site is maintained.
 - AniList username is `Reuzin`; data fetched from the AniList GraphQL endpoint with local caching (5 min).
 - Malaysian news headlines are aggregated server-side from trusted RSS feeds (Bernama, The Star, Malay Mail, NST, FMT) with a fallback set in the client.
 
@@ -41,7 +41,7 @@ Confirmed functionality:
 Constraints:
 
 - Remote images are restricted to the allowlisted hosts in `next.config.js` (`cdn.apis.rocks`, AniList CDNs, etc.).
-- Config via env vars: `NEXT_PUBLIC_ANILIST_USERNAME`, `NEXT_PUBLIC_ANILIST_ENDPOINT`, `NEXT_PUBLIC_GIST_ID`, `NEXT_PUBLIC_GIST_USERNAME`.
+- Config via env vars: `NEXT_PUBLIC_APPWRITE_ENDPOINT`, `NEXT_PUBLIC_APPWRITE_PROJECT_ID`, `NEXT_PUBLIC_APPWRITE_DATABASE_ID`, `NEXT_PUBLIC_APPWRITE_BUCKET_ID`, `NEXT_PUBLIC_ANILIST_USERNAME`, `NEXT_PUBLIC_ANILIST_ENDPOINT`.
 - Content is real and owned by the user; updates read as personal diary entries (undecided: how far the site should scale beyond a personal space).
 
 ## Brand Commitments

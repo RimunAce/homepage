@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DATA_URLS } from "@/app/lib/dataUrls";
-
-interface Update {
-  date: string;
-  time: string;
-  content: string;
-}
+import { fetchUpdates, type Update } from "@/app/lib/content";
 
 const FALLBACK_UPDATES: Update[] = [
   {
@@ -37,11 +31,9 @@ export default function Updates() {
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchUpdates() {
+    async function loadUpdates() {
       try {
-        const res = await fetch(DATA_URLS.updates);
-        if (!res.ok) throw new Error("Failed to fetch updates");
-        const data = await res.json();
+        const data = await fetchUpdates();
         if (!cancelled) {
           setUpdates(data);
           setError(null);
@@ -56,7 +48,7 @@ export default function Updates() {
       }
     }
 
-    fetchUpdates();
+    loadUpdates();
 
     return () => {
       cancelled = true;
