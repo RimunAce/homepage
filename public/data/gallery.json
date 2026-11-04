@@ -1,32 +1,37 @@
 [
   {
-    "url": "https://cdn.apis.rocks/images/teto.png",
+    "url": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/gallery-1-omg-teto/view?project=68f8d96a0021b0ae0895",
     "width": 1200,
     "height": 1600,
-    "caption": "Omg Teto"
+    "caption": "Omg Teto",
+    "fileId": "gallery-1-omg-teto"
   },
   {
-    "url": "https://cdn.apis.rocks/images/vivaldi_sw8JCfUiFW.png",
+    "url": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/gallery-2-deepseek-my-beloved/view?project=68f8d96a0021b0ae0895",
     "width": 1920,
     "height": 1080,
-    "caption": "Deepseek my beloved"
+    "caption": "Deepseek my beloved",
+    "fileId": "gallery-2-deepseek-my-beloved"
   },
   {
-    "url": "https://cdn.apis.rocks/pulak.png",
+    "url": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/gallery-3-kepala-kotak-discord-bot-s/view?project=68f8d96a0021b0ae0895",
     "width": 1024,
     "height": 1024,
-    "caption": "Kepala Kotak discord bot stuff, coming soon!"
+    "caption": "Kepala Kotak discord bot stuff, coming soon!",
+    "fileId": "gallery-3-kepala-kotak-discord-bot-s"
   },
   {
-    "url": "https://cdn.apis.rocks/images/Screenshot%202025-10-22%20172131.png",
+    "url": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/gallery-4-l4d2-respire-my-im-kinda-a/view?project=68f8d96a0021b0ae0895",
     "width": 1568,
     "height": 941,
-    "caption": "l4d2.respire.my, im kinda a nerd"
+    "caption": "l4d2.respire.my, im kinda a nerd",
+    "fileId": "gallery-4-l4d2-respire-my-im-kinda-a"
   },
   {
-    "url": "https://cdn.apis.rocks/images/photo_2025-10-03_17-29-20.jpg",
+    "url": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/gallery-5-my-first-ever-task-as-an-i/view?project=68f8d96a0021b0ae0895",
     "width": 1280,
     "height": 960,
-    "caption": "my first ever task as an intern at work. proud of my work ngl"
+    "caption": "my first ever task as an intern at work. proud of my work ngl",
+    "fileId": "gallery-5-my-first-ever-task-as-an-i"
   }
 ]

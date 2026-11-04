@@ -2,97 +2,121 @@
   {
     "id": "debug-drug",
     "title": "Debug Drug / feat. 重音テト",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/デバッグドラッグ%20feat.%20重音テト%20%20_Debug%20Drug_%20ft.%20Kasane%20Teto.jpg",
-    "audio": "https://cdn.apis.rocks/music-storage/デバッグドラッグ%20feat.%20重音テト%20%20_Debug%20Drug_%20ft.%20Kasane%20Teto.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-1-debug-drug-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-1-debug-drug-audio/view?project=68f8d96a0021b0ae0895",
     "author": "rusino",
-    "authorUrl": "https://www.youtube.com/channel/UCjuAuVO76nZ0mjYzdz3961Q"
+    "authorUrl": "https://www.youtube.com/channel/UCjuAuVO76nZ0mjYzdz3961Q",
+    "thumbnailFileId": "teto-1-debug-drug-art",
+    "audioFileId": "teto-1-debug-drug-audio"
   },
   {
     "id": "no-confidence",
     "title": "No Confidence / 重音テトSV",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/%E7%9F%A5%E3%82%89%E3%82%93%E3%81%91%E3%81%A9%20%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.png",
-    "audio": "https://cdn.apis.rocks/music-storage/%E7%9F%A5%E3%82%89%E3%82%93%E3%81%91%E3%81%A9%20%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-2-no-confidence-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-2-no-confidence-audio/view?project=68f8d96a0021b0ae0895",
     "author": "Aktari",
-    "authorUrl": "https://www.youtube.com/channel/UCTsx5Ukgep668hDNMQwfMQg"
+    "authorUrl": "https://www.youtube.com/channel/UCTsx5Ukgep668hDNMQwfMQg",
+    "thumbnailFileId": "teto-2-no-confidence-art",
+    "audioFileId": "teto-2-no-confidence-audio"
   },
   {
     "id": "bakenohana",
     "title": "化けの花 / covered by 重音テトSV",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/%E5%8C%96%E3%81%91%E3%81%AE%E8%8A%B1%20%E2%A7%B8%20covered%20by%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV%20%EF%BD%9C%20KasaneTeto%20%E2%A7%B8%20BAKENOHANA%20%E2%A7%B8%20NAKISO%20%5BSynthV%20cover%5D.png",
-    "audio": "https://cdn.apis.rocks/music-storage/%E5%8C%96%E3%81%91%E3%81%AE%E8%8A%B1%20%E2%A7%B8%20covered%20by%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV%20%EF%BD%9C%20KasaneTeto%20%E2%A7%B8%20BAKENOHANA%20%E2%A7%B8%20NAKISO%20%5BSynthV%20cover%5D.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-3-bakenohana-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-3-bakenohana-audio/view?project=68f8d96a0021b0ae0895",
     "author": "takaokamizuki",
-    "authorUrl": "https://www.youtube.com/channel/UC9ZL7yTyfA41JPUcL07NxZA"
+    "authorUrl": "https://www.youtube.com/channel/UC9ZL7yTyfA41JPUcL07NxZA",
+    "thumbnailFileId": "teto-3-bakenohana-art",
+    "audioFileId": "teto-3-bakenohana-audio"
   },
   {
     "id": "liar-dance",
     "title": "Liar Dance / 重音テトSV",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%BC%E3%83%80%E3%83%B3%E3%82%B5%E3%83%BC%EF%BC%8F%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.png",
-    "audio": "https://cdn.apis.rocks/music-storage/%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%BC%E3%83%80%E3%83%B3%E3%82%B5%E3%83%BC%EF%BC%8F%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-4-liar-dance-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-4-liar-dance-audio/view?project=68f8d96a0021b0ae0895",
     "author": "masaradasarada",
-    "authorUrl": "https://www.youtube.com/@masaradasarada"
+    "authorUrl": "https://www.youtube.com/@masaradasarada",
+    "thumbnailFileId": "teto-4-liar-dance-art",
+    "audioFileId": "teto-4-liar-dance-audio"
   },
   {
     "id": "magic-maid",
     "title": "Magic Main / feat.重音テトSV",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/%E3%80%8E%E3%83%9E%E3%82%B8%E3%83%83%E3%82%AF%E3%83%BB%E3%83%A1%E3%82%A4%E3%83%89%E3%80%8F%20%E2%A7%B8%20feat.%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.png",
-    "audio": "https://cdn.apis.rocks/music-storage/%E3%80%8E%E3%83%9E%E3%82%B8%E3%83%83%E3%82%AF%E3%83%BB%E3%83%A1%E3%82%A4%E3%83%89%E3%80%8F%20%E2%A7%B8%20feat.%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-5-magic-maid-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-5-magic-maid-audio/view?project=68f8d96a0021b0ae0895",
     "author": "MIMI",
-    "authorUrl": "https://www.youtube.com/channel/UCam3IAA-nyfxRL8_wDQ35VA"
+    "authorUrl": "https://www.youtube.com/channel/UCam3IAA-nyfxRL8_wDQ35VA",
+    "thumbnailFileId": "teto-5-magic-maid-art",
+    "audioFileId": "teto-5-magic-maid-audio"
   },
   {
     "id": "machine-love",
     "title": "Machine Love (feat. Kasane Teto)",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/Machine%20Love.png",
-    "audio": "https://cdn.apis.rocks/music-storage/Machine%20Love.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-6-machine-love-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-6-machine-love-audio/view?project=68f8d96a0021b0ae0895",
     "author": "Jamie Paige",
-    "authorUrl": "https://www.youtube.com/channel/UCDsaRDKTCsGBJMUKx-KtukA"
+    "authorUrl": "https://www.youtube.com/channel/UCDsaRDKTCsGBJMUKx-KtukA",
+    "thumbnailFileId": "teto-6-machine-love-art",
+    "audioFileId": "teto-6-machine-love-audio"
   },
   {
     "id": "datto",
     "title": "DATTO（重音テトSV）",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/DATTO%EF%BC%88%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV%EF%BC%89.png",
-    "audio": "https://cdn.apis.rocks/music-storage/DATTO%EF%BC%88%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV%EF%BC%89.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-7-datto-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-7-datto-audio/view?project=68f8d96a0021b0ae0895",
     "author": "Lowdenpa",
-    "authorUrl": "https://www.youtube.com/@lowdenpa"
+    "authorUrl": "https://www.youtube.com/@lowdenpa",
+    "thumbnailFileId": "teto-7-datto-art",
+    "audioFileId": "teto-7-datto-audio"
   },
   {
     "id": "chimera",
     "title": "Chimera / Kasane Teto (重音テト)",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/%E5%91%BD%E7%9F%AD%E3%81%97%E6%81%8B%E3%81%9B%E3%82%88%E3%82%AD%E3%83%A1%E3%83%A9%20(Chimera)%20%E2%A7%B8%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88.png",
-    "audio": "https://cdn.apis.rocks/music-storage/%E5%91%BD%E7%9F%AD%E3%81%97%E6%81%8B%E3%81%9B%E3%82%88%E3%82%AD%E3%83%A1%E3%83%A9%20(Chimera)%20%E2%A7%B8%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-8-chimera-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-8-chimera-audio/view?project=68f8d96a0021b0ae0895",
     "author": "mitsu_akuma",
-    "authorUrl": "https://www.youtube.com/channel/UCtne7wC5nEDx5p4JzJf9JHQ"
+    "authorUrl": "https://www.youtube.com/channel/UCtne7wC5nEDx5p4JzJf9JHQ",
+    "thumbnailFileId": "teto-8-chimera-art",
+    "audioFileId": "teto-8-chimera-audio"
   },
   {
     "id": "science",
     "title": "Science (feat. Kasane Teto SV)",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/MIMI%20-%20%E3%82%B5%E3%82%A4%E3%82%A8%E3%83%B3%E3%82%B9%20(feat.%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV).jpg",
-    "audio": "https://cdn.apis.rocks/music-storage/MIMI%20-%20%E3%82%B5%E3%82%A4%E3%82%A8%E3%83%B3%E3%82%B9%20(feat.%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV).mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-9-science-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-9-science-audio/view?project=68f8d96a0021b0ae0895",
     "author": "MIMI",
-    "authorUrl": "https://www.youtube.com/channel/UCam3IAA-nyfxRL8_wDQ35VA"
+    "authorUrl": "https://www.youtube.com/channel/UCam3IAA-nyfxRL8_wDQ35VA",
+    "thumbnailFileId": "teto-9-science-art",
+    "audioFileId": "teto-9-science-audio"
   },
   {
     "id": "tetoris",
     "title": "Tetoris",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/%E3%83%86%E3%83%88%E3%83%AA%E3%82%B9%20%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.png",
-    "audio": "https://cdn.apis.rocks/music-storage/%E3%83%86%E3%83%88%E3%83%AA%E3%82%B9%20%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-10-tetoris-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-10-tetoris-audio/view?project=68f8d96a0021b0ae0895",
     "author": "Hiiragi Magnetite",
-    "authorUrl": "https://www.youtube.com/channel/UCFXkDxCa_XVcNC7oOEw7U5g"
+    "authorUrl": "https://www.youtube.com/channel/UCFXkDxCa_XVcNC7oOEw7U5g",
+    "thumbnailFileId": "teto-10-tetoris-art",
+    "audioFileId": "teto-10-tetoris-audio"
   },
   {
     "id": "override",
     "title": "Override",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/%E3%82%AA%E3%83%BC%E3%83%90%E3%83%BC%E3%83%A9%E3%82%A4%E3%83%89%20-%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV%5B%E5%90%89%E7%94%B0%E5%A4%9C%E4%B8%96%5D.png",
-    "audio": "https://cdn.apis.rocks/music-storage/%E3%82%AA%E3%83%BC%E3%83%90%E3%83%BC%E3%83%A9%E3%82%A4%E3%83%89%20-%20%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV%5B%E5%90%89%E7%94%B0%E5%A4%9C%E4%B8%96%5D.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-11-override-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-11-override-audio/view?project=68f8d96a0021b0ae0895",
     "author": "Yoshida Yasei",
-    "authorUrl": "https://www.youtube.com/channel/UCzTwIedETJq-dLqAhieCm2A"
+    "authorUrl": "https://www.youtube.com/channel/UCzTwIedETJq-dLqAhieCm2A",
+    "thumbnailFileId": "teto-11-override-art",
+    "audioFileId": "teto-11-override-audio"
   },
   {
     "id": "pi-po-pa-po",
     "title": "Pi Po Pa Po",
-    "thumbnail": "https://cdn.apis.rocks/music-storage/%E3%83%94%E3%83%9D%E3%83%91%E3%83%9D%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.png",
-    "audio": "https://cdn.apis.rocks/music-storage/%E3%83%94%E3%83%9D%E3%83%91%E3%83%9D%E9%87%8D%E9%9F%B3%E3%83%86%E3%83%88SV.mp3",
+    "thumbnail": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-12-pi-po-pa-po-art/view?project=68f8d96a0021b0ae0895",
+    "audio": "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-12-pi-po-pa-po-audio/view?project=68f8d96a0021b0ae0895",
     "author": "Shü",
-    "authorUrl": "https://www.youtube.com/channel/UCIRAdm52I0ahkxACu0152hg"
+    "authorUrl": "https://www.youtube.com/channel/UCIRAdm52I0ahkxACu0152hg",
+    "thumbnailFileId": "teto-12-pi-po-pa-po-art",
+    "audioFileId": "teto-12-pi-po-pa-po-audio"
   }
 ]
