@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "../SafeImage";
 
 interface Track {
   id: string;
@@ -51,12 +51,14 @@ export default function TrackPlaylist({
           >
             <div className="flex items-center space-x-2">
               <div className="w-12 h-12 border border-retro-black flex-shrink-0">
-                <Image
+                <SafeImage
                   src={track.thumbnail}
-                  alt={track.title}
+                  alt=""
                   width={48}
                   height={48}
+                  sizes="48px"
                   className="w-full h-full object-cover"
+                  fallbackLabel="No cover"
                 />
               </div>
               <div className="min-w-0 flex-1">

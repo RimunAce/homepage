@@ -27,6 +27,7 @@ export default function PlayerControls({
     >
       <div className="flex items-center justify-center space-x-4 mb-4">
         <button
+          type="button"
           onClick={onPrev}
           className="retro-button p-4"
           aria-label="Previous track"
@@ -35,6 +36,7 @@ export default function PlayerControls({
         </button>
 
         <button
+          type="button"
           onClick={onTogglePlay}
           className="retro-button p-6"
           aria-label={isPlaying ? "Pause" : "Play"}
@@ -44,6 +46,7 @@ export default function PlayerControls({
         </button>
 
         <button
+          type="button"
           onClick={onNext}
           className="retro-button p-4"
           aria-label="Next track"
@@ -55,8 +58,8 @@ export default function PlayerControls({
       {/* Volume Control */}
       <div className="flex items-center justify-center space-x-3 max-w-xs mx-auto">
         <VolumeIcon />
-        <div className="flex-1 relative">
-          <div className="h-2 bg-retro-gray border-2 border-retro-black relative overflow-hidden">
+        <div className="relative min-h-11 flex-1 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-retro-black">
+          <div className="pointer-events-none absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden border-2 border-retro-black bg-retro-gray">
             <div
               className="h-full bg-retro-black transition-all duration-100"
               style={{ width: `${volume * 100}%` }}
@@ -76,7 +79,7 @@ export default function PlayerControls({
             step="0.01"
             value={volume}
             onChange={(e) => onVolumeChange(Number.parseFloat(e.target.value))}
-            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
             aria-label="Volume"
           />
         </div>

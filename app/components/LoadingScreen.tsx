@@ -84,7 +84,7 @@ export default function LoadingScreen() {
               </p>
               <button
                 type="button"
-                className="mt-4 text-xs underline"
+                className="retro-button mt-4 text-xs"
                 onClick={() => dismiss()}
               >
                 Skip

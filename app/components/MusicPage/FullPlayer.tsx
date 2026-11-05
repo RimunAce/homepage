@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "../SafeImage";
 import { type ChangeEventHandler, type ReactNode } from "react";
 import { useMusicPlayer } from "../../contexts/MusicPlayerContext";
 import { PreviousIcon, NextIcon, PlayPauseIcon, VolumeIcon } from "../MusicPlayer/icons";
@@ -22,6 +22,7 @@ interface ControlButtonProps {
 
 const ControlButton = ({ onClick, className, children, label, pressed }: ControlButtonProps) => (
   <button
+    type="button"
     onClick={onClick}
     className={className}
     aria-label={label}
@@ -39,13 +40,14 @@ const AlbumArt = ({ thumbnail, title }: { thumbnail: string; title: string | und
     className="relative w-64 h-64 md:w-80 md:h-80 mb-8 border-4 border-retro-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-retro-gray"
   >
     {thumbnail ? (
-      <Image
+      <SafeImage
         src={thumbnail}
-        alt={title || "Album art"}
+        alt={title ? `${title} cover` : "Album art"}
         fill
         className="object-cover"
         sizes="(max-width: 768px) 16rem, 20rem"
         priority
+        fallbackLabel="No cover"
       />
     ) : (
       <div className="w-full h-full flex items-center justify-center" aria-hidden="true">
@@ -77,15 +79,16 @@ interface RangeTrackProps {
 const RangeTrack = ({ value, max, min, step = 1, onChange, className, label }: RangeTrackProps) => {
   const percent = (value / (max || 1)) * 100;
   return (
-    <div className={className}>
-      <div
-        className="h-full bg-retro-black transition-all duration-100"
-        style={{ width: `${percent}%` }}
-      />
-      <div
-        className="absolute top-0 bottom-0 w-1 bg-retro-yellow"
-        style={{ left: `${percent}%`, transform: "translateX(-50%)" }}
-      />
+    <div
+      className={`relative min-h-11 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-retro-black ${className}`}
+    >
+      <div className="pointer-events-none absolute left-0 right-0 top-1/2 h-3 -translate-y-1/2 overflow-hidden border-2 border-retro-black bg-retro-gray">
+        <div className="h-full bg-retro-black transition-all duration-100" style={{ width: `${percent}%` }} />
+        <div
+          className="absolute top-0 bottom-0 w-1 bg-retro-yellow"
+          style={{ left: `${percent}%`, transform: "translateX(-50%)" }}
+        />
+      </div>
       <input
         type="range"
         min={min}
@@ -94,7 +97,7 @@ const RangeTrack = ({ value, max, min, step = 1, onChange, className, label }: R
         value={value}
         onChange={onChange}
         aria-label={label}
-        className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
       />
     </div>
   );
@@ -120,7 +123,7 @@ const ProgressBar = ({ currentTime, duration, formatTime, onSeek }: ProgressBarP
       step={0.1}
       onChange={onSeek}
       label="Seek to position"
-      className="relative h-4 bg-retro-gray border-2 border-retro-black"
+      className="w-full"
     />
   </div>
 );
@@ -140,7 +143,7 @@ const VolumeControl = ({ volume, setVolume }: VolumeControlProps) => (
       step={0.01}
       onChange={(e) => setVolume(parseFloat(e.target.value))}
       label="Volume"
-      className="flex-1 relative h-2 bg-retro-gray border border-retro-black"
+      className="flex-1"
     />
   </div>
 );

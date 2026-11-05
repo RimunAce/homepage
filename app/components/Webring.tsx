@@ -88,7 +88,7 @@ export default async function Webring() {
         <p className="ring-info">
           <a
             href={webring.root}
-            className="ring retro-link"
+            className="ring retro-link inline-flex min-h-11 min-w-11 items-center justify-center px-1"
             target="_blank"
             rel="noopener noreferrer"
           >

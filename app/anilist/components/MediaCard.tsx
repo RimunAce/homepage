@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "../../components/SafeImage";
 import { MediaItem } from "../types";
 import { MediaProgressOverlay } from "./MediaProgressOverlay";
 
@@ -35,12 +35,14 @@ export function MediaCard({ item }: MediaCardProps) {
       aria-label={`View ${getDisplayTitle(item)} on AniList`}
     >
       <div className="relative w-full aspect-[2/3] border-2 border-retro-black overflow-hidden">
-        <Image
+        <SafeImage
           src={item.coverImage.large}
-          alt={item.title.romaji}
+          alt=""
           width={300}
           height={450}
-          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+          sizes="(max-width: 640px) 45vw, 180px"
+          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          fallbackLabel="No cover"
         />
         {item.mediaListEntry?.status === "CURRENT" && <MediaProgressOverlay item={item} />}
       </div>

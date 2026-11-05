@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback, type Dispatch, type SetStateAction } from "react";
-import Image from "next/image";
+import SafeImage from "../components/SafeImage";
 import DOMPurify from "dompurify";
 import { logger } from "../lib/logger";
 import {
@@ -322,14 +322,15 @@ function ProfileSection({ user, aboutPreview }: { user: AniListUser; aboutPrevie
   return (
     <div className="retro-card">
       <div className="flex flex-col md:flex-row gap-6">
-        <div className="flex-shrink-0">
-          <Image
+        <div className="flex-shrink-0" style={{ boxShadow: "2px 2px 0px #000000" }}>
+          <SafeImage
             src={user.avatar.large}
             alt={`${user.name}'s avatar`}
             width={128}
             height={128}
-            className="w-32 h-32 border-2 border-retro-black"
-            style={{ boxShadow: "2px 2px 0px #000000" }}
+            sizes="128px"
+            className="w-32 h-32 border-2 border-retro-black object-cover"
+            fallbackLabel="No avatar"
           />
         </div>
         <div className="flex-grow">
@@ -345,7 +346,7 @@ function ProfileSection({ user, aboutPreview }: { user: AniListUser; aboutPrevie
             rel="noopener noreferrer"
             className="retro-button inline-block text-sm"
           >
-            Visit AniList Profile →
+            Visit AniList profile
           </a>
         </div>
       </div>
@@ -625,18 +626,23 @@ function MediaFilterBar({
   statusFilter: MediaStatus;
 }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-      <input
-        type="text"
-        placeholder="Search titles..."
-        value={searchQuery}
-        onChange={(event) => setSearchQuery(event.target.value)}
-        className="retro-input w-full text-xs"
-      />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <label className="block text-xs font-mono">
+        Search
+        <input
+          type="text"
+          placeholder="Title"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          className="retro-input mt-1 w-full text-xs"
+        />
+      </label>
+      <label className="block text-xs font-mono">
+        Status
       <select
         value={statusFilter}
         onChange={(event) => setStatusFilter(event.target.value as MediaStatus)}
-        className="retro-input w-full text-xs"
+        className="retro-input mt-1 w-full text-xs"
       >
         {STATUS_FILTER_OPTIONS.map((option) => (
           <option key={option} value={option}>
@@ -644,7 +650,10 @@ function MediaFilterBar({
           </option>
         ))}
       </select>
-      <select value={genreFilter} onChange={(event) => setGenreFilter(event.target.value)} className="retro-input w-full text-xs">
+      </label>
+      <label className="block text-xs font-mono">
+        Genre
+      <select value={genreFilter} onChange={(event) => setGenreFilter(event.target.value)} className="retro-input mt-1 w-full text-xs">
         <option value="ALL">All Genres</option>
         {allGenres.map((genre) => (
           <option key={genre} value={genre}>
@@ -652,10 +661,13 @@ function MediaFilterBar({
           </option>
         ))}
       </select>
+      </label>
+      <label className="block text-xs font-mono">
+        Sort
       <select
         value={sortOrder}
         onChange={(event) => setSortOrder(event.target.value as SortOrder)}
-        className="retro-input w-full text-xs"
+        className="retro-input mt-1 w-full text-xs"
       >
         {SORT_FILTER_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
@@ -663,6 +675,7 @@ function MediaFilterBar({
           </option>
         ))}
       </select>
+      </label>
     </div>
   );
 }
@@ -677,7 +690,7 @@ function MediaListGrid({ items }: { items: MediaItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
       {items.map((item) => (
         <MediaCard key={item.id} item={item} />
       ))}
@@ -707,12 +720,14 @@ function MediaListItem({ item }: { item: MediaItem }) {
       rel="noopener noreferrer"
       className="flex items-center gap-4 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors"
     >
-      <Image
+      <SafeImage
         src={item.coverImage.large}
-        alt={item.title.romaji}
+        alt=""
         width={64}
         height={96}
+        sizes="64px"
         className="w-16 h-24 object-cover border border-retro-black"
+        fallbackLabel="No cover"
       />
       <div className="flex-grow">
         <p className="retro-text text-sm font-bold">{getDisplayTitle(item)}</p>
@@ -748,11 +763,12 @@ function PaginationControls({
   return (
     <div className="flex justify-center gap-2 mt-6">
       <button
+        type="button"
         className="retro-button text-sm disabled:opacity-40 disabled:pointer-events-none"
         onClick={() => onPageChange((page) => Math.max(1, page - 1))}
         disabled={currentPage === 1}
       >
-        ← PREV
+        Previous
       </button>
       <span
         className="inline-flex items-center border-2 border-retro-black bg-retro-white px-3 text-sm font-mono"
@@ -761,11 +777,12 @@ function PaginationControls({
         {currentPage} / {totalPages}
       </span>
       <button
+        type="button"
         className="retro-button text-sm disabled:opacity-40 disabled:pointer-events-none"
         onClick={() => onPageChange((page) => Math.min(totalPages, page + 1))}
         disabled={currentPage === totalPages}
       >
-        NEXT →
+        Next
       </button>
     </div>
   );
@@ -774,7 +791,7 @@ function PaginationControls({
 function useAniListData() {
   const [user, setUser] = useState<AniListUser | null>(null);
   const [mediaList, setMediaList] = useState<MediaListState>({ activities: [], animeList: [], mangaList: [] });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const aboutPreview = useMemo(() => sanitizeAboutPreview(user?.about ?? null), [user?.about]);
 
@@ -814,6 +831,7 @@ function useAniListData() {
         animeList: cachedData.animeList,
         mangaList: cachedData.mangaList,
       });
+      setLoading(false);
       return;
     }
 
@@ -848,10 +866,14 @@ export default function AniListPage() {
   }, []);
 
   return (
-    <main id="main-content" tabIndex={-1} className="max-w-6xl mx-auto px-4 py-8 pb-36 relative z-10 focus:outline-none">
+    <main id="main-content" tabIndex={-1} className="max-w-6xl mx-auto px-4 py-6 sm:py-8 pb-8 relative z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black">
+      <h1 className="retro-heading text-2xl mb-6">ANILIST</h1>
       <ErrorBoundary>
         {loading && <LoadingState />}
         {error && <ErrorState message={error} onRetry={loadFreshData} />}
+        {!loading && !error && !user && (
+          <p className="retro-text text-sm">No AniList profile to show.</p>
+        )}
         {user && !loading && (
           <AniListContent
             activeTab={activeTab}

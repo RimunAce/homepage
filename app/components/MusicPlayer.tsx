@@ -139,10 +139,10 @@ export default function MusicPlayer() {
                 />
                 <Link
                   href="/music"
-                  className="retro-link text-xs"
+                  className="retro-link inline-flex min-h-11 items-center text-xs"
                   onClick={() => setIsOpen(false)}
                 >
-                  Open full player →
+                  Open full player
                 </Link>
               </div>
 

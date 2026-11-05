@@ -9,11 +9,11 @@ export default function Home() {
     <main
       id="main-content"
       tabIndex={-1}
-      className="max-w-6xl mx-auto px-4 py-8 pb-36 relative z-10 focus:outline-none"
+      className="max-w-6xl mx-auto px-4 py-6 sm:py-8 pb-8 relative z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
     >
       <Bio />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6 overflow-visible">
-        <div className="lg:col-span-2 min-w-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 overflow-visible">
+        <div className="md:col-span-2 min-w-0">
           <Updates />
         </div>
         <Contact />

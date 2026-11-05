@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import SafeImage from "./SafeImage";
 
 export default function Bio() {
   return (
@@ -10,12 +10,14 @@ export default function Bio() {
           className="w-32 h-32 border-2 border-retro-black flex-shrink-0"
           style={{ boxShadow: "4px 4px 0px #000000" }}
         >
-          <Image
+          <SafeImage
             src="https://cdn.apis.rocks/teto.jpg"
-            alt="Respire"
+            alt="Respire, the redhead who lives on this page"
             width={128}
             height={128}
-            loading="eager"
+            sizes="128px"
+            priority
+            fetchPriority="high"
             className="w-full h-full object-cover"
           />
         </div>
@@ -30,15 +32,15 @@ export default function Bio() {
           </p>
           <p>
             Kasane Teto is the redhead who lives here. Photos in{" "}
-            <Link href="/gallery" className="retro-link">
+            <Link href="/gallery" className="retro-link inline-flex min-h-11 items-center">
               Gallery
             </Link>
             . Anime and manga on{" "}
-            <Link href="/anilist" className="retro-link">
+            <Link href="/anilist" className="retro-link inline-flex min-h-11 items-center">
               AniList
             </Link>
             .{" "}
-            <Link href="/music" className="retro-link">
+            <Link href="/music" className="retro-link inline-flex min-h-11 min-w-11 items-center justify-center">
               Music
             </Link>{" "}
             stays on.
@@ -53,7 +55,7 @@ export default function Bio() {
           href="https://other.respire.my"
           target="_blank"
           rel="noopener noreferrer"
-          className="retro-link"
+          className="retro-link inline-flex min-h-11 items-center break-all"
         >
           https://other.respire.my
         </a>

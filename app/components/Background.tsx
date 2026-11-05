@@ -8,106 +8,98 @@ function Background() {
   const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      cursorRef.current = { x: e.clientX, y: e.clientY };
-    };
-
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(dpr, dpr);
-    };
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let sizedWidth = 0;
+    let sizedHeight = 0;
+    let sizedDpr = 0;
 
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas, { passive: true });
-
-    let lastCursorX = 0;
-    let lastCursorY = 0;
-
-    const animate = () => {
+    const draw = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-      // Only redraw cursor gradient if cursor moved significantly
-      const cursorMoved =
-        Math.abs(cursorRef.current.x - lastCursorX) > 2 ||
-        Math.abs(cursorRef.current.y - lastCursorY) > 2;
-
-      if (cursorMoved) {
-        lastCursorX = cursorRef.current.x;
-        lastCursorY = cursorRef.current.y;
-
-        // Clear and redraw
-        ctx.fillStyle = "#FFB6C1";
-        ctx.fillRect(0, 0, width, height);
-
-        // Grid - simplified
-        const gridSize = 40;
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (let x = 0; x < width; x += gridSize) {
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, height);
-        }
-        for (let y = 0; y < height; y += gridSize) {
-          ctx.moveTo(0, y);
-          ctx.lineTo(width, y);
-        }
-        ctx.stroke();
-
-        // Vignette gradient
-        const gradient = ctx.createRadialGradient(
-          width / 2,
-          height / 2,
-          0,
-          width / 2,
-          height / 2,
-          Math.max(width, height) / 1.5
-        );
-        gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
-        gradient.addColorStop(1, "rgba(0, 0, 0, 0.6)");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-
-        // Cursor glow
-        const cursorGradient = ctx.createRadialGradient(
-          cursorRef.current.x,
-          cursorRef.current.y,
-          0,
-          cursorRef.current.x,
-          cursorRef.current.y,
-          200
-        );
-        cursorGradient.addColorStop(0, "rgba(255, 255, 255, 0.15)");
-        cursorGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-        ctx.fillStyle = cursorGradient;
-        ctx.fillRect(0, 0, width, height);
+      if (width !== sizedWidth || height !== sizedHeight || dpr !== sizedDpr) {
+        sizedWidth = width;
+        sizedHeight = height;
+        sizedDpr = dpr;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
       }
 
-      animationFrameRef.current = requestAnimationFrame(animate);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = "#FFB6C1";
+      ctx.fillRect(0, 0, width, height);
+
+      const gridSize = 40;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = 0; x < width; x += gridSize) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+      }
+      for (let y = 0; y < height; y += gridSize) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+      }
+      ctx.stroke();
+
+      const vignette = ctx.createRadialGradient(
+        width / 2,
+        height / 2,
+        0,
+        width / 2,
+        height / 2,
+        Math.max(width, height) / 1.5
+      );
+      vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+      vignette.addColorStop(1, "rgba(0, 0, 0, 0.6)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, width, height);
+
+      if (reduceMotion.matches) return;
+
+      const cursorGradient = ctx.createRadialGradient(
+        cursorRef.current.x,
+        cursorRef.current.y,
+        0,
+        cursorRef.current.x,
+        cursorRef.current.y,
+        200
+      );
+      cursorGradient.addColorStop(0, "rgba(255, 255, 255, 0.15)");
+      cursorGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+      ctx.fillStyle = cursorGradient;
+      ctx.fillRect(0, 0, width, height);
     };
 
-    // Initial draw
-    lastCursorX = -100;
-    animate();
+    const onMove = (event: MouseEvent) => {
+      if (reduceMotion.matches) return;
+      cursorRef.current = { x: event.clientX, y: event.clientY };
+      if (animationFrameRef.current !== null) return;
+      animationFrameRef.current = requestAnimationFrame(() => {
+        animationFrameRef.current = null;
+        draw();
+      });
+    };
+
+    draw();
+    window.addEventListener("resize", draw, { passive: true });
+    reduceMotion.addEventListener("change", draw);
+    window.addEventListener("mousemove", onMove, { passive: true });
 
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("resize", draw);
+      window.removeEventListener("mousemove", onMove);
+      reduceMotion.removeEventListener("change", draw);
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
