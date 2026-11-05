@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { fetchProjects, type Project } from "@/app/lib/content";
+import SafeImage from "./SafeImage";
 
 const FALLBACK_PROJECTS: Project[] = [
   {
@@ -33,6 +33,28 @@ function splitProjects(projects: Project[]) {
   return { featured, rest };
 }
 
+function ArchivedProjects({ projects }: { projects: Project[] }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <details
+      className="pt-2"
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+    >
+      <summary className="retro-button w-full justify-start text-xs list-none">
+        Show {projects.length} archived {projects.length === 1 ? "project" : "projects"}
+      </summary>
+      {open && (
+        <div className="space-y-4 mt-4">
+          {projects.map((project) => (
+            <ProjectRow key={project.title} project={project} />
+          ))}
+        </div>
+      )}
+    </details>
+  );
+}
+
 function ProjectRow({ project }: { project: Project }) {
   return (
     <div className="border-b border-retro-black pb-3 last:border-b-0">
@@ -42,12 +64,14 @@ function ProjectRow({ project }: { project: Project }) {
             className="w-20 h-20 flex-shrink-0 border-2 border-retro-black overflow-hidden"
             style={{ boxShadow: "3px 3px 0px #000000" }}
           >
-            <Image
+            <SafeImage
               src={project.thumbnail}
-              alt={project.title}
+              alt=""
               width={80}
               height={80}
-              className="w-full h-full object-cover"
+              sizes="80px"
+              fallbackLabel="No image"
+              className="h-full w-full object-cover"
             />
           </div>
         )}
@@ -82,9 +106,9 @@ function ProjectRow({ project }: { project: Project }) {
           href={project.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs retro-link inline-block"
+          className="text-xs retro-link inline-flex min-h-11 items-center"
         >
-          Visit {project.title} →
+          Visit {project.title}
         </a>
       )}
     </div>
@@ -109,7 +133,7 @@ export default function Projects() {
       } catch {
         if (!cancelled) {
           setProjects(FALLBACK_PROJECTS);
-          setError("Could not load latest projects — showing cached data.");
+          setError("Could not load the latest projects. Showing saved copies.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -130,7 +154,8 @@ export default function Projects() {
       <h2 className="retro-heading">PROJECTS</h2>
 
       {loading && (
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4" role="status">
+          <p className="retro-text text-xs">Loading projects.</p>
           {[0, 1].map((i) => (
             <div key={i} className="animate-pulse space-y-3">
               <div className="flex gap-3">
@@ -160,18 +185,7 @@ export default function Projects() {
           {featured.map((project) => (
             <ProjectRow key={project.title} project={project} />
           ))}
-          {rest.length > 0 && (
-            <details className="pt-2">
-              <summary className="retro-button text-xs cursor-pointer list-inside">
-                Show {rest.length} archived {rest.length === 1 ? "project" : "projects"}
-              </summary>
-              <div className="space-y-4 mt-4">
-                {rest.map((project) => (
-                  <ProjectRow key={project.title} project={project} />
-                ))}
-              </div>
-            </details>
-          )}
+          {rest.length > 0 && <ArchivedProjects projects={rest} />}
         </div>
       )}
     </section>

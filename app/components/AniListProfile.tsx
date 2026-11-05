@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "./SafeImage";
 import DOMPurify from "dompurify";
 import { logger } from "../lib/logger";
 
@@ -168,11 +168,12 @@ export default function AniListProfile({ isOpen, onClose }: AniListProfileProps)
               {/* Profile Header */}
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0">
-                  <Image
+                  <SafeImage
                     src={user.avatar.large}
                     alt={`${user.name}'s avatar`}
                     width={128}
                     height={128}
+                    sizes="128px"
                     className="w-32 h-32 border-2 border-retro-black"
                     style={{ boxShadow: "2px 2px 0px #000000" }}
                   />
@@ -189,9 +190,9 @@ export default function AniListProfile({ isOpen, onClose }: AniListProfileProps)
                     href={`https://anilist.co/user/${user.name}/`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="retro-link inline-block"
+                    className="retro-link inline-flex min-h-11 items-center"
                   >
-                    View on AniList →
+                    View on AniList
                   </a>
                 </div>
               </div>
@@ -241,11 +242,12 @@ export default function AniListProfile({ isOpen, onClose }: AniListProfileProps)
               {user.bannerImage && (
                 <div className="mt-6">
                   <h4 className="retro-heading text-retro-black mb-4">Banner</h4>
-                  <Image
+                  <SafeImage
                     src={user.bannerImage}
                     alt={`${user.name}'s banner`}
                     width={900}
                     height={300}
+                    sizes="100vw"
                     className="w-full border-2 border-retro-black"
                     style={{ boxShadow: "2px 2px 0px #000000" }}
                   />

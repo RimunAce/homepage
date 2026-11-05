@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "../SafeImage";
 import { PlayIcon, PauseIcon } from "./icons";
 
 interface ToggleButtonProps {
@@ -43,18 +43,20 @@ export default function ToggleButton({
       >
         <div className="w-10 h-10 border-2 border-retro-black flex-shrink-0 overflow-hidden bg-retro-gray">
           {thumbnail ? (
-            <Image
+            <SafeImage
               src={thumbnail}
               alt=""
               width={40}
               height={40}
+              sizes="40px"
               className="w-full h-full object-cover"
+              fallbackLabel=""
             />
           ) : null}
         </div>
         <span className="min-w-0 flex-1">
           <span className="block text-xs font-bold truncate">
-            {isLoading ? "Loading playlist…" : title || "Music"}
+            {isLoading ? "Loading playlist." : title || "Music"}
           </span>
           <span className="block text-[11px] truncate opacity-70">
             {author || (isOpen ? "Close player" : "Open player")}

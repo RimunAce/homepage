@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "../SafeImage";
 
 interface TrackDisplayProps {
   readonly currentTrack: number;
@@ -31,30 +31,40 @@ export default function TrackDisplay({
       className="mb-6"
     >
       <div className="flex items-center space-x-4">
-        <div
-          onClick={onThumbnailClick}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              onThumbnailClick();
-            }
-          }}
-          role={trackId === "science" ? "button" : "presentation"}
-          tabIndex={trackId === "science" ? 0 : -1}
-          className={`w-20 h-20 md:w-24 md:h-24 border-2 border-retro-black flex-shrink-0 ${
-            trackId === "science"
-              ? "cursor-pointer hover:opacity-80 transition-opacity"
-              : ""
-          }`}
-          style={{ boxShadow: "4px 4px 0px #000000" }}
-        >
-          <Image
-            src={thumbnail}
-            alt={title}
-            width={96}
-            height={96}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        {trackId === "science" ? (
+          <button
+            type="button"
+            onClick={onThumbnailClick}
+            aria-label={`Switch the cover for ${title}`}
+            className="w-20 h-20 md:w-24 md:h-24 border-2 border-retro-black flex-shrink-0 overflow-hidden p-0 hover:opacity-80"
+            style={{ boxShadow: "4px 4px 0px #000000" }}
+          >
+            <SafeImage
+              src={thumbnail}
+              alt=""
+              width={96}
+              height={96}
+              sizes="96px"
+              className="w-full h-full object-cover"
+              fallbackLabel="No cover"
+            />
+          </button>
+        ) : (
+          <div
+            className="w-20 h-20 md:w-24 md:h-24 border-2 border-retro-black flex-shrink-0 overflow-hidden"
+            style={{ boxShadow: "4px 4px 0px #000000" }}
+          >
+            <SafeImage
+              src={thumbnail}
+              alt={title}
+              width={96}
+              height={96}
+              sizes="96px"
+              className="w-full h-full object-cover"
+              fallbackLabel="No cover"
+            />
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <h3 className="text-base md:text-lg font-bold truncate mb-1">
             {title}

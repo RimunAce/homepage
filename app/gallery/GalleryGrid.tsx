@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "../components/SafeImage";
 
 interface GalleryImage {
   url: string;
@@ -13,11 +13,11 @@ interface GalleryGridProps {
 }
 
 const RATIO_CONFIG = {
-  wide: { threshold: 1.5, class: "col-span-2 row-span-1" },
-  landscape: { threshold: 1.2, class: "col-span-2 row-span-2" },
+  wide: { threshold: 1.5, class: "col-span-1 min-[480px]:col-span-2 row-span-1" },
+  landscape: { threshold: 1.2, class: "col-span-1 min-[480px]:col-span-2 row-span-1 min-[480px]:row-span-2" },
   square: { threshold: 0.8, class: "col-span-1 row-span-1" },
   portrait: { threshold: 0.6, class: "col-span-1 row-span-2" },
-  tall: { threshold: 0, class: "col-span-1 row-span-3" },
+  tall: { threshold: 0, class: "col-span-1 row-span-2 min-[480px]:row-span-3" },
 } as const;
 
 const getGridClass = (width: number, height: number) => {
@@ -39,8 +39,7 @@ export default function GalleryGrid({
   if (images.length === 0) {
     return (
       <div className="retro-card text-center py-12">
-        <p className="retro-heading mb-2">GALLERY</p>
-        <p className="retro-text text-sm">No photos yet — check back soon.</p>
+        <p className="retro-text text-sm">No photos yet. Check back soon.</p>
       </div>
     );
   }
@@ -49,7 +48,9 @@ export default function GalleryGrid({
     <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[200px] sm:auto-rows-[180px] md:auto-rows-[200px] gap-2 sm:gap-3">
       {reversedImages.map((image, index) => (
         <button
+          type="button"
           key={`gallery-${image.url}-${index}`}
+          aria-label={image.caption || `Open photo ${index + 1}`}
           className={`${getGridClass(
             image.width,
             image.height
@@ -58,13 +59,15 @@ export default function GalleryGrid({
           onClick={() => onImageClick(image)}
         >
           <div className="relative w-full h-full">
-            <Image
+            <SafeImage
               src={image.url}
-              alt={image.caption || `Gallery image ${index + 1}`}
+              alt=""
               fill
               className="object-cover"
-              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 33vw, 25vw"
-              priority={index < 8}
+              sizes="(max-width: 479px) 100vw, (max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={index < 2}
+              fetchPriority={index === 0 ? "high" : undefined}
+              fallbackLabel="Photo unavailable"
             />
           </div>
         </button>

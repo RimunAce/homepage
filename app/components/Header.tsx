@@ -17,9 +17,18 @@ function Header() {
   return (
     <>
       <header className="bg-retro-black text-retro-white py-2 px-4 relative z-10">
-        <div className="max-w-6xl mx-auto flex justify-between items-center gap-3">
-          <h1 className="text-lg font-bold">RESPIRE</h1>
-          <span className="text-sm whitespace-nowrap">KASANE TETO</span>
+        <div className="max-w-6xl mx-auto flex justify-between items-center gap-3 min-w-0">
+          {pathname === "/" ? (
+            <h1 className="text-lg font-bold shrink-0">RESPIRE</h1>
+          ) : (
+            <Link
+              href="/"
+              className="text-lg font-bold shrink-0 inline-flex min-h-11 items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              RESPIRE
+            </Link>
+          )}
+          <span className="text-sm text-right leading-tight">KASANE TETO</span>
         </div>
       </header>
 

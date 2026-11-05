@@ -62,7 +62,7 @@ function Headlines({
           href={item.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-retro-black hover:underline mx-1"
+          className="text-retro-black hover:underline mx-1 inline-flex min-h-11 items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
         >
           {item.title}
         </a>
@@ -191,14 +191,16 @@ function NewsTicker() {
   if (news.length === 0) {
     return (
       <div className="bg-retro-white text-retro-black py-1 border-b-2 border-retro-black relative z-10">
-        <div className="text-xs font-mono text-center">Loading Malaysian news…</div>
+        <div className="text-xs font-mono text-center">Loading Malaysian news.</div>
       </div>
     );
   }
 
   return (
     <div
-      className="bg-[#f2f2f2] text-retro-black py-1.5 overflow-hidden relative z-10 border-b-2 border-retro-black"
+      className="bg-[#f2f2f2] text-retro-black min-h-11 overflow-hidden relative z-10 border-b-2 border-retro-black"
+      role="region"
+      aria-label="Malaysian headlines"
       onMouseEnter={() => setHoverPaused(true)}
       onMouseLeave={() => setHoverPaused(false)}
       onFocusCapture={() => setHoverPaused(true)}
@@ -219,7 +221,7 @@ function NewsTicker() {
       {!reduceMotion && (
         <button
           type="button"
-          className="absolute right-0 top-0 bottom-0 z-10 bg-retro-white text-retro-black text-xs font-bold px-2 border-l-2 border-retro-black"
+          className="absolute right-0 top-0 bottom-0 z-10 min-w-11 bg-retro-white text-retro-black text-xs font-bold px-3 border-l-2 border-retro-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-black"
           onClick={() => setHeld((v) => !v)}
           aria-pressed={held}
         >

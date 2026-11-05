@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "../../components/SafeImage";
 import { Activity } from "../types";
 
 interface ActivityItemProps {
@@ -17,12 +17,14 @@ export function ActivityItem({ activity }: ActivityItemProps) {
   return (
     <div className="flex items-start gap-3 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors">
       {activity.media && (
-        <Image
+        <SafeImage
           src={activity.media.coverImage.large}
-          alt={activity.media.title.romaji}
+          alt=""
           width={48}
           height={64}
+          sizes="48px"
           className="w-12 h-16 object-cover border border-retro-black"
+          fallbackLabel="No cover"
         />
       )}
       <div className="flex-grow">
@@ -32,7 +34,7 @@ export function ActivityItem({ activity }: ActivityItemProps) {
           {activity.media && (
             <>
               {" of "}
-              <a href={activity.media.siteUrl} target="_blank" rel="noopener noreferrer" className="retro-link">
+              <a href={activity.media.siteUrl} target="_blank" rel="noopener noreferrer" className="retro-link inline-flex min-h-11 items-center">
                 {activity.media.title.romaji}
               </a>
             </>
@@ -43,9 +45,9 @@ export function ActivityItem({ activity }: ActivityItemProps) {
           href={`https://anilist.co/activity/${activity.id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs retro-link mt-1 inline-block"
+          className="text-xs retro-link mt-1 inline-flex min-h-11 items-center"
         >
-          View activity →
+          View activity
         </a>
       </div>
     </div>

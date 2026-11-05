@@ -2,7 +2,7 @@
 
 import { useMusicPlayer } from "../../contexts/MusicPlayerContext";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "../SafeImage";
 import { useState } from "react";
 
 const EQUALIZER_BARS = [
@@ -89,6 +89,7 @@ export default function Playlist() {
                         {tracks.map((track, index) => (
                             <li key={track.id}>
                                 <button
+                                    type="button"
                                     onClick={() => handleTrackClick(index)}
                                     className={`w-full text-left p-3 border border-retro-black transition-all flex items-center gap-3 group ${currentTrack === index
                                         ? "bg-retro-black text-retro-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
@@ -97,12 +98,14 @@ export default function Playlist() {
                                 >
                                     {/* Thumbnail */}
                                     <div className="flex-shrink-0 w-12 h-12 border-2 border-retro-black overflow-hidden bg-gray-200">
-                                        <Image
+                                        <SafeImage
                                             src={track.thumbnail}
-                                            alt={track.title}
+                                            alt=""
                                             width={48}
                                             height={48}
+                                            sizes="48px"
                                             className="w-full h-full object-cover"
+                                            fallbackLabel="No cover"
                                         />
                                     </div>
 
@@ -110,8 +113,7 @@ export default function Playlist() {
                                     <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                                         <span className="font-bold truncate">{track.title}</span>
                                         <span
-                                            className={`text-sm truncate ${currentTrack === index ? "opacity-80" : "opacity-60"
-                                                }`}
+                                            className="text-sm truncate"
                                         >
                                             {track.author}
                                         </span>

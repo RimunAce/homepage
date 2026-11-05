@@ -1,0 +1,20 @@
+---
+description: Always-on antislop pointer for Cursor sessions. Loads the matching skills and saved usage mode.
+globs: **/*
+alwaysApply: true
+---
+
+<EXTREMELY_IMPORTANT>
+You use antislop (Anti Slop: Rules for AI Coding Agents), installed from https://github.com/miqdadbadjuber/anti-slop (v3.2.25). It is a filter, not a style guide: it stops generic AI slop in generated UI, copy, and code, without prescribing aesthetics.
+
+For UI, copy, people, mobile layout, or code comments work, read the installed skill files directly:
+- Core filter, always on: `.cursor/skills/antislop/SKILL.md`
+- UI / visual: `.cursor/skills/antislop-ui/SKILL.md`
+- Copy & text: `.cursor/skills/antislop-copywriting/SKILL.md`
+- People: `.cursor/skills/antislop-human/SKILL.md`
+- Mobile / responsive: `.cursor/skills/antislop-layoutmobile/SKILL.md`
+- Code comments: `.cursor/skills/antislop-code/SKILL.md`
+Before starting, follow the core's "Two Usage Modes" section: explicit session instruction first, then global preference, then ask. For a resolved mode, announce `antislop active: <mode> (session override).` or `antislop active: <mode> (global preference).` once, using the actual mode and source. Ask only when no mode is resolved.
+
+Read `DESIGN.md` for this site's identity before changing the look. The filter sits on top of that direction.
+</EXTREMELY_IMPORTANT>

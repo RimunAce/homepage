@@ -14,7 +14,7 @@ const FALLBACK_UPDATES: Update[] = [
     date: "2025-05",
     time: "09:30",
     content:
-      "Added music player with playlist switching — check out the Music page.",
+      "Added a music player with playlist switching. The Music page has the full controls.",
   },
   {
     date: "2025-04",
@@ -41,7 +41,7 @@ export default function Updates() {
       } catch {
         if (!cancelled) {
           setUpdates(FALLBACK_UPDATES);
-          setError("Could not load latest updates — showing cached data.");
+          setError("Could not load the latest updates. Showing saved copies.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -60,7 +60,9 @@ export default function Updates() {
       <h2 className="retro-heading">UPDATES</h2>
 
       {loading && (
-        <div className="max-h-72 overflow-hidden space-y-3 py-2 animate-pulse">
+        <div className="max-h-72 overflow-hidden space-y-3 py-2" role="status">
+          <p className="retro-text text-xs">Loading updates.</p>
+          <div className="animate-pulse space-y-3">
           {[0, 1, 2].map((i) => (
             <div key={i} className="border-l-2 border-retro-gray pl-3 pb-3 space-y-2">
               <div className="flex gap-2">
@@ -70,6 +72,7 @@ export default function Updates() {
               <div className="h-3 bg-retro-gray border border-retro-black w-full" />
             </div>
           ))}
+          </div>
         </div>
       )}
 

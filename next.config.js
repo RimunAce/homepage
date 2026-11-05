@@ -1,52 +1,9 @@
+const remotePatterns = require("./app/lib/image-hosts.json");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "syd.cloud.appwrite.io",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.apis.rocks",
-      },
-      {
-        protocol: "https",
-        hostname: "apis-rocks.b-cdn.net",
-      },
-      {
-        protocol: "https",
-        hostname: "hebbkx1anhila5yf.public.blob.vercel-storage.com",
-      },
-      {
-        protocol: "https",
-        hostname: "www.respire.my",
-      },
-      {
-        protocol: "https",
-        hostname: "i.ytimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "beboxed.net",
-      },
-      {
-        protocol: "https",
-        hostname: "i.postimg.cc",
-      },
-      {
-        protocol: "https",
-        hostname: "s4.anilist.co",
-      },
-      {
-        protocol: "https",
-        hostname: "img.anilist.co",
-      },
-      {
-        protocol: "https",
-        hostname: "other.respire.my",
-      }
-    ],
+    remotePatterns,
   },
 };
 

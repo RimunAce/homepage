@@ -13,6 +13,50 @@
     margin: 0;
     padding: 0;
   }
+
+  a[href],
+  button,
+  summary,
+  select,
+  label[for],
+  label:has(> input[type="checkbox"], > input[type="radio"]),
+  [role="button"],
+  [role="link"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [role="switch"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  input[type="range"],
+  input[type="color"] {
+    cursor: pointer;
+  }
+
+  :disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .animate-pulse,
+    .loading-dot,
+    .loading-text {
+      animation: none !important;
+    }
+
+    .group:hover .group-hover\:scale-105 {
+      transform: none;
+    }
+  }
 }
 
 @layer components {
@@ -32,6 +76,10 @@
     background-color: #ffffff;
     border: 2px solid #000000;
     padding: 0.5rem 1rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     font-family: "Courier New", monospace;
     transition: all 0.2s ease;
@@ -60,14 +108,14 @@
 
   .retro-text {
     font-family: "Courier New", monospace;
-    font-size: 14px;
-    line-height: 1.4;
+    font-size: clamp(0.875rem, 0.84rem + 0.2vw, 1rem);
+    line-height: 1.45;
   }
 
   .retro-heading {
     font-family: "Arial", sans-serif;
     font-weight: bold;
-    font-size: 18px;
+    font-size: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
     margin-bottom: 0.5rem;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -147,6 +195,9 @@
     background-color: #ffffff;
     border: 2px solid #000000;
     padding: 0.4rem 0.75rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
     font-family: "Courier New", monospace;
     font-size: 12px;
     text-decoration: none;

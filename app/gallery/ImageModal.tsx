@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import SafeImage from "../components/SafeImage";
 
 interface GalleryImage {
   url: string;
@@ -15,60 +15,68 @@ interface ImageModalProps {
 }
 
 export default function ImageModal({ image, onClose }: ImageModalProps) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     if (!image) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+    const previous = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      previous?.focus();
+    };
   }, [image, onClose]);
+
+  const label = image?.caption || "Photo";
 
   return (
     <AnimatePresence>
       {image && (
         <motion.div
-          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
           role="dialog"
           aria-modal="true"
-          aria-label={image.caption || "Image preview"}
+          aria-label={label}
         >
-          <motion.div
-            className="relative max-w-5xl max-h-[90vh] border-4 border-retro-white"
-            style={{ boxShadow: "6px 6px 0px #ffffff" }}
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0.8 }}
-            onClick={(e) => e.stopPropagation()}
+          <div
+            className="flex max-h-[90vh] w-full max-w-5xl flex-col items-end gap-3"
+            onClick={(event) => event.stopPropagation()}
           >
             <button
-              className="absolute -top-12 right-0 retro-button bg-retro-white text-retro-black"
+              ref={closeRef}
+              type="button"
+              className="retro-button bg-retro-white text-retro-black"
               onClick={onClose}
             >
-              CLOSE
+              Close
             </button>
-            <div className="relative w-full h-full">
-              <Image
+            <div className="w-full min-w-0 border-4 border-retro-white bg-retro-black">
+              <SafeImage
                 src={image.url}
-                alt="Preview"
-                width={1920}
-                height={1080}
-                className="max-w-full max-h-[90vh] w-auto h-auto object-contain"
+                alt={label}
+                width={image.width || 1200}
+                height={image.height || 800}
+                className="max-h-[70vh] w-full object-contain"
+                sizes="(max-width: 1024px) 100vw, 80rem"
                 priority
+                fallbackLabel="Photo unavailable"
               />
               {image.caption && (
-                <div className="absolute bottom-4 left-4 bg-retro-black bg-opacity-80 text-retro-white px-3 py-2 border-2 border-retro-white max-w-md">
-                  <p className="text-sm font-mono">
-                    &quot;{image.caption}&quot;
-                  </p>
-                </div>
+                <p className="break-words px-3 py-2 text-sm font-mono text-retro-white">
+                  {image.caption}
+                </p>
               )}
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
