@@ -4,29 +4,6 @@ import { useState, useEffect } from "react";
 import { fetchProjects, type Project } from "@/app/lib/content";
 import SafeImage from "./SafeImage";
 
-const FALLBACK_PROJECTS: Project[] = [
-  {
-    title: "Respire.My World",
-    description:
-      "Personal homepage and portfolio built with Next.js, featuring a retro-inspired design.",
-    tech: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
-    status: "Active",
-    link: "https://respire.my",
-    date: "2025",
-    thumbnail: "",
-  },
-  {
-    title: "Music Player",
-    description:
-      "Custom audio player with playlist switching, easter eggs, and visualizer.",
-    tech: ["React", "TypeScript", "Web Audio API"],
-    status: "Active",
-    link: "https://respire.my/music",
-    date: "2025",
-    thumbnail: "",
-  },
-];
-
 function splitProjects(projects: Project[]) {
   const featured = projects.filter((p) => p.status !== "Archived");
   const rest = projects.filter((p) => p.status === "Archived");
@@ -132,8 +109,8 @@ export default function Projects() {
         }
       } catch {
         if (!cancelled) {
-          setProjects(FALLBACK_PROJECTS);
-          setError("Could not load the latest projects. Showing saved copies.");
+          setProjects([]);
+          setError("Could not load projects right now. Try again later.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -171,16 +148,16 @@ export default function Projects() {
       )}
 
       {error && !loading && (
-        <div className="bg-retro-yellow border-2 border-retro-black p-3 mb-3">
+        <div className="bg-retro-yellow border-2 border-retro-black p-3 mb-3" role="alert">
           <p className="text-xs font-mono text-retro-black">{error}</p>
         </div>
       )}
 
-      {!loading && featured.length === 0 && rest.length === 0 && (
+      {!loading && !error && featured.length === 0 && rest.length === 0 && (
         <p className="retro-text text-xs">No projects to show right now.</p>
       )}
 
-      {!loading && (
+      {!loading && !error && (
         <div className="space-y-4">
           {featured.map((project) => (
             <ProjectRow key={project.title} project={project} />

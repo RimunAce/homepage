@@ -13,6 +13,7 @@ interface MusicPlayerContextType {
   currentTime: number;
   duration: number;
   isLoading: boolean;
+  playlistUnavailable: boolean;
   isOpen: boolean;
   volume: number;
   isMinecraftMode: boolean;
@@ -84,8 +85,12 @@ export function MusicPlayerProvider({
     setCurrentTime: state.setCurrentTime,
     setDuration: state.setDuration,
     setIsLoading: state.setIsLoading,
+    setTetoFailed: state.setTetoFailed,
+    setMikuFailed: state.setMikuFailed,
     setIsMinecraftMode: state.setIsMinecraftMode,
   });
+
+  const playlistUnavailable = state.isMikuMode ? state.mikuFailed : state.tetoFailed;
 
   const value = useMemo(
     () => ({
@@ -95,6 +100,7 @@ export function MusicPlayerProvider({
       currentTime: state.currentTime,
       duration: state.duration,
       isLoading: state.isLoading,
+      playlistUnavailable,
       isOpen: state.isOpen,
       volume: state.volume,
       isMinecraftMode: state.isMinecraftMode,
@@ -127,6 +133,7 @@ export function MusicPlayerProvider({
       state.currentTime,
       state.duration,
       state.isLoading,
+      playlistUnavailable,
       state.isOpen,
       state.volume,
       state.isMinecraftMode,

@@ -52,37 +52,24 @@ async function listRows(
   return result.rows as Row[];
 }
 
-async function loadStatic<T>(file: string): Promise<T> {
-  const res = await fetch(`/data/${file}`);
-  if (!res.ok) throw new Error(`Failed to load /data/${file}`);
-  return res.json();
-}
-
-/**
- * Reads a table from Appwrite, falling back to the bundled JSON snapshot when
- * the request fails so the page still renders offline or during an outage.
- */
 async function readTable<T>(
   table: string,
   queries: string[],
-  fallbackFile: string,
   map: (row: Row) => T
 ): Promise<T[]> {
   try {
     const rows = await listRows(table, queries);
-    if (rows.length > 0) return rows.map(map);
-    logger.warn(`Appwrite table "${table}" is empty, using static fallback`);
+    return rows.map(map);
   } catch (error) {
     logger.error(`Failed to read Appwrite table "${table}":`, error);
+    throw error;
   }
-  return loadStatic<T[]>(fallbackFile);
 }
 
 export function fetchUpdates(): Promise<Update[]> {
   return readTable(
     TABLES.updates,
     [Query.orderDesc("sortKey")],
-    "updates.json",
     (row) => ({
       date: String(row.date ?? ""),
       time: String(row.time ?? ""),
@@ -95,7 +82,6 @@ export function fetchProjects(): Promise<Project[]> {
   return readTable(
     TABLES.projects,
     [Query.orderAsc("sortKey")],
-    "projects.json",
     (row) => ({
       title: String(row.title ?? ""),
       description: String(row.description ?? ""),
@@ -112,7 +98,6 @@ export function fetchGallery(): Promise<GalleryImage[]> {
   return readTable(
     TABLES.gallery,
     [Query.orderAsc("sortKey")],
-    "gallery.json",
     (row) => ({
       url: String(row.url ?? ""),
       width: Number(row.width ?? 0),
@@ -137,7 +122,6 @@ export function fetchPlaylist(playlist: "teto" | "miku"): Promise<Track[]> {
   return readTable(
     TABLES.music,
     [Query.equal("playlist", playlist), Query.orderAsc("sortKey")],
-    playlist === "miku" ? "music-miku.json" : "music.json",
     mapTrack
   );
 }

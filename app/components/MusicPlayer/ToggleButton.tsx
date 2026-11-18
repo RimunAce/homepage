@@ -5,6 +5,7 @@ interface ToggleButtonProps {
   readonly isOpen: boolean;
   readonly isPlaying: boolean;
   readonly isLoading: boolean;
+  readonly unavailable: boolean;
   readonly title: string;
   readonly author: string;
   readonly thumbnail: string;
@@ -16,6 +17,7 @@ export default function ToggleButton({
   isOpen,
   isPlaying,
   isLoading,
+  unavailable,
   title,
   author,
   thumbnail,
@@ -24,9 +26,11 @@ export default function ToggleButton({
 }: ToggleButtonProps) {
   const label = isLoading
     ? "Loading playlist"
-    : title
-      ? `${isPlaying ? "Playing" : "Paused"}: ${title}`
-      : "Music player";
+    : unavailable && !title
+      ? "Playlist unavailable"
+      : title
+        ? `${isPlaying ? "Playing" : "Paused"}: ${title}`
+        : "Music player";
 
   return (
     <div className="fixed bottom-4 inset-x-4 md:inset-x-auto md:right-4 md:w-80 z-50 flex border-2 border-retro-black bg-retro-white text-retro-black"
@@ -56,7 +60,11 @@ export default function ToggleButton({
         </div>
         <span className="min-w-0 flex-1">
           <span className="block text-xs font-bold truncate">
-            {isLoading ? "Loading playlist." : title || "Music"}
+            {isLoading
+              ? "Loading playlist."
+              : unavailable && !title
+                ? "Playlist unavailable"
+                : title || "Music"}
           </span>
           <span className="block text-[11px] truncate opacity-70">
             {author || (isOpen ? "Close player" : "Open player")}

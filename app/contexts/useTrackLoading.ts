@@ -7,6 +7,8 @@ interface UseTrackLoadingParams {
   setMikuTracks: (tracks: Track[]) => void;
   setTracks: (tracks: Track[]) => void;
   setIsLoading: (loading: boolean) => void;
+  setTetoFailed: (failed: boolean) => void;
+  setMikuFailed: (failed: boolean) => void;
 }
 
 export function useTrackLoading({
@@ -14,15 +16,35 @@ export function useTrackLoading({
   setMikuTracks,
   setTracks,
   setIsLoading,
+  setTetoFailed,
+  setMikuFailed,
 }: UseTrackLoadingParams) {
   useEffect(() => {
-    Promise.all([fetchPlaylist("teto"), fetchPlaylist("miku")]).then(
-      ([tetoData, mikuData]) => {
-        setTetoTracks(tetoData);
-        setMikuTracks(mikuData);
-        setTracks(tetoData);
+    let cancelled = false;
+
+    Promise.allSettled([fetchPlaylist("teto"), fetchPlaylist("miku")]).then(
+      ([tetoResult, mikuResult]) => {
+        if (cancelled) return;
+        const teto = tetoResult.status === "fulfilled" ? tetoResult.value : [];
+        const miku = mikuResult.status === "fulfilled" ? mikuResult.value : [];
+        setTetoFailed(tetoResult.status === "rejected");
+        setMikuFailed(mikuResult.status === "rejected");
+        setTetoTracks(teto);
+        setMikuTracks(miku);
+        setTracks(teto);
         setIsLoading(false);
       }
     );
-  }, [setTetoTracks, setMikuTracks, setTracks, setIsLoading]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    setTetoTracks,
+    setMikuTracks,
+    setTracks,
+    setIsLoading,
+    setTetoFailed,
+    setMikuFailed,
+  ]);
 }

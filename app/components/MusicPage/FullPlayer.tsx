@@ -18,15 +18,17 @@ interface ControlButtonProps {
   children: ReactNode;
   label?: string;
   pressed?: boolean;
+  disabled?: boolean;
 }
 
-const ControlButton = ({ onClick, className, children, label, pressed }: ControlButtonProps) => (
+const ControlButton = ({ onClick, className, children, label, pressed, disabled }: ControlButtonProps) => (
   <button
     type="button"
     onClick={onClick}
-    className={className}
+    className={`${className} disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-retro-white disabled:hover:text-retro-black`}
     aria-label={label}
     aria-pressed={pressed}
+    disabled={disabled}
   >
     {children}
   </button>
@@ -74,9 +76,10 @@ interface RangeTrackProps {
   onChange: ChangeEventHandler<HTMLInputElement>;
   className: string;
   label?: string;
+  disabled?: boolean;
 }
 
-const RangeTrack = ({ value, max, min, step = 1, onChange, className, label }: RangeTrackProps) => {
+const RangeTrack = ({ value, max, min, step = 1, onChange, className, label, disabled }: RangeTrackProps) => {
   const percent = (value / (max || 1)) * 100;
   return (
     <div
@@ -97,7 +100,8 @@ const RangeTrack = ({ value, max, min, step = 1, onChange, className, label }: R
         value={value}
         onChange={onChange}
         aria-label={label}
-        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        disabled={disabled}
+        className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
       />
     </div>
   );
@@ -108,9 +112,10 @@ interface ProgressBarProps {
   duration: number;
   formatTime: (time: number) => string;
   onSeek: ChangeEventHandler<HTMLInputElement>;
+  disabled?: boolean;
 }
 
-const ProgressBar = ({ currentTime, duration, formatTime, onSeek }: ProgressBarProps) => (
+const ProgressBar = ({ currentTime, duration, formatTime, onSeek, disabled }: ProgressBarProps) => (
   <div className="w-full mb-8">
     <div className="flex justify-between text-sm font-mono mb-2">
       <span>{formatTime(currentTime)}</span>
@@ -124,6 +129,7 @@ const ProgressBar = ({ currentTime, duration, formatTime, onSeek }: ProgressBarP
       onChange={onSeek}
       label="Seek to position"
       className="w-full"
+      disabled={disabled}
     />
   </div>
 );
@@ -151,6 +157,8 @@ const VolumeControl = ({ volume, setVolume }: VolumeControlProps) => (
 export default function FullPlayer() {
   const {
     isPlaying,
+    isLoading,
+    playlistUnavailable,
     currentTime,
     duration,
     volume,
@@ -165,19 +173,41 @@ export default function FullPlayer() {
     getCurrentThumbnail,
   } = useMusicPlayer();
 
-  const currentThumbnail = getCurrentThumbnail();
+  const title = getCurrentTitle() ?? "";
+  const author = getCurrentAuthor() ?? "";
+  const currentThumbnail = getCurrentThumbnail() ?? "";
+  const noTrack = !title;
 
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto">
-      <AlbumArt thumbnail={currentThumbnail} title={getCurrentTitle()} />
-      <TrackInfo title={getCurrentTitle()} author={getCurrentAuthor()} />
-      <ProgressBar currentTime={currentTime} duration={duration} formatTime={formatTime} onSeek={handleSeek} />
+      <AlbumArt thumbnail={currentThumbnail} title={title || undefined} />
+      {isLoading ? (
+        <p className="retro-text text-sm mb-8" role="status">Loading playlist.</p>
+      ) : playlistUnavailable && noTrack ? (
+        <div className="mb-8 w-full bg-retro-yellow border-2 border-retro-black p-3" role="alert">
+          <p className="text-xs font-mono text-center text-retro-black">
+            Could not load this playlist right now. Try again later.
+          </p>
+        </div>
+      ) : noTrack ? (
+        <p className="retro-text text-sm mb-8">No tracks in this playlist.</p>
+      ) : (
+        <TrackInfo title={title} author={author} />
+      )}
+      <ProgressBar
+        currentTime={currentTime}
+        duration={duration}
+        formatTime={formatTime}
+        onSeek={handleSeek}
+        disabled={noTrack}
+      />
 
       <div className="flex items-center justify-center space-x-8 mb-8">
         <ControlButton
           onClick={prevTrack}
           className={SMALL_BUTTON_CLASS}
           label="Previous track"
+          disabled={noTrack}
         >
           <PreviousIcon />
         </ControlButton>
@@ -186,6 +216,7 @@ export default function FullPlayer() {
           className={LARGE_BUTTON_CLASS}
           label={isPlaying ? "Pause" : "Play"}
           pressed={isPlaying}
+          disabled={noTrack}
         >
           <PlayPauseIcon isPlaying={isPlaying} />
         </ControlButton>
@@ -193,6 +224,7 @@ export default function FullPlayer() {
           onClick={nextTrack}
           className={SMALL_BUTTON_CLASS}
           label="Next track"
+          disabled={noTrack}
         >
           <NextIcon />
         </ControlButton>

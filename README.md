@@ -8,16 +8,6 @@
 
 ---
 
-## Data Files
+## Data
 
-`public/data/gallery` - for gallery purposes
-
-`public/data/music` - music playlists
-
-`public/data/music-miku` - music playlists but Miku
-
-`public/data/projects` - projects list
-
-`public/data/updates` - the updates, very important
-
-These are now remotely loaded, so this remains as a remnant of the past.
+The JSON files that used to live in `public/data` are gone. Updates, projects, gallery, and the playlists are rows in Appwrite now, and the pictures and audio are in the `gallery` bucket. If Appwrite is unreachable, the page says so.
