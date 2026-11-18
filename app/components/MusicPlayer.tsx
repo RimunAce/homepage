@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMusicPlayer } from "../contexts/MusicPlayerContext";
+import { isMinecraftEggAvailable } from "../contexts/musicPlayerUtils";
 import ToggleButton from "./MusicPlayer/ToggleButton";
 import MikuToggleButton from "./MusicPlayer/MikuToggleButton";
 import TrackDisplay from "./MusicPlayer/TrackDisplay";
@@ -161,6 +162,10 @@ export default function MusicPlayer() {
                     authorUrl={getCurrentAuthorUrl()}
                     thumbnail={getCurrentThumbnail()}
                     trackId={currentTrackData.id}
+                    coverIsButton={
+                      currentTrackData.id === "science" &&
+                      isMinecraftEggAvailable()
+                    }
                     onThumbnailClick={handleThumbnailClick}
                   />
                 )}

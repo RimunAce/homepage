@@ -1,4 +1,4 @@
-import patterns from "./image-hosts.json";
+import nextConfig from "../../next.config.js";
 
 export type ImageHostPattern = {
   protocol: "https";
@@ -6,7 +6,27 @@ export type ImageHostPattern = {
   pathname: string;
 };
 
-export const remotePatterns = patterns as ImageHostPattern[];
+type ConfigPattern = {
+  protocol?: string;
+  hostname?: string;
+  pathname?: string;
+};
+
+function isImageHostPattern(value: ConfigPattern): value is ImageHostPattern {
+  return (
+    value.protocol === "https" &&
+    typeof value.hostname === "string" &&
+    typeof value.pathname === "string"
+  );
+}
+
+const configured = (
+  nextConfig as { images?: { remotePatterns?: ConfigPattern[] } }
+).images?.remotePatterns;
+
+export const remotePatterns: ImageHostPattern[] = (configured ?? []).filter(
+  isImageHostPattern
+);
 
 function pathnameMatches(pattern: string, pathname: string) {
   const expression =

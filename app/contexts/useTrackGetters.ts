@@ -6,6 +6,7 @@ import {
   getMinecraftAuthor,
   getMinecraftAuthorUrl,
   getMinecraftThumbnail,
+  isMinecraftEggAvailable,
 } from "./musicPlayerUtils";
 
 interface UseTrackGettersParams {
@@ -21,15 +22,23 @@ export function useTrackGetters({
 }: UseTrackGettersParams) {
   const getCurrentAudio = useCallback(() => {
     const currentTrackData = tracks[currentTrack];
-    if (currentTrackData?.id === "science" && isMinecraftMode) {
-      return getMinecraftAudio();
+    if (
+      currentTrackData?.id === "science" &&
+      isMinecraftMode &&
+      isMinecraftEggAvailable()
+    ) {
+      return getMinecraftAudio() ?? currentTrackData.audio;
     }
     return currentTrackData?.audio;
   }, [tracks, currentTrack, isMinecraftMode]);
 
   const getCurrentTitle = useCallback(() => {
     const currentTrackData = tracks[currentTrack];
-    if (currentTrackData?.id === "science" && isMinecraftMode) {
+    if (
+      currentTrackData?.id === "science" &&
+      isMinecraftMode &&
+      isMinecraftEggAvailable()
+    ) {
       return getMinecraftTitle();
     }
     return currentTrackData?.title;
@@ -37,7 +46,11 @@ export function useTrackGetters({
 
   const getCurrentAuthor = useCallback(() => {
     const currentTrackData = tracks[currentTrack];
-    if (currentTrackData?.id === "science" && isMinecraftMode) {
+    if (
+      currentTrackData?.id === "science" &&
+      isMinecraftMode &&
+      isMinecraftEggAvailable()
+    ) {
       return getMinecraftAuthor();
     }
     return currentTrackData?.author;
@@ -45,7 +58,11 @@ export function useTrackGetters({
 
   const getCurrentAuthorUrl = useCallback(() => {
     const currentTrackData = tracks[currentTrack];
-    if (currentTrackData?.id === "science" && isMinecraftMode) {
+    if (
+      currentTrackData?.id === "science" &&
+      isMinecraftMode &&
+      isMinecraftEggAvailable()
+    ) {
       return getMinecraftAuthorUrl();
     }
     return currentTrackData?.authorUrl;
@@ -53,8 +70,12 @@ export function useTrackGetters({
 
   const getCurrentThumbnail = useCallback(() => {
     const currentTrackData = tracks[currentTrack];
-    if (currentTrackData?.id === "science" && isMinecraftMode) {
-      return getMinecraftThumbnail();
+    if (
+      currentTrackData?.id === "science" &&
+      isMinecraftMode &&
+      isMinecraftEggAvailable()
+    ) {
+      return getMinecraftThumbnail() ?? currentTrackData.thumbnail;
     }
     return currentTrackData?.thumbnail;
   }, [tracks, currentTrack, isMinecraftMode]);

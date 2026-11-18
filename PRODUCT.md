@@ -40,7 +40,7 @@ Confirmed functionality:
 
 Constraints:
 
-- Remote images are restricted to the allowlisted hosts in `next.config.js` (`cdn.apis.rocks`, AniList CDNs, etc.).
+- Remote images are restricted to the allowlisted hosts in `next.config.js` (Appwrite storage, AniList CDNs, and the other hosts this page loads).
 - Config via env vars: `NEXT_PUBLIC_APPWRITE_ENDPOINT`, `NEXT_PUBLIC_APPWRITE_PROJECT_ID`, `NEXT_PUBLIC_APPWRITE_DATABASE_ID`, `NEXT_PUBLIC_APPWRITE_BUCKET_ID`, `NEXT_PUBLIC_ANILIST_USERNAME`, `NEXT_PUBLIC_ANILIST_ENDPOINT`.
 - Content is real and owned by the user; updates read as personal diary entries (undecided: how far the site should scale beyond a personal space).
 
@@ -59,7 +59,7 @@ Confirmed as binding by the owner:
 
 - Real diary updates in `public/data/updates.json` (also remote).
 - Real project list in `public/data/projects.json` (also remote) — with names, links, dates, and statuses.
-- Real avatar/mascot imagery served from `cdn.apis.rocks` (used as favicon, bio avatar, contact character).
+- Real avatar and mascot images come from the Appwrite gallery bucket (favicon, bio portrait, contact character).
 - Live external sources: AniList (user `Reuzin`), Malaysian news RSS feeds, GitHub Gist data.
 - No testimonials, case studies, press, or third-party claims exist; future work must not fabricate them.
 

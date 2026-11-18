@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import type { Track } from "./useMusicPlayerState";
+import { isMinecraftEggAvailable } from "./musicPlayerUtils";
 
 interface UsePlayerHandlersParams {
   tracks: Track[];
@@ -24,7 +25,7 @@ export function usePlayerHandlers({
 }: UsePlayerHandlersParams) {
   const handleThumbnailClick = useCallback(() => {
     const currentTrackData = tracks[currentTrack];
-    if (currentTrackData?.id === "science") {
+    if (currentTrackData?.id === "science" && isMinecraftEggAvailable()) {
       const audio = audioRef.current;
       if (!audio) return;
 

@@ -1,6 +1,5 @@
-// One-off migration: uploads gallery images and music assets from cdn.apis.rocks
-// into the Appwrite `gallery` bucket, then rewrites the JSON data files to point
-// at Appwrite file URLs. Safe to re-run: existing file IDs are skipped.
+// One-off: upload gallery and playlist files from the URLs in public/data,
+// then rewrite those files to Appwrite storage URLs. Existing file IDs are skipped.
 import fs from "node:fs";
 import path from "node:path";
 

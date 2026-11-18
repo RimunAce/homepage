@@ -62,8 +62,8 @@ export const metadata: Metadata = {
     description,
   },
   icons: {
-    icon: "https://cdn.apis.rocks/teto.jpg",
-    apple: "https://cdn.apis.rocks/teto.jpg",
+    icon: "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-jpg/view?project=68f8d96a0021b0ae0895",
+    apple: "https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-jpg/view?project=68f8d96a0021b0ae0895",
   },
   robots: { index: true, follow: true },
 };
