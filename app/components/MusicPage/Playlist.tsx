@@ -20,7 +20,9 @@ export default function Playlist() {
         setCurrentTime,
         isMikuMode,
         setIsMikuMode,
-        isPlaying
+        isPlaying,
+        isLoading,
+        playlistUnavailable,
     } = useMusicPlayer();
 
     const handleTrackClick = (index: number) => {
@@ -86,6 +88,19 @@ export default function Playlist() {
                         transition={{ duration: 0.3 }}
                         className="space-y-2"
                     >
+                        {isLoading && (
+                            <li className="retro-text text-sm" role="status">Loading playlist.</li>
+                        )}
+                        {!isLoading && playlistUnavailable && tracks.length === 0 && (
+                            <li className="bg-retro-yellow border-2 border-retro-black p-3" role="alert">
+                                <p className="text-xs font-mono text-retro-black">
+                                    Could not load this playlist right now. Try again later.
+                                </p>
+                            </li>
+                        )}
+                        {!isLoading && !playlistUnavailable && tracks.length === 0 && (
+                            <li className="retro-text text-sm">No tracks in this playlist.</li>
+                        )}
                         {tracks.map((track, index) => (
                             <li key={track.id}>
                                 <button

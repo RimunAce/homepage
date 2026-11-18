@@ -4,6 +4,7 @@ import { PreviousIcon, PlayPauseIcon, NextIcon, VolumeIcon } from "./icons";
 interface PlayerControlsProps {
   readonly isPlaying: boolean;
   readonly volume: number;
+  readonly disabled?: boolean;
   readonly onPrev: () => void;
   readonly onTogglePlay: () => void;
   readonly onNext: () => void;
@@ -13,6 +14,7 @@ interface PlayerControlsProps {
 export default function PlayerControls({
   isPlaying,
   volume,
+  disabled = false,
   onPrev,
   onTogglePlay,
   onNext,
@@ -31,6 +33,7 @@ export default function PlayerControls({
           onClick={onPrev}
           className="retro-button p-4"
           aria-label="Previous track"
+          disabled={disabled}
         >
           <PreviousIcon />
         </button>
@@ -41,6 +44,7 @@ export default function PlayerControls({
           className="retro-button p-6"
           aria-label={isPlaying ? "Pause" : "Play"}
           aria-pressed={isPlaying}
+          disabled={disabled}
         >
           <PlayPauseIcon isPlaying={isPlaying} />
         </button>
@@ -50,6 +54,7 @@ export default function PlayerControls({
           onClick={onNext}
           className="retro-button p-4"
           aria-label="Next track"
+          disabled={disabled}
         >
           <NextIcon />
         </button>

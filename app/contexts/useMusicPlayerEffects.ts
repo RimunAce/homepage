@@ -22,16 +22,19 @@ interface UseEffectsParams {
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setIsLoading: (loading: boolean) => void;
+  setTetoFailed: (failed: boolean) => void;
+  setMikuFailed: (failed: boolean) => void;
   setIsMinecraftMode: (mode: boolean) => void;
 }
 
 export function useMusicPlayerEffects(params: UseEffectsParams) {
-  // Load tracks from JSON files
   useTrackLoading({
     setTetoTracks: params.setTetoTracks,
     setMikuTracks: params.setMikuTracks,
     setTracks: params.setTracks,
     setIsLoading: params.setIsLoading,
+    setTetoFailed: params.setTetoFailed,
+    setMikuFailed: params.setMikuFailed,
   });
 
   // Handle playlist switching when Miku mode toggles

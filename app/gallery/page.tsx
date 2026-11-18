@@ -42,7 +42,7 @@ export default function Gallery() {
         </p>
       )}
       {phase === "error" && (
-        <div className="mb-6 bg-retro-yellow border-2 border-retro-black p-3">
+        <div className="mb-6 bg-retro-yellow border-2 border-retro-black p-3" role="alert">
           <p className="text-xs font-mono text-retro-black">
             Could not load the gallery right now. Try again later.
           </p>

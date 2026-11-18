@@ -22,10 +22,10 @@ A living personal "world" rather than a static portfolio: the page is wired to t
 
 - Live at `https://respire.my`; the previous version remains at `https://other.respire.my`.
 - Built with Next.js 16, React 19, TypeScript, Tailwind CSS, Framer Motion, NextUI; `bun` for development (`bun install`, `bun run dev`, port 3000).
-- Content is Appwrite-driven: updates, projects, gallery, and music playlists load from Appwrite TablesDB (`homepage` database) and media from the `gallery` Storage bucket; `public/data/*.json` are offline fallback snapshots, not the source of truth.
+- Updates, projects, gallery, and music playlists load from Appwrite TablesDB (`homepage` database). Photos and playlist files are in the `gallery` Storage bucket. If Appwrite is unreachable, those sections show an empty or error state. There is no static JSON snapshot.
 - The owner updates content by editing rows in the Appwrite Console — keeping that burden low is part of how the site is maintained.
 - AniList username is `Reuzin`; data fetched from the AniList GraphQL endpoint with local caching (5 min).
-- Malaysian news headlines are aggregated server-side from trusted RSS feeds (Bernama, The Star, Malay Mail, NST, FMT) with a fallback set in the client.
+- Malaysian news headlines are aggregated server-side from trusted RSS feeds (Bernama, The Star, Malay Mail, NST, FMT). If that request fails, the ticker shows the last headlines saved in the browser, or says they are unavailable.
 
 ## Capabilities and Constraints
 
@@ -35,7 +35,7 @@ Confirmed functionality:
 - **Gallery** — image grid with lightbox modal and preloading progress.
 - **AniList** — profile, stats (anime/manga), favorites, recent activities, and searchable/filterable/sortable anime & manga lists with graceful degradation to cached or partial data.
 - **Music player** — persistent across pages; playlist switching, progress bar, volume, track playlist, a visualizer, and a "Miku mode" easter egg (Teto/Miku playlist toggle).
-- **News ticker** — scrolling Malaysian news headlines with an "MY NEWS" label and client-side fallback items.
+- **News ticker**: scrolling Malaysian news headlines with an "MY NEWS" label. If the feeds fail, it shows the last headlines saved in the browser, or says they are unavailable.
 - **Loading screen**, scroll banner, and a canvas background (grid + cursor glow) on the home shell.
 
 Constraints:
@@ -57,16 +57,15 @@ Confirmed as binding by the owner:
 
 ## Evidence on Hand
 
-- Real diary updates in `public/data/updates.json` (also remote).
-- Real project list in `public/data/projects.json` (also remote) — with names, links, dates, and statuses.
-- Real avatar and mascot images come from the Appwrite gallery bucket (favicon, bio portrait, contact character).
-- Live external sources: AniList (user `Reuzin`), Malaysian news RSS feeds, GitHub Gist data.
+- Diary updates, the project list, gallery photos, and playlists are rows in Appwrite TablesDB.
+- Gallery images, playlist audio, and the Teto portrait are files in the Appwrite `gallery` bucket.
+- Live external sources: AniList (user `Reuzin`) and Malaysian news RSS feeds.
 - No testimonials, case studies, press, or third-party claims exist; future work must not fabricate them.
 
 ## Product Principles
 
 1. **Authenticity first.** The site exists so Respire can be themselves — real data, real voice, real tastes; never a polished mask.
-2. **Live over static.** Music, AniList, news, and updates should reflect reality; fallbacks are a safety net, not a substitute.
+2. **Live over static.** Music, AniList, news, and updates should reflect reality. News and AniList may show the last cached copy when a request fails. Projects, updates, gallery, and playlists do not keep a snapshot: if Appwrite is down, those sections say so.
 3. **Personality is a feature.** Easter eggs, the Teto persona, humor, and playfulness are part of the product, not defects.
-4. **Low-maintenance for one person.** Content must stay easy to update (simple JSON/remote data); complexity should not grow faster than the desire to maintain it.
+4. **Low-maintenance for one person.** Content must stay easy to update (rows in the Appwrite Console); complexity should not grow faster than the desire to maintain it.
 5. **Easy for friends.** The site should be navigable and welcoming for a casual visitor (the owner's stated hope), not just the owner.

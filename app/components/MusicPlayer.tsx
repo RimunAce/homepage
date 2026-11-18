@@ -24,6 +24,7 @@ export default function MusicPlayer() {
     currentTime,
     duration,
     isLoading,
+    playlistUnavailable,
     isOpen,
     volume,
     isMikuMode,
@@ -101,6 +102,7 @@ export default function MusicPlayer() {
         isOpen={isOpen}
         isPlaying={isPlaying}
         isLoading={isLoading}
+        unavailable={playlistUnavailable}
         title={getCurrentTitle() ?? ""}
         author={getCurrentAuthor() ?? ""}
         thumbnail={getCurrentThumbnail() ?? ""}
@@ -153,6 +155,16 @@ export default function MusicPlayer() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
+                {!isLoading && playlistUnavailable && tracks.length === 0 && (
+                  <div className="bg-retro-yellow border-2 border-retro-black p-3 mb-4" role="alert">
+                    <p className="text-xs font-mono text-retro-black">
+                      Could not load this playlist right now. Try again later.
+                    </p>
+                  </div>
+                )}
+                {!isLoading && !playlistUnavailable && tracks.length === 0 && (
+                  <p className="retro-text text-xs mb-4">No tracks in this playlist.</p>
+                )}
                 {currentTrackData?.thumbnail && (
                   <TrackDisplay
                     currentTrack={currentTrack}
@@ -178,6 +190,7 @@ export default function MusicPlayer() {
                 <PlayerControls
                   isPlaying={isPlaying}
                   volume={volume}
+                  disabled={isLoading || tracks.length === 0}
                   onPrev={prevTrack}
                   onTogglePlay={togglePlayPause}
                   onNext={nextTrack}

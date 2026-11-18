@@ -3,26 +3,6 @@
 import { useState, useEffect } from "react";
 import { fetchUpdates, type Update } from "@/app/lib/content";
 
-const FALLBACK_UPDATES: Update[] = [
-  {
-    date: "2025-06",
-    time: "12:00",
-    content:
-      "Site is running on Next.js 16 with a fresh retro redesign. Browse around!",
-  },
-  {
-    date: "2025-05",
-    time: "09:30",
-    content:
-      "Added a music player with playlist switching. The Music page has the full controls.",
-  },
-  {
-    date: "2025-04",
-    time: "14:15",
-    content: "Gallery and AniList integration are now live.",
-  },
-];
-
 export default function Updates() {
   const [updates, setUpdates] = useState<Update[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,8 +20,8 @@ export default function Updates() {
         }
       } catch {
         if (!cancelled) {
-          setUpdates(FALLBACK_UPDATES);
-          setError("Could not load the latest updates. Showing saved copies.");
+          setUpdates([]);
+          setError("Could not load updates right now. Try again later.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -77,12 +57,12 @@ export default function Updates() {
       )}
 
       {error && !loading && (
-        <div className="bg-retro-yellow border-2 border-retro-black p-3 mb-3">
+        <div className="bg-retro-yellow border-2 border-retro-black p-3 mb-3" role="alert">
           <p className="text-xs font-mono text-retro-black">{error}</p>
         </div>
       )}
 
-      {!loading && updates.length === 0 && (
+      {!loading && !error && updates.length === 0 && (
         <p className="retro-text text-xs">No updates yet.</p>
       )}
 

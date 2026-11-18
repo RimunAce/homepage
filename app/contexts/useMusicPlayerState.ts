@@ -18,6 +18,8 @@ export function useMusicPlayerState() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [tetoFailed, setTetoFailed] = useState(false);
+  const [mikuFailed, setMikuFailed] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [volume, setVolume] = useState(1);
   const [isMinecraftMode, setIsMinecraftMode] = useState(false);
@@ -43,6 +45,10 @@ export function useMusicPlayerState() {
     setDuration,
     isLoading,
     setIsLoading,
+    tetoFailed,
+    setTetoFailed,
+    mikuFailed,
+    setMikuFailed,
     isOpen,
     setIsOpen,
     volume,
