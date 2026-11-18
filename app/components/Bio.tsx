@@ -11,7 +11,7 @@ export default function Bio() {
           style={{ boxShadow: "4px 4px 0px #000000" }}
         >
           <SafeImage
-            src="https://cdn.apis.rocks/teto.jpg"
+            src="https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-jpg/view?project=68f8d96a0021b0ae0895"
             alt="Respire, the redhead who lives on this page"
             width={128}
             height={128}

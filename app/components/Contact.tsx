@@ -70,7 +70,7 @@ export default function Contact() {
       </section>
       <div className="pointer-events-none absolute bottom-0 right-0 z-20 w-[6.75rem] sm:w-32">
         <SafeImage
-          src="https://cdn.apis.rocks/images/teto.png"
+          src="https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto/view?project=68f8d96a0021b0ae0895"
           alt="Kasane Teto standing beside the contact card"
           width={348}
           height={749}

@@ -9,6 +9,7 @@ interface TrackDisplayProps {
   readonly authorUrl: string | undefined;
   readonly thumbnail: string;
   readonly trackId: string;
+  readonly coverIsButton: boolean;
   readonly onThumbnailClick: () => void;
 }
 
@@ -20,6 +21,7 @@ export default function TrackDisplay({
   authorUrl,
   thumbnail,
   trackId,
+  coverIsButton,
   onThumbnailClick,
 }: TrackDisplayProps) {
   return (
@@ -31,7 +33,7 @@ export default function TrackDisplay({
       className="mb-6"
     >
       <div className="flex items-center space-x-4">
-        {trackId === "science" ? (
+        {coverIsButton && trackId === "science" ? (
           <button
             type="button"
             onClick={onThumbnailClick}
