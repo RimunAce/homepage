@@ -33,7 +33,7 @@ export default function ToggleButton({
         : "Music player";
 
   return (
-    <div className="fixed bottom-4 inset-x-4 md:inset-x-auto md:right-4 md:w-80 z-50 flex border-2 border-retro-black bg-retro-white text-retro-black"
+    <div data-swarm-step className="fixed bottom-4 inset-x-4 md:inset-x-auto md:right-4 md:w-80 z-50 flex border-2 border-retro-black bg-retro-white text-retro-black"
       style={{ boxShadow: "4px 4px 0px #000000" }}
     >
       <button

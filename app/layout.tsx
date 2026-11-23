@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import LoadingScreen from "./components/LoadingScreen";
+import AgentSwarm from "./components/AgentSwarm";
 import { MusicPlayerProvider } from "./contexts/MusicPlayerContext";
 import MusicPlayer from "./components/MusicPlayer";
 import Background from "./components/Background";
@@ -88,27 +88,29 @@ export default function RootLayout({
         />
         <MusicPlayerProvider>
           <MotionPreference>
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[10000] focus:inline-flex focus:min-h-11 focus:items-center focus:bg-retro-white focus:text-retro-black focus:border-2 focus:border-retro-black focus:px-3 focus:py-2"
-            >
-              Skip to content
-            </a>
-            <LoadingScreen />
-            <div className="min-h-screen bg-retro-gray relative">
-              <Background />
-              <Header />
+            <AgentSwarm>
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[10000] focus:inline-flex focus:min-h-11 focus:items-center focus:bg-retro-white focus:text-retro-black focus:border-2 focus:border-retro-black focus:px-3 focus:py-2"
+              >
+                Skip to content
+              </a>
+
+              <div className="min-h-screen bg-retro-gray relative">
+                <Background />
+                <div data-swarm-step><Header /></div>
+                <ErrorBoundary>
+                  <div data-swarm-step><NewsTicker /></div>
+                </ErrorBoundary>
+                <ErrorBoundary>
+                  <div data-swarm-route>{children}</div>
+                </ErrorBoundary>
+                <div data-swarm-step><SiteFooter /></div>
+              </div>
               <ErrorBoundary>
-                <NewsTicker />
+                <MusicPlayer />
               </ErrorBoundary>
-              <ErrorBoundary>
-                {children}
-              </ErrorBoundary>
-              <SiteFooter />
-            </div>
-            <ErrorBoundary>
-              <MusicPlayer />
-            </ErrorBoundary>
+            </AgentSwarm>
           </MotionPreference>
         </MusicPlayerProvider>
       </body>
