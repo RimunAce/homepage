@@ -12,14 +12,11 @@ export default function MikuToggleButton({
   return (
     <motion.button
       onClick={onClick}
-      className={`px-4 py-2 border-2 border-retro-black font-bold text-sm transition-all text-retro-black ${
+      className={`inline-flex min-h-11 cursor-pointer items-center rounded-lg border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
         isMikuMode
-          ? "bg-miku"
-          : "bg-retro-white hover:bg-retro-gray"
+          ? "border-miku/70 bg-miku text-black hover:bg-miku/90"
+          : "border-[#626979] bg-white/[0.06] text-white hover:border-[#8d94a3] hover:bg-white/[0.12]"
       }`}
-      style={{
-        boxShadow: "3px 3px 0px #000000",
-      }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       initial={{ opacity: 0, x: -20 }}

@@ -1,5 +1,6 @@
 import { MediaItem } from "../types";
 import { MediaCard } from "./MediaCard";
+import styles from "../anilist.module.css";
 
 interface FavoritesSectionProps {
   favorites: MediaItem[];
@@ -9,13 +10,13 @@ export function FavoritesSection({ favorites }: FavoritesSectionProps) {
   if (favorites.length === 0) return null;
 
   return (
-    <div className="retro-card">
-      <h3 className="retro-heading mb-4">FAVORITES (8+ SCORE)</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+    <section className={styles.favorites} aria-labelledby="anilist-favorites-heading">
+      <h2 id="anilist-favorites-heading" className={styles.sectionHeading}>Favorites (8+ score)</h2>
+      <div className={styles.favoritesGrid}>
         {favorites.map((item) => (
           <MediaCard key={item.id} item={item} />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

@@ -5,16 +5,16 @@ interface StatRow {
 
 export function StatPanel({ title, stats }: { title: string; stats: StatRow[] }) {
   return (
-    <div className="p-4 bg-retro-gray border-2 border-retro-black">
-      <h3 className="retro-heading text-sm mb-3">{title}</h3>
-      <div className="space-y-1 retro-text text-xs">
+    <section className="stat-panel">
+      <h3 className="stat-title">{title}</h3>
+      <div className="stat-rows">
         {stats.map((stat) => (
-          <div className="flex justify-between" key={stat.label}>
+          <div className="stat-row" key={stat.label}>
             <span>{stat.label}</span>
-            <span className="font-bold">{stat.value}</span>
+            <span className="stat-value">{stat.value}</span>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

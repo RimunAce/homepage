@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import SafeImage from "./SafeImage";
+
+const valueLink =
+  "inline-flex min-h-11 items-center text-sm text-[#f2f3f6] underline decoration-white/35 underline-offset-4 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
 
 export default function Contact() {
-  const [copied, setCopied] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState<"idle" | "copied" | "failed">("idle");
   const copiedTimer = useRef<number>(0);
 
   useEffect(() => {
@@ -14,69 +16,49 @@ export default function Contact() {
   async function copyDiscord() {
     try {
       await navigator.clipboard.writeText("respire");
-      setCopied(true);
+      setCopyFeedback("copied");
       window.clearTimeout(copiedTimer.current);
-      copiedTimer.current = window.setTimeout(() => setCopied(false), 2000);
+      copiedTimer.current = window.setTimeout(() => setCopyFeedback("idle"), 2000);
     } catch {
-      setCopied(false);
+      setCopyFeedback("failed");
+      window.clearTimeout(copiedTimer.current);
+      copiedTimer.current = window.setTimeout(() => setCopyFeedback("idle"), 2000);
     }
   }
 
   return (
-    <div className="relative overflow-visible">
-      <section id="contact" className="retro-card relative mr-[5.25rem] sm:mr-24">
-        <h2 className="retro-heading">CONTACT</h2>
-        <div className="space-y-3">
-          <div className="retro-text">
-            <p className="font-bold text-sm mb-2">GET IN TOUCH</p>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 min-h-11">
-                <span className="text-xs">GitHub:</span>
-                <a
-                  href="https://github.com/RimunAce"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs retro-link inline-flex min-h-11 items-center"
-                >
-                  @RimunAce
-                </a>
-              </div>
-              <div className="flex items-center gap-2 min-h-11">
-                <span className="text-xs">Discord:</span>
-                <button
-                  type="button"
-                  onClick={copyDiscord}
-                  className="text-xs retro-link inline-flex min-h-11 items-center bg-transparent px-1 border-0 font-[inherit]"
-                  aria-live="polite"
-                >
-                  {copied ? "Copied respire" : "respire"}
-                </button>
-              </div>
-              <div className="flex items-center gap-2 min-h-11">
-                <span className="text-xs">Email:</span>
-                <a href="mailto:hi@respire.my" className="text-xs retro-link inline-flex min-h-11 items-center">
-                  hi@respire.my
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-retro-black pt-3">
-            <p className="text-xs retro-text">
-              Say hello. Collaborations and questions welcome.
-            </p>
-          </div>
+    <div className="pt-3">
+      <p className="max-w-prose text-sm leading-relaxed text-[#aeb5c4]">
+        Say hello. Collaborations and questions welcome.
+      </p>
+      <div className="mt-4 grid gap-2 sm:flex sm:flex-wrap sm:gap-6">
+        <div>
+          <p className="text-xs text-[#aeb5c4]">GitHub</p>
+          <a href="https://github.com/RimunAce" target="_blank" rel="noopener noreferrer" className={valueLink}>
+            @RimunAce
+          </a>
         </div>
-      </section>
-      <div className="pointer-events-none absolute bottom-0 right-0 z-20 w-[6.75rem] sm:w-32">
-        <SafeImage
-          src="https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto/view?project=68f8d96a0021b0ae0895"
-          alt="Kasane Teto standing beside the contact card"
-          width={348}
-          height={749}
-          sizes="(min-width: 640px) 8rem, 6.75rem"
-          className="h-auto w-full"
-        />
+        <div>
+          <p className="text-xs text-[#aeb5c4]">Discord</p>
+          <button
+            type="button"
+            onClick={copyDiscord}
+            className={`${valueLink} cursor-pointer border-0 bg-transparent px-0 font-[inherit]`}
+            aria-live="polite"
+          >
+            {copyFeedback === "copied"
+              ? "Copied respire"
+              : copyFeedback === "failed"
+                ? "Copy failed, use respire"
+                : "respire"}
+          </button>
+        </div>
+        <div>
+          <p className="text-xs text-[#aeb5c4]">Email</p>
+          <a href="mailto:hi@respire.my" className={valueLink}>
+            hi@respire.my
+          </a>
+        </div>
       </div>
     </div>
   );

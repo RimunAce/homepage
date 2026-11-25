@@ -38,8 +38,7 @@ export default function TrackDisplay({
             type="button"
             onClick={onThumbnailClick}
             aria-label={`Switch the cover for ${title}`}
-            className="w-20 h-20 md:w-24 md:h-24 border-2 border-retro-black flex-shrink-0 overflow-hidden p-0 hover:opacity-80"
-            style={{ boxShadow: "4px 4px 0px #000000" }}
+            className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-white/15 bg-[#090b10] p-0 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:h-24 md:w-24"
           >
             <SafeImage
               src={thumbnail}
@@ -53,8 +52,7 @@ export default function TrackDisplay({
           </button>
         ) : (
           <div
-            className="w-20 h-20 md:w-24 md:h-24 border-2 border-retro-black flex-shrink-0 overflow-hidden"
-            style={{ boxShadow: "4px 4px 0px #000000" }}
+            className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-white/15 bg-[#090b10] md:h-24 md:w-24"
           >
             <SafeImage
               src={thumbnail}
@@ -78,12 +76,12 @@ export default function TrackDisplay({
                 href={authorUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-retro-black underline hover:bg-retro-black hover:text-retro-white px-1 transition-all"
+                className="inline-flex min-h-11 items-center text-white underline decoration-white/40 underline-offset-4 transition-colors hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {author}
               </a>
             ) : (
-              <span className="text-retro-black">{author}</span>
+              <span className="text-white">{author}</span>
             )}
           </div>
           <p className="text-xs opacity-60 mt-1">

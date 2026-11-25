@@ -1,5 +1,6 @@
 import { MediaItem } from "../types";
 import { getProgressPercent, getProgressLabel } from "../utils/progressUtils";
+import styles from "../anilist.module.css";
 
 interface MediaProgressOverlayProps {
   item: MediaItem;
@@ -7,11 +8,11 @@ interface MediaProgressOverlayProps {
 
 export function MediaProgressOverlay({ item }: MediaProgressOverlayProps) {
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-retro-black bg-opacity-90 p-1">
-      <div className="h-2 bg-retro-gray border border-retro-white">
-        <div className="h-full bg-retro-yellow" style={{ width: `${getProgressPercent(item)}%` }} />
+    <div className={styles.progressOverlay}>
+      <div className={styles.progressTrack}>
+        <div className={styles.progressFill} style={{ width: `${getProgressPercent(item)}%` }} />
       </div>
-      <p className="text-white text-xs text-center mt-1">{getProgressLabel(item)}</p>
+      <p className={styles.progressLabel}>{getProgressLabel(item)}</p>
     </div>
   );
 }

@@ -1,9 +1,11 @@
 import SafeImage from "../../components/SafeImage";
 import { MediaItem } from "../types";
 import { MediaProgressOverlay } from "./MediaProgressOverlay";
+import styles from "../anilist.module.css";
 
 interface MediaCardProps {
   item: MediaItem;
+  priority?: boolean;
 }
 
 function getDisplayTitle(item: MediaItem) {
@@ -25,31 +27,32 @@ function StarIcon() {
   );
 }
 
-export function MediaCard({ item }: MediaCardProps) {
+export function MediaCard({ item, priority = false }: MediaCardProps) {
   return (
     <a 
       href={item.siteUrl} 
       target="_blank" 
       rel="noopener noreferrer" 
-      className="group cursor-pointer"
+      className={styles.mediaCard}
       aria-label={`View ${getDisplayTitle(item)} on AniList`}
     >
-      <div className="relative w-full aspect-[2/3] border-2 border-retro-black overflow-hidden">
+      <div className={styles.mediaCover}>
         <SafeImage
           src={item.coverImage.large}
           alt=""
           width={300}
           height={450}
           sizes="(max-width: 640px) 45vw, 180px"
-          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          priority={priority}
+          className="h-full w-full object-cover"
           fallbackLabel="No cover"
         />
         {item.mediaListEntry?.status === "CURRENT" && <MediaProgressOverlay item={item} />}
       </div>
-      <div className="mt-2">
-        <p className="retro-text text-xs font-bold truncate group-hover:underline">{getDisplayTitle(item)}</p>
+      <div className={styles.mediaCardCopy}>
+        <p className={styles.mediaTitle}>{getDisplayTitle(item)}</p>
         {item.mediaListEntry && (
-          <div className="text-xs mt-1 opacity-70">
+          <div className={styles.mediaMeta}>
             <p>{item.mediaListEntry.status}</p>
             {item.mediaListEntry.score > 0 && (
               <p className="flex items-center gap-1">
@@ -59,7 +62,7 @@ export function MediaCard({ item }: MediaCardProps) {
           </div>
         )}
         {item.genres?.slice(0, 2).map((genre) => (
-          <span key={genre} className="text-xs bg-retro-gray border border-retro-black px-1 mr-1">
+          <span key={genre} className={styles.genre}>
             {genre}
           </span>
         ))}

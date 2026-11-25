@@ -1,6 +1,9 @@
+import { Suspense } from "react";
 import Bio from "./components/Bio";
 import Projects from "./components/Projects";
 import Contact from "./components/Contact";
+import HomeDrawer from "./components/HomeDrawer";
+import HomeLately from "./components/HomeLately";
 import Updates from "./components/Updates";
 import Webring from "./components/Webring";
 
@@ -9,19 +12,26 @@ export default function Home() {
     <main
       id="main-content"
       tabIndex={-1}
-      className="max-w-6xl mx-auto px-4 py-6 sm:py-8 pb-8 relative z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
+      className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-28 pt-6 text-[#f2f3f6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:px-8 sm:pt-8"
     >
-      <div data-swarm-step><Bio /></div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 overflow-visible">
-        <div data-swarm-step className="md:col-span-2 min-w-0">
+      <div data-swarm-step>
+        <Bio />
+      </div>
+      <Suspense fallback={<p className="mt-10 text-sm text-[#aeb5c4]" role="status">Loading Lately.</p>}>
+        <HomeLately />
+      </Suspense>
+      <div className="mt-10 sm:mt-16">
+        <HomeDrawer id="updates" title="Diary" preview="Life and site notes">
           <Updates />
-        </div>
-        <div data-swarm-step><Contact /></div>
+        </HomeDrawer>
+        <HomeDrawer id="projects" title="Things I've Made" preview="Projects and experiments">
+          <Projects />
+        </HomeDrawer>
+        <HomeDrawer id="contact" title="Bother Me" preview="GitHub, Discord and email">
+          <Contact />
+        </HomeDrawer>
       </div>
-      <div data-swarm-step className="mt-6">
-        <Projects />
-      </div>
-      <div data-swarm-step className="mt-6">
+      <div className="mt-16 sm:mt-24">
         <Webring />
       </div>
     </main>

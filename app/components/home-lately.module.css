@@ -1,0 +1,122 @@
+.lately {
+  margin-block-start: clamp(3.25rem, 8vw, 6rem);
+  overflow-wrap: anywhere;
+}
+
+.heading {
+  border-bottom: 1px solid #626979;
+  padding-bottom: .8rem;
+}
+
+.heading h2 {
+  font-family: Manrope, "DM Sans", sans-serif;
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -.075em;
+  line-height: 1;
+}
+
+.heading h2 span { color: var(--site-champagne); }
+
+.spread {
+  display: grid;
+  gap: 1px;
+  background: #626979;
+  border-bottom: 1px solid #626979;
+}
+
+.spread > * {
+  min-width: 0;
+  background: var(--site-night);
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.spread h3 {
+  color: var(--site-mist);
+  font: 500 .78rem "IBM Plex Mono", monospace;
+}
+
+.spread h3 a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  gap: .45rem;
+  color: var(--site-frost);
+  text-decoration: underline;
+  text-underline-offset: .25em;
+}
+
+.spread a:hover { color: var(--site-champagne); }
+.spread a:active { opacity: .8; }
+.spread a:focus-visible { outline: 2px solid var(--site-frost); outline-offset: 3px; }
+
+.meta {
+  margin-top: 1.1rem;
+  color: var(--site-champagne);
+  font: .75rem "IBM Plex Mono", monospace;
+}
+
+.note blockquote {
+  margin-top: .65rem;
+  max-width: 50ch;
+  font-size: clamp(1.05rem, 2.1vw, 1.5rem);
+  line-height: 1.45;
+}
+
+.gallery {
+  background: #151923;
+  padding-top: .6rem;
+}
+
+.photo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  background: #0e131c;
+}
+
+.photo img { object-fit: contain; }
+
+.gallery figcaption {
+  margin-top: .7rem;
+  color: var(--site-mist);
+  font-size: .85rem;
+}
+
+.music { padding-top: .6rem; }
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+
+.cover {
+  position: relative;
+  flex: 0 0 4rem;
+  aspect-ratio: 1;
+  background: #151923;
+}
+
+.cover img { object-fit: cover; }
+
+.quiet {
+  color: var(--site-mist);
+  font-size: .85rem;
+  line-height: 1.5;
+}
+
+.spread h3 + .quiet { margin-top: .65rem; }
+
+@media (min-width: 48rem) {
+  .spread {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+    grid-template-rows: 1fr auto;
+  }
+
+  .gallery {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}

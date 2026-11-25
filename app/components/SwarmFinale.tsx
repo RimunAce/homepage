@@ -54,14 +54,23 @@ function measureCarets(word: HTMLElement, characters: string[]): Point[] {
   });
 }
 
-export default function SwarmFinale({ colors, origins, onFinish }: {
+export default function SwarmFinale({ colors, origins, onFinish, paused }: {
   colors: string[];
   origins: Point[];
   onFinish: () => void;
+  paused: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>("gather");
   const card = useRef<HTMLDivElement>(null);
   const pens = useRef<(HTMLDivElement | null)[]>([]);
+  const pausedRef = useRef(paused);
+  const animationControl = useRef<{ pause: () => void; resume: () => void } | null>(null);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+    if (paused) animationControl.current?.pause();
+    else animationControl.current?.resume();
+  }, [paused]);
 
   useEffect(() => {
     const panel = card.current!;
@@ -78,10 +87,18 @@ export default function SwarmFinale({ colors, origins, onFinish }: {
 
     const rounds = Math.ceil(words.length / colors.length);
     const waveStart = gatherMs + rounds * wordMs;
-    const started = performance.now();
+    let started = performance.now();
+    let pausedAt: number | null = null;
     let request = 0;
     let current: Phase = "gather";
+    const scheduleDraw = () => {
+      if (pausedRef.current || request !== 0) return;
+      request = requestAnimationFrame(draw);
+    };
+
     const draw = (now: number) => {
+      request = 0;
+      if (pausedRef.current) return;
       const elapsed = Math.max(0, now - started);
       if (dirty) {
         carets = words.map((word, i) => measureCarets(word, welcomeMessages[i].characters));
@@ -140,11 +157,26 @@ export default function SwarmFinale({ colors, origins, onFinish }: {
         }
         pen.style.transform = `translate3d(${point.x}px,${point.y}px,0)`;
       });
-      if (stage !== "pop") request = requestAnimationFrame(draw);
+      if (stage !== "pop") scheduleDraw();
     };
-    request = requestAnimationFrame(draw);
+    animationControl.current = {
+      pause: () => {
+        pausedAt = performance.now();
+        if (request !== 0) cancelAnimationFrame(request);
+        request = 0;
+      },
+      resume: () => {
+        if (pausedAt !== null) {
+          started += performance.now() - pausedAt;
+          pausedAt = null;
+        }
+        scheduleDraw();
+      },
+    };
+    scheduleDraw();
     return () => {
       cancelAnimationFrame(request);
+      animationControl.current = null;
       observer.disconnect();
       window.removeEventListener("resize", invalidate);
     };
@@ -163,6 +195,7 @@ export default function SwarmFinale({ colors, origins, onFinish }: {
   return (
     <div data-swarm-phase={phase} aria-hidden="true">
       <div className={styles.welcome} ref={card}>
+        <strong className={styles.greeting}>Welcome, Respire.</strong>
         {welcomeMessages.map(({ lang, word }) => (
           <span key={lang} lang={lang} dir="auto">
             <span className={styles.word}>{word}</span>
@@ -171,7 +204,7 @@ export default function SwarmFinale({ colors, origins, onFinish }: {
         ))}
       </div>
       {colors.map((color, i) => (
-        <div key={color} ref={node => { pens.current[i] = node; }} className={styles.agent}
+        <div key={`${color}-${i}`} ref={node => { pens.current[i] = node; }} className={styles.agent}
           style={{ color, "--burst-delay": `${i * 10}ms`,
             transform: `translate3d(${origins[i].x}px,${origins[i].y}px,0)` } as CSSProperties}>
           {phase === "pop" ? (

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import GalleryGrid from "./GalleryGrid";
 import ImageModal from "./ImageModal";
 import { fetchGallery, type GalleryImage } from "@/app/lib/content";
+import styles from "./gallery.module.css";
 
 export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
@@ -33,17 +34,20 @@ export default function Gallery() {
     <main
       id="main-content"
       tabIndex={-1}
-      className="max-w-6xl mx-auto px-4 py-6 sm:py-8 pb-8 relative z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
+      className={`${styles.gallery} relative z-10 mx-auto w-full max-w-6xl px-4 py-6 pb-28 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:px-8 sm:py-10`}
     >
-      <h1 className="retro-heading text-2xl mb-6">GALLERY</h1>
+      <header className={styles.intro}>
+        <h1 className="font-sans text-3xl font-semibold leading-none tracking-tight sm:text-5xl">Gallery</h1>
+        <p className={styles.description}>Photos Respire has put up. Open one for a larger view.</p>
+      </header>
       {phase === "loading" && (
-        <p className="retro-text text-sm mb-6" role="status">
+        <p className={`${styles.loading} mb-6`} role="status" aria-live="polite">
           Loading photos.
         </p>
       )}
       {phase === "error" && (
-        <div className="mb-6 bg-retro-yellow border-2 border-retro-black p-3" role="alert">
-          <p className="text-xs font-mono text-retro-black">
+        <div className={`${styles.error} mb-6`} role="alert">
+          <p>
             Could not load the gallery right now. Try again later.
           </p>
         </div>

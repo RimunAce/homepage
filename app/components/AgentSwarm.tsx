@@ -7,7 +7,7 @@ import styles from "./AgentSwarm.module.css";
 
 const storageKey = "respire_agent_swarm";
 const reducedMotion = "(prefers-reduced-motion: reduce)";
-const agents = ["#ff648a", "#ffd700", "#79cfac", "#8bc5ff", "#d8b4fe", "#ffad66"];
+const agents = ["#c9b780", "#f2f3f6", "#c9b780", "#f2f3f6", "#c9b780", "#f2f3f6"];
 let seenInMemory = false;
 
 function showIntro() {
@@ -39,6 +39,7 @@ export default function AgentSwarm({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const eligible = useSyncExternalStore(subscribe, showIntro, hideOnServer);
   const [finished, setFinished] = useState(false);
+  const [paused, setPaused] = useState(false);
   const active = eligible && !finished;
   const tools = useRef<(HTMLDivElement | null)[]>([]);
   const frames = useRef<(HTMLDivElement | null)[]>([]);
@@ -47,6 +48,26 @@ export default function AgentSwarm({ children }: { children: ReactNode }) {
   const [built, setBuilt] = useState(0);
   const site = useRef<HTMLDivElement>(null);
   const overlay = useRef<HTMLDivElement>(null);
+  const pausedRef = useRef(false);
+  const animationControl = useRef<{ pause: () => void; resume: () => void } | null>(null);
+
+  const finishIntro = useCallback(() => {
+    seenInMemory = true;
+    try {
+      window.localStorage.setItem(storageKey, "1");
+    } catch {
+      // Storage can become unavailable during the intro.
+    }
+    setFinished(true);
+  }, []);
+
+  const togglePause = useCallback(() => {
+    const next = !pausedRef.current;
+    pausedRef.current = next;
+    setPaused(next);
+    if (next) animationControl.current?.pause();
+    else animationControl.current?.resume();
+  }, []);
 
   useEffect(() => {
     if (!active) return;
@@ -61,6 +82,30 @@ export default function AgentSwarm({ children }: { children: ReactNode }) {
 
     html.style.overflow = "hidden";
     overlay.current?.focus({ preventScroll: true });
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") finishIntro();
+      if (event.key !== "Tab" || !overlay.current) return;
+
+      const focusable = Array.from(
+        overlay.current.querySelectorAll<HTMLElement>('button:not([disabled])'),
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+
+      if (
+        event.shiftKey &&
+        (document.activeElement === first || document.activeElement === overlay.current)
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
 
     // Each worker owns a queue. A short section can finish while its neighbours are still drawing.
     const workers = agents.map((_, worker) => elements.filter((_, i) => i % agents.length === worker));
@@ -80,7 +125,8 @@ export default function AgentSwarm({ children }: { children: ReactNode }) {
       return t * t * (3 - 2 * t);
     };
     let frameId = 0;
-    const started = performance.now();
+    let started = performance.now();
+    let pausedAt: number | null = null;
     const jobs = workers.map((queue, i) => ({
       queue, index: 0, departed: started, start: started + 75 * i,
       from: { x: viewportWidth * (i + 0.5) / agents.length, y: 5 },
@@ -90,7 +136,14 @@ export default function AgentSwarm({ children }: { children: ReactNode }) {
     let previousTime = started;
     setTotal(elements.length);
 
+    const scheduleDraw = () => {
+      if (pausedRef.current || frameId !== 0) return;
+      frameId = requestAnimationFrame(draw);
+    };
+
     const draw = (now: number) => {
+      frameId = 0;
+      if (pausedRef.current) return;
       if (measure) {
         viewportWidth = innerWidth;
         viewportHeight = innerHeight;
@@ -196,17 +249,40 @@ export default function AgentSwarm({ children }: { children: ReactNode }) {
         }
       }
       if (jobs.some(job => job.index < job.queue.length)) {
-        frameId = requestAnimationFrame(draw);
+        scheduleDraw();
       } else {
+        animationControl.current = null;
         setFinaleOrigins(positions);
       }
     };
-    frameId = requestAnimationFrame(draw);
+    animationControl.current = {
+      pause: () => {
+        pausedAt = performance.now();
+        if (frameId !== 0) cancelAnimationFrame(frameId);
+        frameId = 0;
+      },
+      resume: () => {
+        if (pausedAt !== null) {
+          const pauseDuration = performance.now() - pausedAt;
+          started += pauseDuration;
+          jobs.forEach((job) => {
+            job.start += pauseDuration;
+            job.departed += pauseDuration;
+          });
+          previousTime = performance.now();
+          pausedAt = null;
+        }
+        scheduleDraw();
+      },
+    };
+    scheduleDraw();
     return () => {
-      cancelAnimationFrame(frameId);
+      if (frameId !== 0) cancelAnimationFrame(frameId);
+      animationControl.current = null;
       observer.disconnect();
       window.removeEventListener("resize", invalidate);
       window.removeEventListener("scroll", invalidate);
+      window.removeEventListener("keydown", onKeyDown);
       elements.forEach(element => {
         element.style.removeProperty("clip-path");
         element.removeAttribute("data-swarm-working");
@@ -218,17 +294,7 @@ export default function AgentSwarm({ children }: { children: ReactNode }) {
         previousFocus.focus({ preventScroll: true });
       }
     };
-  }, [active, pathname]);
-
-  const finishIntro = useCallback(() => {
-    seenInMemory = true;
-    try {
-      window.localStorage.setItem(storageKey, "1");
-    } catch {
-      // Storage can become unavailable during the intro.
-    }
-    setFinished(true);
-  }, []);
+  }, [active, pathname, finishIntro]);
 
   return (
     <>
@@ -236,23 +302,29 @@ export default function AgentSwarm({ children }: { children: ReactNode }) {
         {children}
       </div>
       {active && (
-        <div ref={overlay} tabIndex={-1} className={styles.overlay} role="group"
+        <div ref={overlay} tabIndex={-1} className={styles.overlay} data-paused={paused || undefined} role="group"
           aria-label={finaleOrigins ? "Welcome to respire.my" : "Building respire.my"}>
           {finaleOrigins ? (
-            <SwarmFinale colors={agents} origins={finaleOrigins} onFinish={finishIntro} />
+            <>
+              <p className={styles.story} aria-live="polite">The room is yours now.</p>
+              <SwarmFinale colors={agents} origins={finaleOrigins} onFinish={finishIntro} paused={paused} />
+            </>
           ) : (
             <>
               <div className={styles.progress} aria-hidden="true">
-                <span>Building respire.my</span>
+                <span>{built < total ? "Making a little room for you" : "Everything’s in place"}</span>
                 <span className={styles.stamps}>
                   {Array.from({ length: total }, (_, i) => (
                     <i key={i} className={i < built ? styles.stamped : undefined} />
                   ))}
                 </span>
               </div>
+              <p className={styles.story} aria-live="polite">
+                {built < total ? "A diary, favorite things, and whatever comes next." : "Come on in, Respire’s corner is ready."}
+              </p>
               <div aria-hidden="true">
                 {agents.map((color, index) => (
-                  <div key={color} style={{ color }}>
+                  <div key={`worker-${index}`} style={{ color }}>
                     <div ref={node => { frames.current[index] = node; }} className={styles.frame} />
                     <div ref={node => { tools.current[index] = node; }} className={styles.pen}>
                       <span className={styles.cursor}><span /></span>
@@ -262,6 +334,12 @@ export default function AgentSwarm({ children }: { children: ReactNode }) {
               </div>
             </>
           )}
+          <div className={styles.actions}>
+            <button type="button" className={styles.skip} onClick={togglePause} aria-pressed={paused}>
+              {paused ? "Resume intro" : "Pause intro"}
+            </button>
+            <button type="button" className={styles.skip} onClick={finishIntro}>Skip intro</button>
+          </div>
         </div>
       )}
     </>

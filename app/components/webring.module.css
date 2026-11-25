@@ -1,0 +1,502 @@
+.sky {
+  position: fixed;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse at 76% 28%, #25314f 0%, transparent 58%),
+    radial-gradient(ellipse at 12% 100%, #2c203b 0%, transparent 60%),
+    #070d1b;
+  transition: opacity .8s ease;
+}
+
+.sky::after,
+.chart::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 19% 23%, #e1ebfa 0 1px, transparent 1.6px),
+    radial-gradient(circle at 61% 71%, #9bbbdb 0 .75px, transparent 1.4px),
+    radial-gradient(circle at 39% 63%, #deab9b 0 .8px, transparent 1.5px),
+    radial-gradient(circle at 88% 16%, #bac0ef 0 .65px, transparent 1.35px),
+    radial-gradient(circle at 32% 79%, #c1dbff 0 .65px, transparent 1.35px);
+  background-size: 211px 263px, 173px 139px, 257px 191px, 117px 163px, 109px 83px;
+  opacity: .52;
+}
+
+:global(body[data-webring-sky]) .sky {
+  opacity: 1;
+}
+
+.observatory {
+  --orbit-rule: #6c7792;
+  --orbit-faint: #becce2;
+  --orbit-light: #f8f1e6;
+  --orbit-amber: #ffdcad;
+  position: relative;
+  border: 1px solid var(--orbit-rule);
+  color: var(--orbit-light);
+  background: #0a1223;
+}
+
+.chart {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  border-block: 1px solid var(--orbit-rule);
+  background: radial-gradient(ellipse at 50% 44%, #1d2f4d, #0a1223 72%);
+}
+
+.intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  padding: clamp(1.25rem, 4vw, 3rem);
+}
+
+.catalog,
+.dockTitle {
+  color: var(--orbit-amber);
+  font: .75rem "IBM Plex Mono", monospace;
+}
+
+.catalog {
+  margin-bottom: .6rem;
+}
+
+.title {
+  font-family: Manrope, "DM Sans", sans-serif;
+  font-size: clamp(3rem, 7.8vw, 7.1rem);
+  line-height: .98;
+  letter-spacing: -.085em;
+  font-weight: 800;
+}
+
+.title span {
+  color: var(--orbit-amber);
+}
+
+.guide {
+  max-width: 29ch;
+  color: var(--orbit-faint);
+  font-size: clamp(.95rem, 1.45vw, 1.1rem);
+  line-height: 1.5;
+}
+
+.index {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 2.75rem;
+  margin-top: .2rem;
+  color: var(--orbit-amber);
+  font-size: .875rem;
+  text-decoration: underline;
+  text-underline-offset: .25em;
+}
+
+.index:hover,
+.index:active {
+  color: #fff;
+}
+
+.scene {
+  --orbit-x: 0;
+  --orbit-y: 0;
+  position: relative;
+  min-width: 0;
+  height: clamp(21rem, 44vw, 33rem);
+  isolation: isolate;
+}
+
+.orbitDisplay {
+  position: relative;
+  min-width: 0;
+  padding-bottom: 2.85rem;
+}
+
+.motionControl {
+  position: absolute;
+  right: 1rem;
+  bottom: .2rem;
+  min-height: 2.75rem;
+  padding-inline: .65rem;
+  color: var(--orbit-faint);
+  font: .7rem "IBM Plex Mono", monospace;
+  text-decoration: underline;
+  text-underline-offset: .25em;
+}
+
+.motionControl:is(:hover, :active) {
+  color: var(--orbit-amber);
+}
+
+.motionControl:focus-visible {
+  outline: 2px solid var(--orbit-amber);
+  outline-offset: -2px;
+}
+
+.farStars,
+.trajectories,
+.planet {
+  position: absolute;
+  pointer-events: none;
+  translate: calc(var(--orbit-x) * var(--depth) * 1px) calc(var(--orbit-y) * var(--depth) * 1px);
+}
+
+.farStars {
+  --depth: -.6;
+  inset: -1rem;
+  background:
+    radial-gradient(circle at 28% 29%, #e5ecff 0 1px, transparent 1.8px),
+    radial-gradient(circle at 87% 71%, #ffd6a8 0 1px, transparent 1.9px);
+  background-size: 83px 107px, 137px 113px;
+  opacity: .57;
+  mask-image: radial-gradient(ellipse, #000 25%, transparent 73%);
+}
+
+.trajectories {
+  --depth: .45;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke: #91a7c8;
+  stroke-width: 1;
+  stroke-opacity: .52;
+  stroke-dasharray: 3 6;
+}
+
+.orbitTrace {
+  stroke: var(--orbit-amber);
+  stroke-opacity: 0;
+  stroke-width: 1.5;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.scene[data-arrived] .orbitTrace {
+  animation: chart-arrival 1.55s ease-out both;
+}
+
+.scene[data-arrived] .farStars {
+  animation: star-arrival 1.3s ease-out both;
+}
+
+@keyframes chart-arrival {
+  14%, 65% { stroke-opacity: .8; }
+  to { stroke-dashoffset: 0; stroke-opacity: 0; }
+}
+
+@keyframes star-arrival {
+  from { opacity: 0; filter: blur(3px); }
+}
+
+.orbitSignal,
+.ringGlint {
+  stroke: #ffe9bf;
+  stroke-linecap: round;
+  stroke-width: 2;
+  stroke-opacity: .75;
+  stroke-dasharray: 9 91;
+  animation: trace-orbit 8s linear infinite paused;
+}
+
+.ringGlint {
+  stroke-dasharray: 8 17 3 72;
+  animation-duration: 6s;
+}
+
+.ringGlintInner {
+  stroke-opacity: .5;
+  animation-duration: 9s;
+  animation-direction: reverse;
+}
+
+.orbitDisplay[data-paused="false"] .scene[data-in-view] :is(.orbitSignal, .ringGlint) {
+  animation-play-state: running;
+}
+
+.orbitDisplay[data-paused="true"] :is(.orbitTrace, .farStars) {
+  animation-play-state: paused;
+}
+
+@keyframes trace-orbit {
+  to { stroke-dashoffset: -100; }
+}
+
+.planet {
+  --depth: 1;
+  width: min(74%, 47rem);
+  top: 47%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.planet svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.homeWorld {
+  position: absolute;
+  top: 62%;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: .12rem;
+  padding: .42rem .85rem;
+  transform: translateX(-50%);
+  translate: calc(var(--orbit-x) * .45px) calc(var(--orbit-y) * .45px);
+  border: 1px solid #ae906c;
+  background: #141826;
+  white-space: nowrap;
+  color: var(--orbit-amber);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.homeWorld strong {
+  font-size: clamp(1rem, 2.6vw, 1.6rem);
+  line-height: 1;
+}
+
+.homeWorld span {
+  color: var(--orbit-faint);
+  font: .65rem "IBM Plex Mono", monospace;
+}
+
+.destination {
+  --light: #e1f6ff;
+  --mass: #6094bf;
+  --shade: #273459;
+  --world-size: clamp(2rem, 5.3vw, 4.6rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .24rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: .3rem;
+  border-radius: .4rem;
+  text-align: center;
+}
+
+.system .destination {
+  position: absolute;
+  left: var(--left);
+  top: var(--top);
+  transform: translate(-50%, -50%);
+  translate: calc(var(--orbit-x) * var(--depth) * .58px) calc(var(--orbit-y) * var(--depth) * .58px);
+  z-index: var(--orbit-layer, 2);
+}
+
+.system .destination:is(:hover, :focus-visible) {
+  z-index: 4;
+}
+
+.destination[data-planet="0"] {
+  --left: 24%;
+  --top: 29%;
+  --depth: 1.7;
+}
+
+.destination[data-planet="1"] {
+  --left: 82%;
+  --top: 37%;
+  --depth: .8;
+  --world-size: clamp(1.75rem, 4.2vw, 3.4rem);
+  --light: #ffe4cb;
+  --mass: #c87780;
+  --shade: #562c53;
+}
+
+.destination[data-planet="2"] {
+  --left: 45%;
+  --top: 78%;
+  --depth: 2.1;
+  --world-size: clamp(2.15rem, 5.75vw, 4.8rem);
+  --light: #eafdd3;
+  --mass: #6ea9a1;
+  --shade: #213f5d;
+}
+
+.world {
+  display: block;
+  width: var(--world-size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    repeating-linear-gradient(155deg, transparent 0 16%, #fff1 18% 21%, transparent 26% 31%, #080b2024 32% 39%),
+    radial-gradient(circle at 30% 22%, var(--light), var(--mass) 40%, var(--shade) 67%, #080c1f 92%);
+  border: 1px solid color-mix(in srgb, var(--mass), white 20%);
+  box-shadow: inset -.16rem -.22rem .6rem #070b1b, 0 0 .9rem color-mix(in srgb, var(--mass), transparent 65%);
+  transform: scale(var(--orbit-scale, 1));
+  filter: brightness(var(--orbit-lighting, 1));
+  transition: scale .25s ease, box-shadow .25s ease;
+}
+
+.sphere {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.worldName {
+  width: max-content;
+  max-width: min(24vw, 9rem);
+  padding: .16rem .42rem;
+  color: var(--orbit-light);
+  background: #0c1324;
+  font: 600 clamp(.64rem, 1.5vw, .9rem) "IBM Plex Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
+.destination:is(:hover, :focus-visible) .world {
+  scale: 1.14;
+  box-shadow: inset -.16rem -.22rem .6rem #070b1b, 0 0 1.3rem var(--mass);
+}
+
+.destination:is(:hover, :focus-visible) .worldName {
+  text-decoration: underline;
+  text-underline-offset: .22em;
+}
+
+.destination:active .world {
+  scale: .96;
+}
+
+.destination:focus-visible,
+.index:focus-visible,
+.dockLink:focus-visible {
+  outline: 2px solid var(--orbit-amber);
+  outline-offset: 3px;
+}
+
+.destinations {
+  padding: 1.1rem clamp(1rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
+}
+
+.dock {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(10.5rem, 100%), 1fr));
+  gap: .65rem;
+  margin-top: .65rem;
+  list-style: none;
+}
+
+.dockLink {
+  --dock-color: #a6d7ff;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .65rem;
+  height: 100%;
+  min-height: 3.35rem;
+  padding: .55rem .7rem;
+  border: 1px solid var(--orbit-rule);
+  background: #101b30;
+}
+
+.dockLink[data-destination="1"] { --dock-color: #efa9b6; }
+.dockLink[data-destination="2"] { --dock-color: #a9dac4; }
+
+.dockLink:is(:hover, :focus-visible) {
+  border-color: var(--dock-color);
+  background: #1d2b44;
+}
+
+.dockLink:active {
+  background: #293955;
+}
+
+.dockMark {
+  width: .65rem;
+  aspect-ratio: 1;
+  border: 1px solid var(--dock-color);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--dock-color), #0a1223 55%);
+}
+
+.dockName {
+  display: grid;
+  overflow-wrap: anywhere;
+}
+
+.dockName span {
+  color: var(--orbit-faint);
+  font: .69rem "IBM Plex Mono", monospace;
+}
+
+.dockArrow {
+  color: var(--dock-color);
+}
+
+.observatory:has(.dockLink[data-destination="0"]:is(:hover, :focus-visible)) .destination[data-planet="0"],
+.observatory:has(.dockLink[data-destination="1"]:is(:hover, :focus-visible)) .destination[data-planet="1"],
+.observatory:has(.dockLink[data-destination="2"]:is(:hover, :focus-visible)) .destination[data-planet="2"] {
+  z-index: 4;
+}
+
+.observatory:has(.dockLink[data-destination="0"]:is(:hover, :focus-visible)) .destination[data-planet="0"] .world,
+.observatory:has(.dockLink[data-destination="1"]:is(:hover, :focus-visible)) .destination[data-planet="1"] .world,
+.observatory:has(.dockLink[data-destination="2"]:is(:hover, :focus-visible)) .destination[data-planet="2"] .world {
+  outline: 2px solid var(--light);
+  outline-offset: 4px;
+  filter: brightness(1.11);
+  box-shadow: 0 0 1rem var(--mass);
+}
+
+.observatory:has(.dockLink:is([data-destination="0"], [data-destination="1"], [data-destination="2"]):is(:hover, :focus-visible))
+  .trajectories > ellipse:first-child {
+  stroke: var(--orbit-amber);
+  stroke-opacity: .83;
+  stroke-dasharray: none;
+}
+
+@media (width < 48rem) {
+  .scene {
+    height: clamp(16rem, 80vw, 28rem);
+  }
+
+  .homeWorld {
+    top: 57%;
+    padding: .32rem .55rem;
+  }
+
+  .worldName > span {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky,
+  .world {
+    transition: none;
+  }
+
+  .destination:is(:hover, :focus-visible, :active) .world {
+    scale: 1;
+  }
+
+  .orbitSignal,
+  .ringGlint,
+  .scene[data-arrived] :is(.orbitTrace, .farStars) {
+    animation: none;
+  }
+
+  .motionControl {
+    display: none;
+  }
+
+  .orbitDisplay {
+    padding-bottom: .75rem;
+  }
+}

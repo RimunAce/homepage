@@ -56,20 +56,20 @@ function Headlines({
 }) {
   return items.map((item, i) => (
     <span key={`${item.source}-${i}`} className="inline-flex items-center">
-      <span className="mx-1 font-bold">#{item.source}</span>
+      <span className="mx-1 font-semibold text-[#aeb5c4]">{item.source}</span>
       {interactive ? (
         <a
           href={item.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-retro-black hover:underline mx-1 inline-flex min-h-11 items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+          className="mx-1 inline-flex min-h-11 items-center text-[#f2f3f6] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           {item.title}
         </a>
       ) : (
-        <span className="text-retro-black mx-1">{item.title}</span>
+        <span className="mx-1 text-[#f2f3f6]">{item.title}</span>
       )}
-      <span className="text-retro-black/40 mx-2">|</span>
+      <span className="mx-2 text-white/20">/</span>
     </span>
   ));
 }
@@ -182,23 +182,27 @@ function NewsTicker() {
 
   if (unavailable && news.length === 0) {
     return (
-      <div className="bg-retro-white text-retro-black py-1 border-b-2 border-retro-black relative z-10">
-        <div className="text-xs font-mono text-center">Malaysian headlines unavailable</div>
+      <div className="relative z-10 border-b border-white/10">
+        <div className="mx-auto flex min-h-11 w-full max-w-6xl items-center px-4 font-mono text-xs text-[#aeb5c4] sm:px-8">
+          Malaysian headlines unavailable
+        </div>
       </div>
     );
   }
 
   if (news.length === 0) {
     return (
-      <div className="bg-retro-white text-retro-black py-1 border-b-2 border-retro-black relative z-10">
-        <div className="text-xs font-mono text-center">Loading Malaysian news.</div>
+      <div className="relative z-10 border-b border-white/10">
+        <div className="mx-auto flex min-h-11 w-full max-w-6xl items-center px-4 font-mono text-xs text-[#aeb5c4] sm:px-8">
+          Loading Malaysian news.
+        </div>
       </div>
     );
   }
 
   return (
     <div
-      className="bg-[#f2f2f2] text-retro-black min-h-11 overflow-hidden relative z-10 border-b-2 border-retro-black"
+      className="relative z-10 border-b border-white/10"
       role="region"
       aria-label="Malaysian headlines"
       onMouseEnter={() => setHoverPaused(true)}
@@ -213,46 +217,46 @@ function NewsTicker() {
       <p className="sr-only">
         {usingCache ? "Cached Malaysian headlines" : "Malaysian news headlines"}
       </p>
-
-      <span className="absolute left-0 top-0 bottom-0 bg-retro-white text-retro-black text-xs font-bold px-2 flex items-center z-10 border-r-2 border-retro-black whitespace-nowrap">
-        {usingCache ? "MY NEWS · CACHED" : "MY NEWS"}
-      </span>
-
-      {!reduceMotion && (
-        <button
-          type="button"
-          className="absolute right-0 top-0 bottom-0 z-10 min-w-11 bg-retro-white text-retro-black text-xs font-bold px-3 border-l-2 border-retro-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-black"
-          onClick={() => setHeld((v) => !v)}
-          aria-pressed={held}
-        >
-          {held ? "Play" : "Pause"}
-        </button>
-      )}
-
-      <div className={`overflow-hidden ${usingCache ? "pl-36" : "pl-20"} ${reduceMotion ? "" : "pr-14"}`}>
-        {reduceMotion ? (
-          <a
-            href={news[0].link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block text-xs font-mono truncate text-retro-black hover:underline"
+      <div className="mx-auto flex min-h-11 w-full max-w-6xl items-stretch px-4 sm:px-8">
+        <span className="flex shrink-0 items-center gap-2 pr-3 font-mono text-[.65rem] font-semibold text-[#f2f3f6]">
+          MY NEWS
+          {usingCache ? <span className="font-normal text-[#aeb5c4]">cached</span> : null}
+        </span>
+        <div className="flex min-w-0 flex-1 items-center overflow-hidden border-l border-white/10 pl-3">
+          {reduceMotion ? (
+            <a
+              href={news[0].link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block min-h-11 truncate font-mono text-xs leading-[2.75rem] text-[#f2f3f6] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              {news[0].source}: {news[0].title}
+            </a>
+          ) : (
+            <div
+              ref={trackRef}
+              className="flex whitespace-nowrap font-mono text-xs will-change-transform"
+              style={{ transform: "translateX(0) translateZ(0)" }}
+              data-offset="0"
+            >
+              <span className="inline-flex shrink-0 items-center gap-1">
+                <Headlines items={news} interactive />
+              </span>
+              <span className="inline-flex shrink-0 items-center gap-1" aria-hidden="true">
+                <Headlines items={news} interactive={false} />
+              </span>
+            </div>
+          )}
+        </div>
+        {!reduceMotion && (
+          <button
+            type="button"
+            className="ml-2 min-h-11 min-w-11 shrink-0 border-l border-white/10 px-3 text-xs font-semibold text-[#f2f3f6] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            onClick={() => setHeld((v) => !v)}
+            aria-pressed={held}
           >
-            {news[0].source}: {news[0].title}
-          </a>
-        ) : (
-          <div
-            ref={trackRef}
-            className="flex whitespace-nowrap text-xs font-mono will-change-transform"
-            style={{ transform: "translateX(0) translateZ(0)" }}
-            data-offset="0"
-          >
-            <span className="inline-flex items-center gap-1 shrink-0">
-              <Headlines items={news} interactive />
-            </span>
-            <span className="inline-flex items-center gap-1 shrink-0" aria-hidden="true">
-              <Headlines items={news} interactive={false} />
-            </span>
-          </div>
+            {held ? "Play" : "Pause"}
+          </button>
         )}
       </div>
     </div>

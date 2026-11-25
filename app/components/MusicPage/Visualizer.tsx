@@ -2,20 +2,26 @@
 
 import { motion } from "framer-motion";
 import { useMemo } from "react";
+import { useReducedMotion } from "framer-motion";
 import { useMusicPlayer } from "../../contexts/MusicPlayerContext";
+import styles from "./music.module.css";
 
 export default function Visualizer() {
     const { isPlaying } = useMusicPlayer();
+    const reduceMotion = useReducedMotion();
     const heights = useMemo(() => Array.from({ length: 20 }, (_, i) => ((i * 37) % 64) + 16), []);
 
     return (
-        <div className="flex items-end justify-center space-x-1 h-16 mb-8">
+        <div className={styles.visualizer} role="img" aria-label={isPlaying ? "Music visualizer, playing" : "Music visualizer, paused"}>
             {[...Array(20)].map((_, i) => (
                 <motion.div
                     key={i}
-                    className="w-2 bg-retro-black"
+                    className={styles.visualizerBar}
+                    initial={false}
                     animate={
-                        isPlaying
+                        reduceMotion
+                            ? { height: isPlaying ? heights[i] : 4 }
+                            : isPlaying
                             ? {
                                 height: [
                                     heights[i],
@@ -25,7 +31,7 @@ export default function Visualizer() {
                             }
                             : { height: 4 }
                     }
-                    transition={{
+                    transition={reduceMotion ? { duration: 0 } : {
                         repeat: Infinity,
                         duration: 0.5,
                         ease: "linear",

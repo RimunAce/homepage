@@ -1,65 +1,65 @@
 import Link from "next/link";
 import SafeImage from "./SafeImage";
+import styles from "./home.module.css";
+
+const routeLink =
+  "inline-flex min-h-11 items-center text-sm font-semibold text-[#f2f3f6] underline decoration-white/35 underline-offset-4 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white";
 
 export default function Bio() {
   return (
-    <section id="bio" className="retro-card">
-      <h2 className="retro-heading">ABOUT ME</h2>
-      <div className="flex flex-col md:flex-row gap-4">
-        <div
-          className="w-32 h-32 border-2 border-retro-black flex-shrink-0"
-          style={{ boxShadow: "4px 4px 0px #000000" }}
-        >
-          <SafeImage
-            src="https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-jpg/view?project=68f8d96a0021b0ae0895"
-            alt="Respire, the redhead who lives on this page"
-            width={128}
-            height={128}
-            sizes="128px"
-            priority
-            fetchPriority="high"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="retro-text space-y-3 flex-1 min-w-0">
-          <p>
-            <span className="bg-retro-black text-retro-white px-1">
-              Developer and Forester
-            </span>
+    <section id="bio" className={styles.stage}>
+      <figure className={styles.portrait}>
+        <SafeImage
+          src="https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto-jpg/view?project=68f8d96a0021b0ae0895"
+          alt="Kasane Teto portrait"
+          width={960}
+          height={960}
+          sizes="(max-width: 1023px) 100vw, 62vw"
+          priority
+          fetchPriority="high"
+          className="h-full w-full object-cover"
+        />
+      </figure>
+      <div className={styles.plate}>
+        <div className={styles.plateCopy}>
+          <div className={styles.companion}>
+            <SafeImage
+              src="https://syd.cloud.appwrite.io/v1/storage/buckets/gallery/files/teto/view?project=68f8d96a0021b0ae0895"
+              alt="Kasane Teto standing beside the introduction"
+              width={348}
+              height={749}
+              sizes="(min-width: 1280px) 11.5rem, (min-width: 1024px) 10rem, clamp(4.25rem, 19vw, 5.5rem)"
+              className="h-auto w-full"
+              style={{ height: "auto" }}
+            />
+          </div>
+          <div className={styles.plateHeading}>
+            <p className={styles.who}>Kasane Teto, who lives here</p>
+            <h1 className={styles.title}>Live, Love, Accept.</h1>
+          </div>
+          <p className={styles.voice}>
+            Enjoyer of many, hater of none(?). Kasane Teto is the redhead who lives here.
           </p>
-          <p className="font-bold">
-            Live, Love, Accept. Enjoyer of many, hater of none(?).
+          <p className={styles.job}>Developer and Forester.</p>
+          <div className={styles.routes}>
+            <Link href="/gallery" className={routeLink}>Photos</Link>
+            <Link href="/anilist" className={routeLink}>Anime &amp; manga</Link>
+            <Link href="/music" className={routeLink}>Music stays on</Link>
+          </div>
+          <p className={styles.note}>
+            I rebuilt this place once. Then I rebuilt the rebuild. The old site is still up at{" "}
+            <a
+              href="https://other.respire.my"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#f2f3f6] underline decoration-white/40 underline-offset-4 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              other.respire.my
+            </a>
+            .
           </p>
-          <p>
-            Kasane Teto is the redhead who lives here. Photos in{" "}
-            <Link href="/gallery" className="retro-link inline-flex min-h-11 items-center">
-              Gallery
-            </Link>
-            . Anime and manga on{" "}
-            <Link href="/anilist" className="retro-link inline-flex min-h-11 items-center">
-              AniList
-            </Link>
-            .{" "}
-            <Link href="/music" className="retro-link inline-flex min-h-11 min-w-11 items-center justify-center">
-              Music
-            </Link>{" "}
-            stays on.
-          </p>
-          <p>I enjoy doing whatever. Yes, red head over here doing red head thing.</p>
         </div>
       </div>
-      <p className="retro-text text-xs opacity-70 mt-4 pt-3 border-t border-retro-black">
-        The old respire.my was too overdone. Let&apos;s change the mood a bit.
-        Welcome to this new one. You can still check the old web here:{" "}
-        <a
-          href="https://other.respire.my"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="retro-link inline-flex min-h-11 items-center break-all"
-        >
-          https://other.respire.my
-        </a>
-      </p>
     </section>
   );
 }

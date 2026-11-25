@@ -1,4 +1,5 @@
 import SafeImage from "../components/SafeImage";
+import styles from "./gallery.module.css";
 
 interface GalleryImage {
   url: string;
@@ -12,22 +13,15 @@ interface GalleryGridProps {
   readonly onImageClick: (image: GalleryImage) => void;
 }
 
-const RATIO_CONFIG = {
-  wide: { threshold: 1.5, class: "col-span-1 min-[480px]:col-span-2 row-span-1" },
-  landscape: { threshold: 1.2, class: "col-span-1 min-[480px]:col-span-2 row-span-1 min-[480px]:row-span-2" },
-  square: { threshold: 0.8, class: "col-span-1 row-span-1" },
-  portrait: { threshold: 0.6, class: "col-span-1 row-span-2" },
-  tall: { threshold: 0, class: "col-span-1 row-span-2 min-[480px]:row-span-3" },
-} as const;
-
 const getGridClass = (width: number, height: number) => {
   const ratio = width / height;
 
-  for (const [_, config] of Object.entries(RATIO_CONFIG)) {
-    if (ratio > config.threshold) return config.class;
-  }
-
-  return "col-span-1 row-span-1";
+  if (!Number.isFinite(ratio) || ratio <= 0) return "col-span-1 row-span-1";
+  if (ratio >= 1.6) return "col-span-2 row-span-1";
+  if (ratio >= 1.15) return "col-span-2 row-span-2";
+  if (ratio >= 0.78) return "col-span-1 row-span-1";
+  if (ratio >= 0.55) return "col-span-1 row-span-2";
+  return "col-span-1 row-span-3";
 };
 
 export default function GalleryGrid({
@@ -38,24 +32,24 @@ export default function GalleryGrid({
 
   if (images.length === 0) {
     return (
-      <div className="retro-card text-center py-12">
-        <p className="retro-text text-sm">No photos yet. Check back soon.</p>
+      <div className={`${styles.empty} py-12 text-center`}>
+        <p className="mb-2">No photos yet</p>
+        <p className="text-sm">Check back soon.</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[200px] sm:auto-rows-[180px] md:auto-rows-[200px] gap-2 sm:gap-3">
+    <div className={styles.grid}>
       {reversedImages.map((image, index) => (
         <button
           type="button"
           key={`gallery-${image.url}-${index}`}
           aria-label={image.caption || `Open photo ${index + 1}`}
-          className={`${getGridClass(
+          className={`${styles.photo} ${getGridClass(
             image.width,
             image.height
-          )} border-2 border-retro-black overflow-hidden cursor-pointer transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000000] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-retro-black`}
-          style={{ boxShadow: "3px 3px 0px #000000" }}
+          )} min-w-0`}
           onClick={() => onImageClick(image)}
         >
           <div className="relative w-full h-full">

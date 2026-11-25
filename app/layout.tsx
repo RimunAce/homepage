@@ -71,7 +71,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#e0e0e0",
+  themeColor: "#090b10",
 };
 
 export default function RootLayout({
@@ -81,7 +81,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-retro-gray">
+      <body className="min-h-screen bg-[#090b10] text-[#f2f3f6]">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -91,12 +91,12 @@ export default function RootLayout({
             <AgentSwarm>
               <a
                 href="#main-content"
-                className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[10000] focus:inline-flex focus:min-h-11 focus:items-center focus:bg-retro-white focus:text-retro-black focus:border-2 focus:border-retro-black focus:px-3 focus:py-2"
+                 className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[10000] focus:inline-flex focus:min-h-11 focus:items-center focus:rounded-lg focus:border focus:border-white/20 focus:bg-[#202531] focus:px-3 focus:py-2 focus:text-white"
               >
                 Skip to content
               </a>
 
-              <div className="min-h-screen bg-retro-gray relative">
+              <div className="relative min-h-screen bg-transparent">
                 <Background />
                 <div data-swarm-step><Header /></div>
                 <ErrorBoundary>

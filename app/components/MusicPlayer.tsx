@@ -131,8 +131,7 @@ export default function MusicPlayer() {
               stiffness: 300,
               mass: 0.8,
             }}
-            className="fixed bottom-0 left-0 right-0 z-40 bg-retro-white border-t-4 border-retro-black max-h-[85vh] overflow-y-auto retro-scrollbar"
-            style={{ boxShadow: "0 -8px 0px #000000" }}
+            className="fixed bottom-0 left-0 right-0 z-40 max-h-[85vh] overflow-y-auto rounded-t-[1.6rem] border border-white/15 bg-[#11151e] text-white shadow-[0_-24px_80px_rgba(0,0,0,.5)] retro-scrollbar"
           >
             <div className="max-w-6xl mx-auto p-4 md:p-6 pb-28">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

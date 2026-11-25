@@ -24,16 +24,16 @@ export default function ProgressBar({
         <span className="text-xs font-mono whitespace-nowrap" aria-live="off">
           {formatTime(currentTime)}
         </span>
-        <div className="relative min-h-11 flex-1 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-retro-black">
-          <div className="pointer-events-none absolute left-0 right-0 top-1/2 h-3 -translate-y-1/2 overflow-hidden border-2 border-retro-black bg-retro-gray">
+        <div className="relative min-h-11 flex-1 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-white">
+          <div className="pointer-events-none absolute left-0 right-0 top-1/2 h-3 -translate-y-1/2 overflow-hidden rounded-full border border-[#626979] bg-white/[0.08]">
             <div
-              className="h-full bg-retro-black transition-all duration-100"
+              className="h-full bg-[#c9b780] transition-all duration-100"
               style={{
                 width: `${(currentTime / (duration || 1)) * 100}%`,
               }}
             />
             <div
-              className="absolute top-0 bottom-0 w-1 bg-retro-yellow"
+              className="absolute top-0 bottom-0 w-1 bg-[#f2f3f6]"
               style={{
                 left: `${(currentTime / (duration || 1)) * 100}%`,
                 transform: "translateX(-50%)",

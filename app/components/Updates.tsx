@@ -36,62 +36,39 @@ export default function Updates() {
   }, []);
 
   return (
-    <section id="updates" className="retro-card">
-      <h2 className="retro-heading">UPDATES</h2>
-
+    <div>
       {loading && (
-        <div className="max-h-72 overflow-hidden space-y-3 py-2" role="status">
-          <p className="retro-text text-xs">Loading updates.</p>
-          <div className="animate-pulse space-y-3">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="border-l-2 border-retro-gray pl-3 pb-3 space-y-2">
-              <div className="flex gap-2">
-                <div className="h-4 w-16 bg-retro-gray border border-retro-black" />
-                <div className="h-4 w-10 bg-retro-gray border border-retro-black" />
-              </div>
-              <div className="h-3 bg-retro-gray border border-retro-black w-full" />
-            </div>
-          ))}
-          </div>
+          <div className="space-y-3 py-2" role="status">
+            <p className="text-sm text-[#aeb5c4]">Loading updates.</p>
         </div>
       )}
 
       {error && !loading && (
-        <div className="bg-retro-yellow border-2 border-retro-black p-3 mb-3" role="alert">
-          <p className="text-xs font-mono text-retro-black">{error}</p>
+        <div className="border border-[#d8b9a6]/60 bg-[#241e1b] p-4" role="alert">
+          <p className="text-sm font-mono text-white">{error}</p>
         </div>
       )}
 
       {!loading && !error && updates.length === 0 && (
-        <p className="retro-text text-xs">No updates yet.</p>
+        <p className="text-sm text-[#aeb5c4]">No updates yet.</p>
       )}
 
       {!loading && updates.length > 0 && (
-        <div
-          tabIndex={0}
-          aria-label="Site updates"
-          className="max-h-72 overflow-y-auto overscroll-contain retro-scrollbar pr-1"
-        >
-          <div className="space-y-3">
-            {updates.map((update) => (
-              <div
-                key={`${update.date}-${update.time}-${update.content.slice(0, 24)}`}
-                className="border-l-2 border-retro-black pl-3 pb-3 last:pb-0"
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-bold bg-retro-black text-retro-white px-2 py-0.5">
-                    {update.date}
-                  </span>
-                  <span className="text-xs text-retro-black opacity-60">
-                    {update.time}
-                  </span>
-                </div>
-                <p className="retro-text text-xs leading-relaxed">{update.content}</p>
+        <div>
+          {updates.map((update, index) => (
+            <article
+              key={`${update.date}-${update.time}-${update.content.slice(0, 24)}`}
+              className={`grid gap-1 border-b border-white/10 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-6 ${index === 0 ? "py-6" : "py-5"}`}
+            >
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 sm:flex-col sm:items-start sm:gap-1 sm:pt-1">
+                <span className="font-mono text-xs text-[#f2f3f6]">{update.date}</span>
+                <span className="font-mono text-xs text-[#aeb5c4]">{update.time}</span>
               </div>
-            ))}
-          </div>
+              <p className={`max-w-[68ch] leading-relaxed text-[#f2f3f6] ${index === 0 ? "text-base sm:text-lg" : "text-sm sm:text-base"}`}>{update.content}</p>
+            </article>
+          ))}
         </div>
       )}
-    </section>
+    </div>
   );
 }

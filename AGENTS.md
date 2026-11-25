@@ -1,6 +1,6 @@
 # Agent notes
 
-Visual direction for this site is in `DESIGN.md` and `PRODUCT.md`. Keep that identity.
+Visual direction for this site is in `DESIGN.md`; product content and real capabilities are in `PRODUCT.md`. Follow the current dark glass direction in `DESIGN.md`, preserve real content/features, and do not revert to the former pink-retro styling.
 
 <!-- antislop:start -->
 ## antislop

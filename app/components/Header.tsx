@@ -5,58 +5,59 @@ import { usePathname } from "next/navigation";
 import { memo } from "react";
 
 const links = [
-  { href: "/", label: "HOME" },
-  { href: "/gallery", label: "GALLERY" },
-  { href: "/anilist", label: "ANILIST" },
-  { href: "/music", label: "MUSIC" },
+  { href: "/", label: "Home" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/anilist", label: "AniList" },
+  { href: "/music", label: "Music" },
 ] as const;
 
 function Header() {
   const pathname = usePathname();
+  const wordmark = (
+    <>
+      Respire<span className="text-[#aeb5c4]">.my</span>
+    </>
+  );
 
   return (
-    <>
-      <header className="bg-retro-black text-retro-white py-2 px-4 relative z-10">
-        <div className="max-w-6xl mx-auto flex justify-between items-center gap-3 min-w-0">
+    <header className="relative z-10 pb-4 pt-5 sm:pt-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 sm:flex-row sm:items-end sm:justify-between sm:px-8">
+        <div className="min-w-0">
           {pathname === "/" ? (
-            <h1 className="text-lg font-bold shrink-0">RESPIRE</h1>
+            <p className="font-display text-[1.65rem] font-extrabold leading-none tracking-[-0.045em] text-[#f2f3f6]">
+              {wordmark}
+            </p>
           ) : (
             <Link
               href="/"
-              className="text-lg font-bold shrink-0 inline-flex min-h-11 items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="inline-flex min-h-11 items-center font-display text-[1.65rem] font-extrabold leading-none tracking-[-0.045em] text-[#f2f3f6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              RESPIRE
+              {wordmark}
             </Link>
           )}
-          <span className="text-sm text-right leading-tight">KASANE TETO</span>
+          <p className="mt-1 font-mono text-xs text-[#aeb5c4]">Kasane</p>
         </div>
-      </header>
-
-      <nav
-        className="bg-retro-white border-b-2 border-retro-black relative z-10"
-        aria-label="Main navigation"
-      >
-        <div className="max-w-6xl mx-auto px-4 py-2">
-          <div className="flex flex-wrap gap-2">
-            {links.map((link) => {
-              const current = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  aria-current={current ? "page" : undefined}
-                  className={`retro-button text-sm active:scale-95 transition-transform ${
-                    current ? "bg-retro-black text-retro-white" : ""
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </nav>
-    </>
+        <nav aria-label="Main navigation" className="flex flex-wrap gap-x-1">
+          {links.map((link) => {
+            const current = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={current ? "page" : undefined}
+                className={`inline-flex min-h-11 items-center border-b-2 px-2.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${
+                  current
+                    ? "border-[#f2f3f6] font-semibold text-[#f2f3f6]"
+                    : "border-transparent text-[#aeb5c4] hover:text-white"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+    </header>
   );
 }
 

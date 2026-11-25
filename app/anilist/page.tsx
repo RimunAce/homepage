@@ -31,6 +31,7 @@ import { MediaCard } from "./components/MediaCard";
 import { MediaProgressOverlay } from "./components/MediaProgressOverlay";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { getProgressLabel } from "./utils/progressUtils";
+import styles from "./anilist.module.css";
 
 const ANILIST_ENDPOINT = process.env.NEXT_PUBLIC_ANILIST_ENDPOINT || "https://graphql.anilist.co";
 const ANILIST_USERNAME = process.env.NEXT_PUBLIC_ANILIST_USERNAME || "Reuzin";
@@ -320,38 +321,38 @@ function getCurrentPageItems(items: MediaItem[], currentPage: number) {
 
 function ProfileSection({ user, aboutPreview }: { user: AniListUser; aboutPreview: string | null }) {
   return (
-    <div className="retro-card">
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className="flex-shrink-0" style={{ boxShadow: "2px 2px 0px #000000" }}>
+    <section className={`retro-card ${styles.profile}`} aria-label="AniList profile">
+      <div className={styles.profileHeader}>
+        <div className={styles.avatarFrame}>
           <SafeImage
             src={user.avatar.large}
             alt={`${user.name}'s avatar`}
             width={128}
             height={128}
             sizes="128px"
-            className="w-32 h-32 border-2 border-retro-black object-cover"
+            className={styles.avatar}
             fallbackLabel="No avatar"
           />
         </div>
-        <div className="flex-grow">
-          <h2 className="text-2xl font-bold mb-2">{user.name}</h2>
+        <div className={styles.profileDetails}>
+          <h2 className={styles.profileName}>{user.name}</h2>
           {aboutPreview && (
-            <div className="retro-text mb-4 p-3 bg-retro-gray border-2 border-retro-black max-h-32 overflow-y-auto">
+            <p className={styles.about}>
               {aboutPreview}
-            </div>
+            </p>
           )}
           <a
             href={`https://anilist.co/user/${user.name}/`}
             target="_blank"
             rel="noopener noreferrer"
-            className="retro-button inline-block text-sm"
+            className={`retro-button ${styles.profileLink}`}
           >
             Visit AniList profile
           </a>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <div className={styles.statsGrid}>
         <StatPanel
           title="ANIME STATS"
           stats={[
@@ -369,24 +370,24 @@ function ProfileSection({ user, aboutPreview }: { user: AniListUser; aboutPrevie
           ]}
         />
       </div>
-    </div>
+    </section>
   );
 }
 
 function RecentActivities({ activities }: { activities: Activity[] }) {
   return (
-    <div className="retro-card">
-      <h3 className="retro-heading mb-4">RECENT ACTIVITIES</h3>
-      <div className="space-y-3">
+    <section className={styles.activities} aria-labelledby="anilist-activity-heading">
+      <h2 id="anilist-activity-heading" className={styles.sectionHeading}>Recent activity</h2>
+      <div className={styles.activityList}>
         {activities.length > 0 ? (
           activities.map((activity) => (
             <ActivityItem key={activity.id} activity={activity} />
           ))
         ) : (
-          <p className="retro-text text-center py-4">No recent activities</p>
+          <p className={styles.emptyInline}>No recent activities</p>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -452,30 +453,34 @@ function AniListContent({
   }, [statusFilter, genreFilter, searchQuery, sortOrder, activeTab, setCurrentPage]);
 
   return (
-    <div className="space-y-6">
+    <div className={styles.content}>
       <ProfileSection user={user} aboutPreview={aboutPreview} />
-      <FavoritesSection favorites={favorites} />
-      <RecentActivities activities={activities} />
-      <MediaListSection
-        activeTab={activeTab}
-        allGenres={allGenres}
-        currentPage={currentPage}
-        currentPageItems={currentPageItems}
-        filteredAndSortedItems={filteredAndSortedItems}
-        genreFilter={genreFilter}
-        searchQuery={searchQuery}
-        setActiveTab={setActiveTab}
-        setCurrentPage={setCurrentPage}
-        setGenreFilter={setGenreFilter}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        setStatusFilter={setStatusFilter}
-        setViewMode={setViewMode}
-        sortOrder={sortOrder}
-        statusFilter={statusFilter}
-        totalPages={totalPages}
-        viewMode={viewMode}
-      />
+      <div className={styles.libraryLayout}>
+        <MediaListSection
+          activeTab={activeTab}
+          allGenres={allGenres}
+          currentPage={currentPage}
+          currentPageItems={currentPageItems}
+          filteredAndSortedItems={filteredAndSortedItems}
+          genreFilter={genreFilter}
+          searchQuery={searchQuery}
+          setActiveTab={setActiveTab}
+          setCurrentPage={setCurrentPage}
+          setGenreFilter={setGenreFilter}
+          setSearchQuery={setSearchQuery}
+          setSortOrder={setSortOrder}
+          setStatusFilter={setStatusFilter}
+          setViewMode={setViewMode}
+          sortOrder={sortOrder}
+          statusFilter={statusFilter}
+          totalPages={totalPages}
+          viewMode={viewMode}
+        />
+        <aside className={styles.sideRail} aria-label="Favorites and recent activity">
+          <FavoritesSection favorites={favorites} />
+          <RecentActivities activities={activities} />
+        </aside>
+      </div>
     </div>
   );
 }
@@ -520,8 +525,19 @@ function MediaListSection({
   viewMode: ViewMode;
 }) {
   return (
-    <div className="retro-card">
-      <MediaListControls activeTab={activeTab} setActiveTab={setActiveTab} viewMode={viewMode} setViewMode={setViewMode} />
+    <section className={`retro-card ${styles.mediaList}`} aria-labelledby="anilist-library-heading">
+      <div className={styles.libraryHeading}>
+        <h2 id="anilist-library-heading">Library</h2>
+        <p className={styles.resultCount}>
+          Showing {filteredAndSortedItems.length} {activeTab}
+        </p>
+      </div>
+      <MediaListControls
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
       <MediaFilterBar
         allGenres={allGenres}
         genreFilter={genreFilter}
@@ -533,10 +549,6 @@ function MediaListSection({
         sortOrder={sortOrder}
         statusFilter={statusFilter}
       />
-
-      <p className="text-xs opacity-70 mb-3">
-        Showing {filteredAndSortedItems.length} {activeTab}
-      </p>
 
       {filteredAndSortedItems.length === 0 && <EmptyMediaState activeTab={activeTab} />}
 
@@ -550,7 +562,7 @@ function MediaListSection({
       {totalPages > 1 && (
         <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
       )}
-    </div>
+    </section>
   );
 }
 
@@ -566,17 +578,19 @@ function MediaListControls({
   setViewMode: Dispatch<SetStateAction<ViewMode>>;
 }) {
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-      <div className="flex gap-2" role="group" aria-label="Media type">
+    <div className={styles.controls}>
+      <div className={styles.toggleGroup} role="group" aria-label="Media type">
         <button
-          className={`retro-button text-sm ${activeTab === "anime" ? "bg-retro-black text-retro-white" : ""}`}
+          type="button"
+          className="retro-button"
           onClick={() => setActiveTab("anime")}
           aria-pressed={activeTab === "anime"}
         >
           ANIME LIST
         </button>
         <button
-          className={`retro-button text-sm ${activeTab === "manga" ? "bg-retro-black text-retro-white" : ""}`}
+          type="button"
+          className="retro-button"
           onClick={() => setActiveTab("manga")}
           aria-pressed={activeTab === "manga"}
         >
@@ -584,16 +598,18 @@ function MediaListControls({
         </button>
       </div>
 
-      <div className="flex gap-2" role="group" aria-label="View mode">
+      <div className={styles.toggleGroup} role="group" aria-label="View mode">
         <button
-          className={`retro-button text-sm ${viewMode === "grid" ? "bg-retro-black text-retro-white" : ""}`}
+          type="button"
+          className="retro-button"
           onClick={() => setViewMode("grid")}
           aria-pressed={viewMode === "grid"}
         >
           GRID
         </button>
         <button
-          className={`retro-button text-sm ${viewMode === "list" ? "bg-retro-black text-retro-white" : ""}`}
+          type="button"
+          className="retro-button"
           onClick={() => setViewMode("list")}
           aria-pressed={viewMode === "list"}
         >
@@ -626,55 +642,59 @@ function MediaFilterBar({
   statusFilter: MediaStatus;
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-      <label className="block text-xs font-mono">
+    <div className={styles.filters}>
+      <label>
         Search
         <input
           type="text"
           placeholder="Title"
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
-          className="retro-input mt-1 w-full text-xs"
+          className="retro-input"
         />
       </label>
-      <label className="block text-xs font-mono">
+      <label>
         Status
-      <select
-        value={statusFilter}
-        onChange={(event) => setStatusFilter(event.target.value as MediaStatus)}
-        className="retro-input mt-1 w-full text-xs"
-      >
-        {STATUS_FILTER_OPTIONS.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value as MediaStatus)}
+          className="retro-input"
+        >
+          {STATUS_FILTER_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
       </label>
-      <label className="block text-xs font-mono">
+      <label>
         Genre
-      <select value={genreFilter} onChange={(event) => setGenreFilter(event.target.value)} className="retro-input mt-1 w-full text-xs">
-        <option value="ALL">All Genres</option>
-        {allGenres.map((genre) => (
-          <option key={genre} value={genre}>
-            {genre}
-          </option>
-        ))}
-      </select>
+        <select
+          value={genreFilter}
+          onChange={(event) => setGenreFilter(event.target.value)}
+          className="retro-input"
+        >
+          <option value="ALL">All Genres</option>
+          {allGenres.map((genre) => (
+            <option key={genre} value={genre}>
+              {genre}
+            </option>
+          ))}
+        </select>
       </label>
-      <label className="block text-xs font-mono">
+      <label>
         Sort
-      <select
-        value={sortOrder}
-        onChange={(event) => setSortOrder(event.target.value as SortOrder)}
-        className="retro-input mt-1 w-full text-xs"
-      >
-        {SORT_FILTER_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        <select
+          value={sortOrder}
+          onChange={(event) => setSortOrder(event.target.value as SortOrder)}
+          className="retro-input"
+        >
+          {SORT_FILTER_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </label>
     </div>
   );
@@ -682,7 +702,7 @@ function MediaFilterBar({
 
 function EmptyMediaState({ activeTab }: { activeTab: "anime" | "manga" }) {
   return (
-    <p className="retro-text text-center py-8">No {activeTab} found with current filters</p>
+    <p className={styles.emptyMedia}>No {activeTab} found with current filters</p>
   );
 }
 
@@ -690,10 +710,10 @@ function MediaListGrid({ items }: { items: MediaItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-      {items.map((item) => (
-        <MediaCard key={item.id} item={item} />
-      ))}
+    <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 ${styles.mediaGrid}`}>
+        {items.map((item, index) => (
+          <MediaCard key={item.id} item={item} priority={index === 0} />
+        ))}
     </div>
   );
 }
@@ -718,7 +738,8 @@ function MediaListItem({ item }: { item: MediaItem }) {
       href={item.siteUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-4 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors"
+      className={styles.mediaRow}
+      aria-label={`View ${getDisplayTitle(item)} on AniList`}
     >
       <SafeImage
         src={item.coverImage.large}
@@ -726,23 +747,23 @@ function MediaListItem({ item }: { item: MediaItem }) {
         width={64}
         height={96}
         sizes="64px"
-        className="w-16 h-24 object-cover border border-retro-black"
+        className={styles.mediaRowImage}
         fallbackLabel="No cover"
       />
-      <div className="flex-grow">
-        <p className="retro-text text-sm font-bold">{getDisplayTitle(item)}</p>
-        <p className="text-xs mt-1 opacity-70">
+      <div className="min-w-0 flex-1">
+        <p className={styles.mediaRowTitle}>{getDisplayTitle(item)}</p>
+        <p className={styles.mediaRowMeta}>
           {item.mediaListEntry?.status || "Unknown"}
           {item.mediaListEntry?.status === "CURRENT" && ` • ${getProgressLabel(item)}`}
         </p>
         {item.genres?.slice(0, 4).map((genre) => (
-          <span key={genre} className="text-xs bg-retro-white border border-retro-black px-2 py-1 mr-1">
+          <span key={genre} className={styles.genre}>
             {genre}
           </span>
         ))}
       </div>
       {item.mediaListEntry && item.mediaListEntry.score > 0 && (
-        <div className="text-right flex-shrink-0">
+        <div className={styles.mediaRowScore}>
           <StarIcon />
           <div className="text-sm font-bold">{item.mediaListEntry.score}/10</div>
         </div>
@@ -761,24 +782,24 @@ function PaginationControls({
   onPageChange: Dispatch<SetStateAction<number>>;
 }) {
   return (
-    <div className="flex justify-center gap-2 mt-6">
+    <div className={styles.pagination}>
       <button
         type="button"
-        className="retro-button text-sm disabled:opacity-40 disabled:pointer-events-none"
+        className="retro-button"
         onClick={() => onPageChange((page) => Math.max(1, page - 1))}
         disabled={currentPage === 1}
       >
         Previous
       </button>
       <span
-        className="inline-flex items-center border-2 border-retro-black bg-retro-white px-3 text-sm font-mono"
+        className={styles.pageReadout}
         aria-live="polite"
       >
         {currentPage} / {totalPages}
       </span>
       <button
         type="button"
-        className="retro-button text-sm disabled:opacity-40 disabled:pointer-events-none"
+        className="retro-button"
         onClick={() => onPageChange((page) => Math.min(totalPages, page + 1))}
         disabled={currentPage === totalPages}
       >
@@ -866,13 +887,16 @@ export default function AniListPage() {
   }, []);
 
   return (
-    <main id="main-content" tabIndex={-1} className="max-w-6xl mx-auto px-4 py-6 sm:py-8 pb-8 relative z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black">
-      <h1 className="retro-heading text-2xl mb-6">ANILIST</h1>
+    <main id="main-content" tabIndex={-1} className={`${styles.anilist} relative z-10 mx-auto w-full max-w-6xl px-4 py-6 pb-28 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:px-8 sm:py-10`}>
+      <header className={styles.intro}>
+        <h1 className="font-sans text-3xl font-semibold leading-none tracking-tight sm:text-5xl">AniList</h1>
+        <p className="mt-3 text-sm">Anime and manga from {ANILIST_USERNAME}.</p>
+      </header>
       <ErrorBoundary>
         {loading && <LoadingState />}
         {error && <ErrorState message={error} onRetry={loadFreshData} />}
         {!loading && !error && !user && (
-          <p className="retro-text text-sm">No AniList profile to show.</p>
+          <p className={styles.emptyState}>No AniList profile to show.</p>
         )}
         {user && !loading && (
           <AniListContent

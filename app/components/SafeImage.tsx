@@ -32,7 +32,7 @@ export default function SafeImage({
       <span
         role="img"
         aria-label={alt || fallbackLabel || "Image unavailable"}
-        className={`flex items-center justify-center bg-retro-gray px-1 text-center font-mono text-[10px] leading-tight text-retro-black ${
+          className={`flex items-center justify-center bg-retro-gray px-1 text-center font-mono text-[10px] leading-tight text-[#f2f3f6] ${
           fill ? "absolute inset-0 h-full w-full" : ""
         } ${className ?? ""}`}
         style={fill ? undefined : { width, height }}

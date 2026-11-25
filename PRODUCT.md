@@ -31,7 +31,7 @@ A living personal "world" rather than a static portfolio: the page is wired to t
 
 Confirmed functionality:
 
-- **Home** — About Me (bio), Projects list, Contact, and Updates (mini-blog / diary) in a two-column layout.
+- **Home** — Bio followed by drawers for diary updates, projects, and contact details.
 - **Gallery** — image grid with lightbox modal and preloading progress.
 - **AniList** — profile, stats (anime/manga), favorites, recent activities, and searchable/filterable/sortable anime & manga lists with graceful degradation to cached or partial data.
 - **Music player** — persistent across pages; playlist switching, progress bar, volume, track playlist, a visualizer, and a "Miku mode" easter egg (Teto/Miku playlist toggle).

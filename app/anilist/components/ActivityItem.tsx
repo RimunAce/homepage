@@ -1,5 +1,6 @@
 import SafeImage from "../../components/SafeImage";
 import { Activity } from "../types";
+import styles from "../anilist.module.css";
 
 interface ActivityItemProps {
   activity: Activity;
@@ -15,7 +16,7 @@ export function ActivityItem({ activity }: ActivityItemProps) {
   };
 
   return (
-    <div className="flex items-start gap-3 p-3 bg-retro-gray border-2 border-retro-black hover:bg-retro-white transition-colors">
+    <article className={styles.activityItem}>
       {activity.media && (
         <SafeImage
           src={activity.media.coverImage.large}
@@ -23,33 +24,33 @@ export function ActivityItem({ activity }: ActivityItemProps) {
           width={48}
           height={64}
           sizes="48px"
-          className="w-12 h-16 object-cover border border-retro-black"
+          className={styles.activityImage}
           fallbackLabel="No cover"
         />
       )}
-      <div className="flex-grow">
-        <p className="retro-text text-xs">
+      <div className={styles.activityCopy}>
+        <p className={styles.activityDescription}>
           {activity.status && <span className="font-bold">{activity.status}</span>}
           {activity.progress && ` ${activity.progress}`}
           {activity.media && (
             <>
               {" of "}
-              <a href={activity.media.siteUrl} target="_blank" rel="noopener noreferrer" className="retro-link inline-flex min-h-11 items-center">
+              <a href={activity.media.siteUrl} target="_blank" rel="noopener noreferrer" className={styles.activityMediaLink}>
                 {activity.media.title.romaji}
               </a>
             </>
           )}
         </p>
-        <p className="text-xs opacity-70 mt-1">{formatDate(activity.createdAt)}</p>
+        <p className={styles.activityDate}>{formatDate(activity.createdAt)}</p>
         <a
           href={`https://anilist.co/activity/${activity.id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs retro-link mt-1 inline-flex min-h-11 items-center"
+          className={styles.activityLink}
         >
           View activity
         </a>
       </div>
-    </div>
+    </article>
   );
 }

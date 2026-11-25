@@ -40,16 +40,29 @@ export interface Track {
 
 type Row = Record<string, unknown>;
 
+const ROWS_PER_PAGE = 100;
+
 async function listRows(
   table: string,
   queries: string[] = []
 ): Promise<Row[]> {
-  const result = await getTablesDB().listRows({
-    databaseId: APPWRITE_DATABASE_ID,
-    tableId: table,
-    queries,
-  });
-  return result.rows as Row[];
+  const tablesDB = getTablesDB();
+  const rows: Row[] = [];
+
+  for (let offset = 0; ; offset += ROWS_PER_PAGE) {
+    const result = await tablesDB.listRows({
+      databaseId: APPWRITE_DATABASE_ID,
+      tableId: table,
+      queries: [...queries, Query.limit(ROWS_PER_PAGE), Query.offset(offset)],
+      total: false,
+    });
+    const page = result.rows as Row[];
+    rows.push(...page);
+
+    if (page.length < ROWS_PER_PAGE) {
+      return rows;
+    }
+  }
 }
 
 async function readTable<T>(
@@ -85,7 +98,9 @@ export function fetchProjects(): Promise<Project[]> {
     (row) => ({
       title: String(row.title ?? ""),
       description: String(row.description ?? ""),
-      tech: Array.isArray(row.tech) ? (row.tech as string[]) : [],
+      tech: Array.isArray(row.tech)
+        ? row.tech.filter((value): value is string => typeof value === "string")
+        : [],
       status: String(row.status ?? ""),
       link: String(row.link ?? ""),
       date: String(row.date ?? ""),
@@ -124,4 +139,35 @@ export function fetchPlaylist(playlist: "teto" | "miku"): Promise<Track[]> {
     [Query.equal("playlist", playlist), Query.orderAsc("sortKey")],
     mapTrack
   );
+}
+
+async function firstRow(tableId: string, queries: string[]): Promise<Row | undefined> {
+  const result = await getTablesDB().listRows({
+    databaseId: APPWRITE_DATABASE_ID,
+    tableId,
+    queries: [...queries, Query.limit(1)],
+    total: false,
+  });
+  return result.rows[0];
+}
+
+export function fetchHomeNote() {
+  return firstRow(TABLES.updates, [Query.orderDesc("sortKey")]);
+}
+
+export async function fetchHomePhoto() {
+  const result = await getTablesDB().listRows({
+    databaseId: APPWRITE_DATABASE_ID,
+    tableId: TABLES.gallery,
+    queries: [Query.orderAsc("sortKey"), Query.limit(8)],
+    total: false,
+  });
+  const photos = result.rows.filter((row) => typeof row.url === "string" && row.url);
+  return photos.find((row) => Number(row.height) > 0 && Number(row.width) >= Number(row.height) * 1.5)
+    ?? photos[0];
+}
+
+export async function fetchHomeTrack(): Promise<Track | undefined> {
+  const row = await firstRow(TABLES.music, [Query.equal("playlist", "teto"), Query.orderAsc("sortKey")]);
+  return row ? mapTrack(row) : undefined;
 }

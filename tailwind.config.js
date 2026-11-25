@@ -8,15 +8,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "retro-gray": "#E0E0E0",
-        "retro-black": "#000000",
-        "retro-white": "#FFFFFF",
-        "retro-yellow": "#FFD700",
+        "retro-gray": "#151923",
+        "retro-black": "#090b10",
+        "retro-white": "#f2f3f6",
+        "retro-yellow": "#c9b780",
         miku: "#39C5BB",
+        glass: "rgba(255,255,255,0.08)",
+        "glass-line": "rgba(255,255,255,0.14)",
+        "soft-ink": "#aeb5c4",
       },
       fontFamily: {
-        mono: ["Courier New", "monospace"],
-        sans: ["Arial", "sans-serif"],
+        mono: ["IBM Plex Mono", "monospace"],
+        sans: ["DM Sans", "Arial", "sans-serif"],
+        display: ["Manrope", "DM Sans", "sans-serif"],
       },
     },
   },

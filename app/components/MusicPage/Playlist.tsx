@@ -1,9 +1,9 @@
 "use client";
 
 import { useMusicPlayer } from "../../contexts/MusicPlayerContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import SafeImage from "../SafeImage";
-import { useState } from "react";
+import styles from "./music.module.css";
 
 const EQUALIZER_BARS = [
   { active: [4, 16, 8, 12, 4], duration: 0.5 },
@@ -12,6 +12,7 @@ const EQUALIZER_BARS = [
 ];
 
 export default function Playlist() {
+    const reduceMotion = useReducedMotion();
     const {
         tracks,
         currentTrack,
@@ -36,117 +37,98 @@ export default function Playlist() {
     };
 
     return (
-        <div className="w-full max-w-md mx-auto border-2 border-retro-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            {/* Tab Header */}
-            <div className="relative border-b-2 border-retro-black">
-                <div className="flex" role="group" aria-label="Playlist mode">
-                    <button
-                        onClick={() => handleTabSwitch(false)}
-                        aria-pressed={!isMikuMode}
-                        className={`flex-1 py-3 px-4 font-bold text-lg transition-all relative ${!isMikuMode
-                            ? "text-retro-black"
-                            : "text-retro-black opacity-50 hover:opacity-80"
-                            }`}
-                    >
-                        Teto
-                    </button>
-                    <button
-                        onClick={() => handleTabSwitch(true)}
-                        aria-pressed={isMikuMode}
-                        className={`flex-1 py-3 px-4 font-bold text-lg transition-all relative ${isMikuMode
-                            ? "text-retro-black"
-                            : "text-retro-black opacity-50 hover:opacity-80"
-                            }`}
-                    >
-                        +Miku
-                    </button>
+        <section aria-label="Playlist" className={styles.playlist}>
+            <header className={styles.playlistHeader}>
+                <h2>Playlist</h2>
+                <div className={styles.modeTabs}>
+                    <div className={styles.modeButtons} role="group" aria-label="Playlist mode">
+                        <button
+                            type="button"
+                            onClick={() => handleTabSwitch(false)}
+                            aria-pressed={!isMikuMode}
+                            className={styles.modeButton}
+                        >
+                            Teto
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleTabSwitch(true)}
+                            aria-pressed={isMikuMode}
+                            className={styles.modeButton}
+                        >
+                            +Miku
+                        </button>
+                    </div>
+                    <motion.div
+                        className={`${styles.modeIndicator} ${isMikuMode ? styles.mikuIndicator : ""}`}
+                        initial={false}
+                        animate={{ left: isMikuMode ? "50%" : "0%", width: "50%" }}
+                        transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
+                        aria-hidden="true"
+                    />
                 </div>
-                {/* Animated Tab Indicator */}
-                <motion.div
-                    className="absolute bottom-0 h-1 bg-retro-black"
-                    initial={false}
-                    animate={{
-                        left: isMikuMode ? "50%" : "0%",
-                        width: "50%"
-                    }}
-                    transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 30
-                    }}
-                />
-            </div>
+            </header>
 
-            {/* Playlist Content */}
-            <div className="h-[400px] overflow-y-auto p-4">
+            <div className={styles.playlistContent}>
                 <AnimatePresence mode="wait">
                     <motion.ul
                         key={isMikuMode ? "miku" : "teto"}
                         initial={{ opacity: 0, x: isMikuMode ? 20 : -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: isMikuMode ? -20 : 20 }}
-                        transition={{ duration: 0.3 }}
-                        className="space-y-2"
+                        transition={{ duration: reduceMotion ? 0 : 0.2 }}
+                        className={styles.trackList}
                     >
                         {isLoading && (
-                            <li className="retro-text text-sm" role="status">Loading playlist.</li>
+                            <li className={styles.listState} role="status" aria-live="polite">Loading playlist.</li>
                         )}
                         {!isLoading && playlistUnavailable && tracks.length === 0 && (
-                            <li className="bg-retro-yellow border-2 border-retro-black p-3" role="alert">
-                                <p className="text-xs font-mono text-retro-black">
+                            <li className={styles.listError} role="alert">
+                                <p>
                                     Could not load this playlist right now. Try again later.
                                 </p>
                             </li>
                         )}
                         {!isLoading && !playlistUnavailable && tracks.length === 0 && (
-                            <li className="retro-text text-sm">No tracks in this playlist.</li>
+                            <li className={styles.listState}>No tracks in this playlist.</li>
                         )}
                         {tracks.map((track, index) => (
                             <li key={track.id}>
                                 <button
                                     type="button"
                                     onClick={() => handleTrackClick(index)}
-                                    className={`w-full text-left p-3 border border-retro-black transition-all flex items-center gap-3 group ${currentTrack === index
-                                        ? "bg-retro-black text-retro-white shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
-                                        : "bg-retro-white hover:bg-gray-100 hover:translate-x-1"
-                                        }`}
+                                    aria-pressed={currentTrack === index}
+                                    className={`${styles.trackButton} ${currentTrack === index ? styles.selectedTrack : ""}`}
                                 >
-                                    {/* Thumbnail */}
-                                    <div className="flex-shrink-0 w-12 h-12 border-2 border-retro-black overflow-hidden bg-gray-200">
+                                    <div className={styles.trackArtwork}>
                                         <SafeImage
                                             src={track.thumbnail}
                                             alt=""
                                             width={48}
                                             height={48}
                                             sizes="48px"
-                                            className="w-full h-full object-cover"
+                                            className="h-full w-full object-cover"
                                             fallbackLabel="No cover"
                                         />
                                     </div>
 
-                                    {/* Track Info */}
-                                    <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-                                        <span className="font-bold truncate">{track.title}</span>
-                                        <span
-                                            className="text-sm truncate"
-                                        >
+                                    <div className={styles.trackCopy}>
+                                        <span className={styles.trackName}>{track.title}</span>
+                                        <span className={styles.trackArtist}>
                                             {track.author}
                                         </span>
                                     </div>
 
-                                    {/* Playing Indicator */}
                                     {currentTrack === index && (
-                                        <div className="flex space-x-1 items-end h-4 ml-2 flex-shrink-0" aria-hidden="true">
+                                        <div className={styles.equalizer} aria-hidden="true">
                                             {EQUALIZER_BARS.map((bar, i) => (
                                                 <motion.div
                                                     key={i}
-                                                    animate={isPlaying ? { height: bar.active } : { height: 4 }}
-                                                    transition={{
-                                                        repeat: Infinity,
-                                                        duration: bar.duration,
-                                                        ease: "linear",
-                                                    }}
-                                                    className="w-1 bg-retro-white"
+                                                    animate={isPlaying && !reduceMotion ? { height: bar.active } : { height: isPlaying ? 10 : 4 }}
+                                                    transition={isPlaying && !reduceMotion
+                                                        ? { repeat: Infinity, duration: bar.duration, ease: "linear" }
+                                                        : { duration: 0 }}
+                                                    className={styles.equalizerBar}
                                                 />
                                             ))}
                                         </div>
@@ -157,6 +139,6 @@ export default function Playlist() {
                     </motion.ul>
                 </AnimatePresence>
             </div>
-        </div>
+        </section>
     );
 }

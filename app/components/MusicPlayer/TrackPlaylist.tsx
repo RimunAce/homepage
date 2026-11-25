@@ -28,29 +28,27 @@ export default function TrackPlaylist({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="border-t-2 border-retro-black pt-4"
+      className="border-t border-white/15 pt-4"
     >
       <p className="text-xs font-bold mb-3 uppercase">Playlist</p>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {tracks.map((track, index) => (
           <motion.button
+            type="button"
             key={track.id}
             onClick={() => onTrackSelect(index)}
             aria-label={`Play ${track.title} by ${track.author}`}
             aria-pressed={index === currentTrack}
-            className={`text-left p-2 border-2 transition-all ${
+            className={`min-h-16 cursor-pointer rounded-xl border p-2 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
               index === currentTrack
-                ? "border-retro-black bg-retro-black text-retro-white"
-                : "border-retro-black bg-retro-white hover:bg-retro-gray"
+                ? "border-white bg-[#252b38] text-white"
+                : "border-[#626979] bg-white/[0.035] text-white hover:border-[#8d94a3] hover:bg-white/[0.08]"
             }`}
-            style={{
-              boxShadow: "2px 2px 0px #000000",
-            }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             <div className="flex items-center space-x-2">
-              <div className="w-12 h-12 border border-retro-black flex-shrink-0">
+              <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-white/15 bg-[#090b10]">
                 <SafeImage
                   src={track.thumbnail}
                   alt=""

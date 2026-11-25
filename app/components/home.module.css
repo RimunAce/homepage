@@ -1,0 +1,161 @@
+.stage {
+  display: grid;
+  align-items: end;
+}
+
+.portrait {
+  position: relative;
+  z-index: 0;
+  height: clamp(12rem, 56vw, 25rem);
+  margin: 0;
+  overflow: hidden;
+  background: #151923;
+}
+
+.portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 48%;
+}
+
+.plate {
+  position: relative;
+  z-index: 1;
+  margin-top: -1rem;
+  margin-right: 1.5rem;
+  background: #151923;
+  padding: 1.2rem 1.15rem 1.3rem;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, .38);
+}
+
+.plateCopy { min-width: 0; }
+
+.plateHeading {
+  display: contents;
+}
+
+.who {
+  margin: 0;
+  color: #aeb5c4;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .75rem;
+}
+
+.title {
+  max-width: 8.6ch;
+  margin: .7rem 0 0;
+  color: #f2f3f6;
+  font-family: Manrope, "DM Sans", sans-serif;
+  font-size: clamp(2.2rem, 10.5vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -.055em;
+  line-height: .9;
+}
+
+.voice {
+  max-width: 34rem;
+  margin: .75rem 0 0;
+  color: #aeb5c4;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.job {
+  margin: .7rem 0 0;
+  color: #f2f3f6;
+  font-size: .92rem;
+}
+
+.routes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .15rem 1.4rem;
+  margin-top: .65rem;
+}
+
+.note {
+  clear: right;
+  max-width: 38rem;
+  margin: .7rem 0 0;
+  border-top: 1px solid rgba(242, 243, 246, .12);
+  padding-top: .65rem;
+  color: #aeb5c4;
+  font-size: .9rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+@media (width < 64rem) {
+  .plate {
+    --companion-width: clamp(4.25rem, 19vw, 5.5rem);
+  }
+
+  .companion {
+    position: absolute;
+    top: -3.1rem;
+    right: -1.5rem;
+    width: var(--companion-width);
+  }
+
+  .plateHeading {
+    display: block;
+    min-height: calc(var(--companion-width) * 2.153 - 4rem);
+    padding-right: max(0px, calc(var(--companion-width) - 2.2rem));
+  }
+
+  .routes {
+    column-gap: clamp(.75rem, 3.5vw, 1.4rem);
+  }
+
+  .routes a {
+    min-width: 2.75rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .stage {
+    grid-template-columns: minmax(18rem, 34rem) minmax(22rem, 1fr);
+    align-items: end;
+  }
+
+  .portrait {
+    height: min(76vh, 40rem);
+    margin-left: -2rem;
+    width: calc(100% + 2rem);
+  }
+
+  .portrait img { object-position: center 10%; }
+
+  .plate {
+    margin: 0 2rem 0 -5.5rem;
+    padding: 1.7rem 1.85rem 1.5rem;
+  }
+
+  .companion {
+    float: right;
+    width: 10rem;
+    margin: -.8rem -1.35rem .75rem .5rem;
+    transform: translateX(4.25rem);
+  }
+
+  .title {
+    font-size: clamp(3.4rem, 4.6vw, 4.8rem);
+  }
+
+  .voice { margin-top: 1.1rem; }
+  .routes { margin-top: 1.15rem; }
+  .note { margin-top: 1.15rem; padding-top: .85rem; }
+}
+
+@media (min-width: 78rem) {
+  .plate { margin-right: 0; }
+}
+
+@media (min-width: 80rem) {
+  .companion {
+    width: 11.5rem;
+    transform: translateX(5.5rem);
+  }
+}

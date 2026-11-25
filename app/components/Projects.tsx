@@ -18,11 +18,11 @@ function ArchivedProjects({ projects }: { projects: Project[] }) {
       className="pt-2"
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
-      <summary className="retro-button w-full justify-start text-xs list-none">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center border-y border-white/10 py-2 text-sm text-[#aeb5c4] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
         Show {projects.length} archived {projects.length === 1 ? "project" : "projects"}
       </summary>
       {open && (
-        <div className="space-y-4 mt-4">
+        <div className="mt-4">
           {projects.map((project) => (
             <ProjectRow key={project.title} project={project} />
           ))}
@@ -34,61 +34,43 @@ function ArchivedProjects({ projects }: { projects: Project[] }) {
 
 function ProjectRow({ project }: { project: Project }) {
   return (
-    <div className="border-b border-retro-black pb-3 last:border-b-0">
-      <div className="flex gap-3 mb-2">
-        {project.thumbnail && (
-          <div
-            className="w-20 h-20 flex-shrink-0 border-2 border-retro-black overflow-hidden"
-            style={{ boxShadow: "3px 3px 0px #000000" }}
-          >
-            <SafeImage
-              src={project.thumbnail}
-              alt=""
-              width={80}
-              height={80}
-              sizes="80px"
-              fallbackLabel="No image"
-              className="h-full w-full object-cover"
-            />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start mb-1 gap-2">
-            <h3 className="font-bold text-sm">{project.title}</h3>
-            <span
-              className={`text-xs px-2 py-1 flex-shrink-0 ${
-                project.status === "Active"
-                  ? "bg-retro-black text-retro-white"
-                  : "bg-retro-gray text-retro-black border border-retro-black"
-              }`}
-            >
-              {project.status}
-            </span>
-          </div>
-          <p className="retro-text text-xs mb-2">{project.description}</p>
+    <article className={`grid gap-4 border-b border-white/10 py-6 ${project.thumbnail ? "sm:grid-cols-[7.5rem_minmax(0,1fr)]" : ""}`}>
+      {project.thumbnail && (
+        <div className="h-24 w-24 overflow-hidden rounded-lg border border-white/14 bg-[#151923] sm:h-28 sm:w-28">
+          <SafeImage
+            src={project.thumbnail}
+            alt=""
+            width={112}
+            height={112}
+            sizes="(max-width: 639px) 6rem, 7rem"
+            fallbackLabel="No image"
+            className="h-full w-full object-cover"
+          />
         </div>
-      </div>
-      <div className="flex flex-wrap gap-1 mb-2">
-        {project.tech.map((tech) => (
-          <span
-            key={tech}
-            className="text-xs bg-retro-gray px-2 py-1 border border-retro-black"
-          >
-            {tech}
-          </span>
-        ))}
-      </div>
-      {project.link && (
-        <a
-          href={project.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs retro-link inline-flex min-h-11 items-center"
-        >
-          Visit {project.title}
-        </a>
       )}
-    </div>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h3 className="font-display text-xl font-semibold leading-tight text-[#f2f3f6] sm:text-2xl">{project.title}</h3>
+          <span className={`text-xs ${project.status === "Active" ? "text-[#c9b780]" : "text-[#aeb5c4]"}`}>
+            {project.status}
+          </span>
+        </div>
+        <p className="mt-2 max-w-prose text-sm leading-relaxed text-[#aeb5c4]">{project.description}</p>
+        {project.tech.length > 0 && (
+          <p className="mt-2 text-xs text-[#aeb5c4]">{project.tech.join(", ")}</p>
+        )}
+        {project.link && (
+          <a
+            href={project.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-flex min-h-11 items-center text-sm text-[#f2f3f6] underline decoration-white/35 underline-offset-4 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            Visit {project.title}
+          </a>
+        )}
+      </div>
+    </article>
   );
 }
 
@@ -127,44 +109,29 @@ export default function Projects() {
   const { featured, rest } = splitProjects(projects);
 
   return (
-    <section id="projects" className="retro-card">
-      <h2 className="retro-heading">PROJECTS</h2>
-
+    <div>
       {loading && (
-        <div className="space-y-4 py-4" role="status">
-          <p className="retro-text text-xs">Loading projects.</p>
-          {[0, 1].map((i) => (
-            <div key={i} className="animate-pulse space-y-3">
-              <div className="flex gap-3">
-                <div className="w-20 h-20 bg-retro-gray border-2 border-retro-black" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-retro-gray border border-retro-black w-2/3" />
-                  <div className="h-3 bg-retro-gray border border-retro-black w-full" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <p className="py-4 text-sm text-[#aeb5c4]" role="status">Loading projects.</p>
       )}
 
       {error && !loading && (
-        <div className="bg-retro-yellow border-2 border-retro-black p-3 mb-3" role="alert">
-          <p className="text-xs font-mono text-retro-black">{error}</p>
+        <div className="border border-[#d8b9a6]/60 bg-[#241e1b] p-4" role="alert">
+          <p className="text-sm font-mono text-white">{error}</p>
         </div>
       )}
 
       {!loading && !error && featured.length === 0 && rest.length === 0 && (
-        <p className="retro-text text-xs">No projects to show right now.</p>
+        <p className="text-sm text-[#aeb5c4]">No projects to show right now.</p>
       )}
 
       {!loading && !error && (
-        <div className="space-y-4">
+        <div className="divide-y-0">
           {featured.map((project) => (
             <ProjectRow key={project.title} project={project} />
           ))}
           {rest.length > 0 && <ArchivedProjects projects={rest} />}
         </div>
       )}
-    </section>
+    </div>
   );
 }
