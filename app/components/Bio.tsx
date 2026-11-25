@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SafeImage from "./SafeImage";
 import styles from "./home.module.css";
+import { personDescription } from "../lib/site-identity";
 
 const routeLink =
   "inline-flex min-h-11 items-center text-sm font-semibold text-[#f2f3f6] underline decoration-white/35 underline-offset-4 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white";
@@ -40,7 +41,7 @@ export default function Bio() {
           <p className={styles.voice}>
             Enjoyer of many, hater of none(?). Kasane Teto is the redhead who lives here.
           </p>
-          <p className={styles.job}>Developer and Forester.</p>
+          <p className={styles.job}>{personDescription}</p>
           <div className={styles.routes}>
             <Link href="/gallery" className={routeLink}>Photos</Link>
             <Link href="/anilist" className={routeLink}>Anime &amp; manga</Link>

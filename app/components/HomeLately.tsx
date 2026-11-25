@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
 import { fetchHomeNote, fetchHomePhoto, fetchHomeTrack } from "../lib/content";
@@ -45,10 +44,6 @@ async function PlaylistTrack() {
   ) : <p className={styles.quiet}>{track === null ? "Couldn’t load the playlist pick." : "No tracks yet."}</p>;
 }
 
-function Loading({ children }: { children: string }) {
-  return <p className={styles.quiet} role="status">{children}</p>;
-}
-
 export default async function HomeLately() {
   await connection();
 
@@ -60,21 +55,15 @@ export default async function HomeLately() {
       <div className={styles.spread}>
         <div className={styles.note}>
           <h3>From the diary</h3>
-          <Suspense fallback={<Loading>Loading diary note.</Loading>}>
-            <DiaryNote />
-          </Suspense>
+          <DiaryNote />
         </div>
         <div className={styles.gallery}>
           <h3><Link href="/gallery">From the gallery <span aria-hidden="true">↗</span></Link></h3>
-          <Suspense fallback={<div className={styles.photo}><Loading>Loading gallery photo.</Loading></div>}>
-            <GalleryPhoto />
-          </Suspense>
+          <GalleryPhoto />
         </div>
         <div className={styles.music}>
           <h3><Link href="/music">From the playlist <span aria-hidden="true">↗</span></Link></h3>
-          <Suspense fallback={<Loading>Loading playlist pick.</Loading>}>
-            <PlaylistTrack />
-          </Suspense>
+          <PlaylistTrack />
         </div>
       </div>
     </section>

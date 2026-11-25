@@ -1,9 +1,9 @@
-import { Suspense } from "react";
 import Bio from "./components/Bio";
 import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import HomeDrawer from "./components/HomeDrawer";
 import HomeLately from "./components/HomeLately";
+import SelectedWork from "./components/SelectedWork";
 import Updates from "./components/Updates";
 import Webring from "./components/Webring";
 
@@ -17,15 +17,16 @@ export default function Home() {
       <div data-swarm-step>
         <Bio />
       </div>
-      <Suspense fallback={<p className="mt-10 text-sm text-[#aeb5c4]" role="status">Loading Lately.</p>}>
-        <HomeLately />
-      </Suspense>
+      <HomeLately />
       <div className="mt-10 sm:mt-16">
         <HomeDrawer id="updates" title="Diary" preview="Life and site notes">
           <Updates />
         </HomeDrawer>
         <HomeDrawer id="projects" title="Things I've Made" preview="Projects and experiments">
           <Projects />
+        </HomeDrawer>
+        <HomeDrawer id="work" title="Selected Work" preview="Projects I've worked on with others">
+          <SelectedWork />
         </HomeDrawer>
         <HomeDrawer id="contact" title="Bother Me" preview="GitHub, Discord and email">
           <Contact />

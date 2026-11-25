@@ -1,0 +1,24 @@
+# Respire
+
+> Developer and Forester.
+
+[Home](https://respire.my/) · [GitHub (@RimunAce)](https://github.com/RimunAce) · [AniList (Reuzin)](https://anilist.co/user/Reuzin)
+
+## Selected Work
+
+- [AQUAMS](https://respire.my/#aquams): Air Quality Monitoring System in Schools.
+- [Compliance System](https://respire.my/#compliance-system): An internal system for tracking environmental compliance and reviewing reports on development projects.
+
+## Things I've Made
+
+- [DeepSeek Chat Exporter](https://github.com/RimunAce/deepseek-chat-exporter): Browser extension for exporting DeepSeek chats as PDF or JSON.
+- [MEGU](https://github.com/RimunAce/megu): A Windows app for AniList with discovery, offline list sync, airing schedule and playback.
+- [l4d2-vscript-support](https://github.com/RimunAce/l4d2-vscript-support): VS Code language server for Left 4 Dead 2 VScript (Squirrel).
+- [mcp-six-eyes](https://github.com/RimunAce/mcp-six-eyes): MCP server that gives text-only AI agents image understanding via vision APIs.
+- [EXTRASAUCE](https://extrasauce.lol/)
+- [More projects](https://respire.my/#projects)
+
+## Contact
+
+- [Email](mailto:hi@respire.my)
+- Discord: `respire`

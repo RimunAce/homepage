@@ -1,6 +1,3 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import { fetchProjects, type Project } from "@/app/lib/content";
 import SafeImage from "./SafeImage";
 
@@ -11,23 +8,16 @@ function splitProjects(projects: Project[]) {
 }
 
 function ArchivedProjects({ projects }: { projects: Project[] }) {
-  const [open, setOpen] = useState(false);
-
   return (
-    <details
-      className="pt-2"
-      onToggle={(event) => setOpen(event.currentTarget.open)}
-    >
+    <details className="pt-2">
       <summary className="flex min-h-11 cursor-pointer list-none items-center border-y border-white/10 py-2 text-sm text-[#aeb5c4] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
         Show {projects.length} archived {projects.length === 1 ? "project" : "projects"}
       </summary>
-      {open && (
-        <div className="mt-4">
-          {projects.map((project) => (
-            <ProjectRow key={project.title} project={project} />
-          ))}
-        </div>
-      )}
+      <div className="mt-4">
+        {projects.map((project) => (
+          <ProjectRow key={project.title} project={project} />
+        ))}
+      </div>
     </details>
   );
 }
@@ -74,64 +64,29 @@ function ProjectRow({ project }: { project: Project }) {
   );
 }
 
-export default function Projects() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default async function Projects() {
+  const projects = await fetchProjects().catch(() => null);
 
-  useEffect(() => {
-    let cancelled = false;
+  if (!projects) {
+    return (
+      <div className="border border-[#d8b9a6]/60 bg-[#241e1b] p-4" role="alert">
+        <p className="text-sm font-mono text-white">Could not load projects right now. Try again later.</p>
+      </div>
+    );
+  }
 
-    async function loadProjects() {
-      try {
-        const data = await fetchProjects();
-        if (!cancelled) {
-          setProjects(data);
-          setError(null);
-        }
-      } catch {
-        if (!cancelled) {
-          setProjects([]);
-          setError("Could not load projects right now. Try again later.");
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    loadProjects();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  if (projects.length === 0) {
+    return <p className="text-sm text-[#aeb5c4]">No projects to show right now.</p>;
+  }
 
   const { featured, rest } = splitProjects(projects);
 
   return (
-    <div>
-      {loading && (
-        <p className="py-4 text-sm text-[#aeb5c4]" role="status">Loading projects.</p>
-      )}
-
-      {error && !loading && (
-        <div className="border border-[#d8b9a6]/60 bg-[#241e1b] p-4" role="alert">
-          <p className="text-sm font-mono text-white">{error}</p>
-        </div>
-      )}
-
-      {!loading && !error && featured.length === 0 && rest.length === 0 && (
-        <p className="text-sm text-[#aeb5c4]">No projects to show right now.</p>
-      )}
-
-      {!loading && !error && (
-        <div className="divide-y-0">
-          {featured.map((project) => (
-            <ProjectRow key={project.title} project={project} />
-          ))}
-          {rest.length > 0 && <ArchivedProjects projects={rest} />}
-        </div>
-      )}
+    <div className="divide-y-0">
+      {featured.map((project) => (
+        <ProjectRow key={project.title} project={project} />
+      ))}
+      {rest.length > 0 && <ArchivedProjects projects={rest} />}
     </div>
   );
 }

@@ -1,59 +1,21 @@
-"use client";
+import { fetchUpdates } from "@/app/lib/content";
 
-import { useState, useEffect } from "react";
-import { fetchUpdates, type Update } from "@/app/lib/content";
-
-export default function Updates() {
-  const [updates, setUpdates] = useState<Update[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadUpdates() {
-      try {
-        const data = await fetchUpdates();
-        if (!cancelled) {
-          setUpdates(data);
-          setError(null);
-        }
-      } catch {
-        if (!cancelled) {
-          setUpdates([]);
-          setError("Could not load updates right now. Try again later.");
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    loadUpdates();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+export default async function Updates() {
+  const updates = await fetchUpdates().catch(() => null);
 
   return (
     <div>
-      {loading && (
-          <div className="space-y-3 py-2" role="status">
-            <p className="text-sm text-[#aeb5c4]">Loading updates.</p>
-        </div>
-      )}
-
-      {error && !loading && (
+      {!updates && (
         <div className="border border-[#d8b9a6]/60 bg-[#241e1b] p-4" role="alert">
-          <p className="text-sm font-mono text-white">{error}</p>
+          <p className="text-sm font-mono text-white">Could not load updates right now. Try again later.</p>
         </div>
       )}
 
-      {!loading && !error && updates.length === 0 && (
+      {updates?.length === 0 && (
         <p className="text-sm text-[#aeb5c4]">No updates yet.</p>
       )}
 
-      {!loading && updates.length > 0 && (
+      {updates && updates.length > 0 && (
         <div>
           {updates.map((update, index) => (
             <article

@@ -1,0 +1,97 @@
+.spread {
+  display: grid;
+  gap: 1.75rem;
+  padding-block: .75rem .5rem;
+}
+
+.feature,
+.secondary {
+  min-width: 0;
+}
+
+.feature {
+  background: var(--site-slate);
+}
+
+.preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.preview figcaption {
+  padding: .5rem 0 0;
+  color: var(--site-mist);
+  font-size: .75rem;
+}
+
+.feature .preview figcaption {
+  padding-inline: clamp(1rem, 3vw, 1.5rem);
+}
+
+.featureCopy,
+.secondaryCopy {
+  min-width: 0;
+  color: var(--site-mist);
+  font-size: .9375rem;
+  line-height: 1.55;
+}
+
+.featureCopy {
+  padding: .75rem clamp(1rem, 3vw, 1.5rem) clamp(1.15rem, 3vw, 1.75rem);
+}
+
+.secondaryCopy {
+  padding-top: .75rem;
+}
+
+.spread h3 {
+  color: var(--site-frost);
+  font-family: Manrope, "DM Sans", sans-serif;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -.035em;
+}
+
+.feature h3 {
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+}
+
+.secondary h3 {
+  font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+}
+
+.subtitle {
+  color: var(--site-frost);
+  font-weight: 600;
+}
+
+.subtitle + p {
+  max-width: 48ch;
+  margin-top: .65rem;
+}
+
+@media (min-width: 35rem) and (max-width: 55.999rem) {
+  .secondary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1.25rem;
+  }
+
+  .secondaryCopy {
+    padding-top: .25rem;
+  }
+}
+
+@media (min-width: 56rem) {
+  .spread {
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .secondary {
+    margin-top: clamp(1.5rem, 4vw, 3rem);
+  }
+}

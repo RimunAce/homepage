@@ -9,6 +9,7 @@ import NewsTicker from "./components/NewsTicker";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import MotionPreference from "./components/MotionPreference";
 import SiteFooter from "./components/SiteFooter";
+import { personDescription } from "./lib/site-identity";
 
 const description = "Live, Love, Accept. Enjoyer of many, hater of none(?).";
 const siteUrl = "https://respire.my";
@@ -31,6 +32,7 @@ const jsonLd = {
       name: "Respire",
       alternateName: "RimunAce",
       url: siteUrl,
+      description: personDescription,
       email: "hi@respire.my",
       jobTitle: "Developer and Forester",
       sameAs: ["https://github.com/RimunAce", "https://anilist.co/user/Reuzin"],

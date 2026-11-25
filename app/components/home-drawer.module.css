@@ -9,19 +9,29 @@
 }
 
 .toggle {
+  display: block;
+  cursor: pointer;
+  list-style: none;
+  padding: .85rem var(--drawer-gutter);
+  text-align: left;
+  transition: background-color .2s ease;
+}
+
+.toggle::-webkit-details-marker {
+  display: none;
+}
+
+.label {
   display: grid;
   width: 100%;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas: "title indicator" "preview indicator";
   align-items: center;
   gap: .2rem 1rem;
-  padding: .85rem var(--drawer-gutter);
-  text-align: left;
-  transition: background-color .2s ease;
 }
 
 .toggle:hover,
-.drawer[data-open="true"] .toggle {
+.drawer[open] > .toggle {
   background-color: var(--site-slate);
 }
 
@@ -76,32 +86,13 @@
   transition: transform .25s ease;
 }
 
-.drawer[data-open="true"] .indicator {
+.drawer[open] > .toggle .indicator {
   color: var(--site-champagne);
   border-color: currentColor;
 }
 
-.drawer[data-open="true"] .indicator::after {
+.drawer[open] > .toggle .indicator::after {
   transform: rotate(0);
-}
-
-.reveal {
-  display: grid;
-  grid-template-rows: 0fr;
-  visibility: hidden;
-  transition: grid-template-rows .28s ease, visibility 0s linear .28s;
-}
-
-.drawer[data-open="true"] .reveal {
-  grid-template-rows: 1fr;
-  visibility: visible;
-  transition-delay: 0s;
-}
-
-.clip {
-  min-width: 0;
-  min-height: 0;
-  overflow: clip;
 }
 
 .content {
@@ -111,16 +102,18 @@
 
 @media (min-width: 40rem) {
   .toggle {
+    padding-block: 1.1rem;
+  }
+
+  .label {
     grid-template-columns: minmax(0, 1fr) auto auto;
     grid-template-areas: "title preview indicator";
     column-gap: 1.5rem;
-    padding-block: 1.1rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .toggle,
-  .reveal,
   .indicator,
   .indicator::after {
     transition: none;

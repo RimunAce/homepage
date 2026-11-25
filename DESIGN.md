@@ -51,7 +51,9 @@ The opening is one frame, not two columns. Teto's portrait is the large left mas
 
 Lately sits below the hero. A gallery photo spans the desktop spread alongside a dated diary note and a playlist sleeve. On phones the three pieces read in order as a single column. The spread uses real Appwrite content and each piece can load independently.
 
-Three drawers follow: Diary, Things I've Made, and Bother Me. They open independently in the page flow so readers can keep more than one section open. The diary gives dates their own column when space permits, projects keep their thumbnails, and Bother Me stays compact and text-only. The plus changes to a minus while a drawer is open; opening and closing animate unless reduced motion is requested.
+Four drawers follow: Diary, Things I've Made, Selected Work, and Bother Me. They open independently in the page flow so readers can keep more than one section open. The diary gives dates their own column when space permits, personal projects keep their thumbnails, and Bother Me stays compact and text-only. The plus changes to a minus while a drawer is open; opening and closing animate unless reduced motion is requested.
+
+Selected Work is a separate home for professional projects across sectors. Use the screenshots supplied for the homepage rather than illustrations: AQUAMS leads with a larger preview and the compliance system sits alongside it at a smaller scale. Keep summaries high-level and omit repository and deployment links.
 
 ## Webring observatory
 
